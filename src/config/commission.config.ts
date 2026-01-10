@@ -1,0 +1,3 @@
+export const COMMISSION_CONFIG = {
+  PLATFORM_COMMISSION_RATE: 0.15,
+} as const;

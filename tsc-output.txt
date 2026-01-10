@@ -1,0 +1,79 @@
+src/mapper/adminMapper/admin-contract.mapper.ts(12,24): error TS2339: Property 'currency' does not exist on type 'IContract'.
+src/mapper/adminMapper/admin-contract.mapper.ts(68,29): error TS2339: Property 'budgetBaseUSD' does not exist on type 'IContract'.
+src/mapper/adminMapper/admin-contract.mapper.ts(70,33): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'IContract'.
+src/mapper/adminMapper/admin-contract.mapper.ts(71,30): error TS2339: Property 'conversionRate' does not exist on type 'IContract'.
+src/mapper/adminMapper/admin-contract.mapper.ts(73,24): error TS2339: Property 'currency' does not exist on type 'IContract'.
+src/mapper/adminMapper/admin-contract.mapper.ts(79,32): error TS2339: Property 'amountBaseUSD' does not exist on type 'ContractMilestone'.
+src/mapper/adminMapper/admin-job-mapper.ts(17,21): error TS2339: Property 'currency' does not exist on type 'IJobWithCategoryDetail'.
+src/mapper/adminMapper/admin-job-mapper.ts(34,21): error TS2339: Property 'currency' does not exist on type 'IJobDetail'.
+src/mapper/authMapper/auth.mapper.ts(9,3): error TS2344: Type '"firstName" | "lastName" | "email" | "phone" | "password" | "address" | "preferredTimezone" | "preferredCurrency"' does not satisfy the constraint 'keyof IUser'.
+  Type '"preferredCurrency"' is not assignable to type 'keyof IUser'.
+src/mapper/authMapper/auth.mapper.ts(49,17): error TS2339: Property 'preferredCurrency' does not exist on type 'IUser'.
+src/mapper/authMapper/auth.mapper.ts(51,20): error TS2339: Property 'preferredCurrency' does not exist on type 'IUser'.
+src/mapper/clientMapper/client-contract-list.mapper.ts(47,24): error TS2339: Property 'currency' does not exist on type 'IContract'.
+src/mapper/clientMapper/client-contract.mapper.ts(55,29): error TS2339: Property 'budgetBaseUSD' does not exist on type 'IContract'.
+src/mapper/clientMapper/client-contract.mapper.ts(57,33): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'IContract'.
+src/mapper/clientMapper/client-contract.mapper.ts(58,30): error TS2339: Property 'conversionRate' does not exist on type 'IContract'.
+src/mapper/clientMapper/client-contract.mapper.ts(60,24): error TS2339: Property 'currency' does not exist on type 'IContract'.
+src/mapper/clientMapper/client-contract.mapper.ts(66,24): error TS2339: Property 'amountBaseUSD' does not exist on type 'ContractMilestone'.
+src/mapper/clientMapper/client-job.mapper.ts(25,5): error TS2353: Object literal may only specify known properties, and 'currency' does not exist in type 'Partial<JobData>'.
+src/mapper/clientMapper/client-job.mapper.ts(40,5): error TS2353: Object literal may only specify known properties, and 'currency' does not exist in type 'Partial<JobData>'.
+src/mapper/clientMapper/client-job.mapper.ts(60,25): error TS2339: Property 'currency' does not exist on type 'IJobWithCategoryDetail'.
+src/mapper/clientMapper/client-job.mapper.ts(81,21): error TS2339: Property 'currency' does not exist on type 'IJobDetail'.
+src/mapper/clientMapper/client-payment.mapper.ts(9,28): error TS2339: Property 'amountBaseUSD' does not exist on type 'IPayment'.
+src/mapper/clientMapper/client-payment.mapper.ts(10,23): error TS2339: Property 'currency' does not exist on type 'IPayment'.
+src/mapper/clientMapper/client-payment.mapper.ts(11,29): error TS2339: Property 'conversionRate' does not exist on type 'IPayment'.
+src/mapper/contract.mapper.ts(14,5): error TS2353: Object literal may only specify known properties, and 'budgetBaseUSD' does not exist in type 'Partial<IContract>'.
+src/mapper/contract.mapper.ts(14,26): error TS2339: Property 'budgetBaseUSD' does not exist on type 'IOffer'.
+src/mapper/contract.mapper.ts(16,30): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'IOffer'.
+src/mapper/contract.mapper.ts(17,27): error TS2339: Property 'conversionRate' does not exist on type 'IOffer'.
+src/mapper/contract.mapper.ts(19,21): error TS2339: Property 'currency' does not exist on type 'IOffer'.
+src/mapper/contract.mapper.ts(24,32): error TS2339: Property 'amountBaseUSD' does not exist on type 'OfferMilestone'.
+src/mapper/freelancerMapper/freelancer-contract-list.mapper.ts(49,24): error TS2339: Property 'currency' does not exist on type 'IContract'.
+src/mapper/freelancerMapper/freelancer-contract.mapper.ts(26,29): error TS2339: Property 'budgetBaseUSD' does not exist on type 'IContract'.
+src/mapper/freelancerMapper/freelancer-contract.mapper.ts(28,33): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'IContract'.
+src/mapper/freelancerMapper/freelancer-contract.mapper.ts(29,30): error TS2339: Property 'conversionRate' does not exist on type 'IContract'.
+src/mapper/freelancerMapper/freelancer-contract.mapper.ts(31,24): error TS2339: Property 'currency' does not exist on type 'IContract'.
+src/mapper/freelancerMapper/freelancer-contract.mapper.ts(37,32): error TS2339: Property 'amountBaseUSD' does not exist on type 'ContractMilestone'.
+src/mapper/freelancerMapper/freelancer-job.mapper.ts(29,36): error TS2339: Property 'currency' does not exist on type 'IJobDetail'.
+src/mapper/freelancerMapper/freelancer-job.mapper.ts(37,36): error TS2339: Property 'currency' does not exist on type 'IJobDetail'.
+src/mapper/freelancerMapper/freelancer-job.mapper.ts(169,36): error TS2339: Property 'currency' does not exist on type 'IJobResponse'.
+src/mapper/freelancerMapper/freelancer-job.mapper.ts(177,36): error TS2339: Property 'currency' does not exist on type 'IJobResponse'.
+src/mapper/freelancerMapper/freelancer-proposal.mapper.ts(26,5): error TS2353: Object literal may only specify known properties, and 'currency' does not exist in type 'ProposalDetail'.
+src/mapper/freelancerMapper/freelancer-proposal.mapper.ts(49,32): error TS2339: Property 'currency' does not exist on type 'ProposalDetailWithJobDetail'.
+src/mapper/freelancerMapper/freelancer-proposal.mapper.ts(50,37): error TS2339: Property 'amountBaseUSD' does not exist on type 'ProposalDetailWithJobDetail'.
+src/mapper/user.mapper.ts(28,18): error TS2339: Property 'preferredCurrency' does not exist on type 'IUser'.
+src/mapper/user.mapper.ts(30,21): error TS2339: Property 'preferredCurrency' does not exist on type 'IUser'.
+src/services/clientServices/client-contract-service.ts(191,29): error TS2339: Property 'amountBaseUSD' does not exist on type 'Document<unknown, {}, IEscrow, {}, {}> & IEscrow & Required<{ _id: unknown; }> & { __v: number; }'.
+src/services/clientServices/client-contract-service.ts(192,24): error TS2339: Property 'currency' does not exist on type 'Document<unknown, {}, IEscrow, {}, {}> & IEscrow & Required<{ _id: unknown; }> & { __v: number; }'.
+src/services/clientServices/client-contract-service.ts(193,30): error TS2339: Property 'conversionRate' does not exist on type 'Document<unknown, {}, IEscrow, {}, {}> & IEscrow & Required<{ _id: unknown; }> & { __v: number; }'.
+src/services/clientServices/client-job-service.ts(68,35): error TS2339: Property 'currency' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(76,20): error TS2339: Property 'conversionRate' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(77,20): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(82,20): error TS2339: Property 'conversionRate' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(83,20): error TS2339: Property 'fixedRateBaseUSD' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(186,33): error TS2339: Property 'currency' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(192,18): error TS2339: Property 'conversionRate' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(193,18): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(198,18): error TS2339: Property 'conversionRate' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-job-service.ts(199,18): error TS2339: Property 'fixedRateBaseUSD' does not exist on type 'Partial<JobData>'.
+src/services/clientServices/client-offer-service.ts(183,7): error TS2353: Object literal may only specify known properties, and 'conversionRate' does not exist in type 'Partial<IOffer>'.
+src/services/clientServices/client-payment-service.ts(81,7): error TS2353: Object literal may only specify known properties, and 'amountBaseUSD' does not exist in type 'Partial<IPayment>'.
+src/services/clientServices/client-payment-service.ts(240,9): error TS2353: Object literal may only specify known properties, and 'amountBaseUSD' does not exist in type 'Partial<ITransaction>'.
+src/services/clientServices/client-payment-service.ts(240,32): error TS2339: Property 'amountBaseUSD' does not exist on type 'IPayment'.
+src/services/clientServices/client-payment-service.ts(241,27): error TS2339: Property 'currency' does not exist on type 'IPayment'.
+src/services/clientServices/client-payment-service.ts(242,33): error TS2339: Property 'conversionRate' does not exist on type 'IPayment'.
+src/services/clientServices/client-payment-service.ts(253,9): error TS2353: Object literal may only specify known properties, and 'amountBaseUSD' does not exist in type 'Partial<IEscrow>'.
+src/services/clientServices/client-payment-service.ts(253,32): error TS2339: Property 'amountBaseUSD' does not exist on type 'IPayment'.
+src/services/clientServices/client-payment-service.ts(254,27): error TS2339: Property 'currency' does not exist on type 'IPayment'.
+src/services/clientServices/client-payment-service.ts(255,33): error TS2339: Property 'conversionRate' does not exist on type 'IPayment'.
+src/services/clientServices/offerStrategies/direct-offer-strategy.ts(26,7): error TS2353: Object literal may only specify known properties, and 'currency' does not exist in type 'Partial<IOffer>'.
+src/services/clientServices/offerStrategies/proposal-offer-strategy.ts(26,7): error TS2353: Object literal may only specify known properties, and 'currency' does not exist in type 'Partial<IOffer>'.
+src/services/freelancerServices/freelancer-proposal-service.ts(70,37): error TS2339: Property 'currency' does not exist on type 'ProposalDetail'.
+src/services/freelancerServices/freelancer-proposal-service.ts(103,7): error TS2353: Object literal may only specify known properties, and 'conversionRate' does not exist in type 'Partial<ProposalDetail>'.
+src/services/freelancerServices/freelancer-services.ts(227,22): error TS2339: Property 'preferredCurrency' does not exist on type 'Omit<IUser, "freelancerProfile.skills" | "freelancerProfile.workCategory" | "freelancerProfile.specialties"> & { freelancerProfile: { workCategory: { _id: string; name: string; }; specialties: { ...; }[]; skills: { ...; }[]; }; }'.
+src/services/userServices/user-services.ts(95,36): error TS2339: Property 'hourlyRateCurrency' does not exist on type 'IFreelancerProfile'.
+src/services/userServices/user-services.ts(101,11): error TS2339: Property 'preferredCurrency' does not exist on type 'Partial<IUser>'.
+src/services/userServices/user-services.ts(103,30): error TS2339: Property 'hourlyRateCurrency' does not exist on type 'IFreelancerProfile'.
+src/services/userServices/user-services.ts(107,32): error TS2339: Property 'hourlyRateConversionRate' does not exist on type 'IFreelancerProfile'.
+src/services/userServices/user-services.ts(108,32): error TS2339: Property 'hourlyRateBaseUSD' does not exist on type 'IFreelancerProfile'.

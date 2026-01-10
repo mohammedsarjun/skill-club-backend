@@ -1,0 +1,11 @@
+import { Request, Response } from 'express';
+
+export interface IFreelancerContractController {
+  getContracts(req: Request, res: Response): Promise<void>;
+  getContractDetail(req: Request, res: Response): Promise<void>;
+  submitDeliverable(req: Request, res: Response): Promise<void>;
+  submitMilestoneDeliverable(req: Request, res: Response): Promise<void>;
+  requestMilestoneExtension(req: Request, res: Response): Promise<void>;
+  requestContractExtension(req: Request, res: Response): Promise<void>;
+  cancelContract(req: Request, res: Response): Promise<void>;
+}
