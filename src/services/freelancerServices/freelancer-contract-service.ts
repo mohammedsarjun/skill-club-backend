@@ -117,7 +117,6 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
 
-    console.log(data);
 
     if (!data.files || data.files.length === 0) {
       throw new AppError('At least one file is required', HttpStatus.BAD_REQUEST);
@@ -150,6 +149,17 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.files,
       data.message,
     );
+
+    const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+
+    await this._contractTransactionRepository.createTransaction({
+      contractId: new Types.ObjectId(contractId),
+      amount: fundedAmount,
+      purpose: 'hold',
+      description: 'The deliverables have been submitted by the freelancer, so the funds are now on hold.',
+      clientId: contract.clientId,  
+      freelancerId: contract.freelancerId,
+    });
 
     if (
       !updatedContract ||
@@ -509,5 +519,44 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     return { cancelled: false, requiresDispute: true };
+  }
+
+  async approveChangeRequest(freelancerId: string, contractId: string, deliverableId: string): Promise<DeliverableResponseDTO> {
+    if (!Types.ObjectId.isValid(freelancerId)) {
+      throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
+    }
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+    if (!Types.ObjectId.isValid(deliverableId)) {
+      throw new AppError('Invalid deliverableId', HttpStatus.BAD_REQUEST);
+    }
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract) {
+      throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
+    }
+    if (contract.freelancerId.toString() !== freelancerId) {
+      throw new AppError(
+        'You are not authorized to approve change requests for this contract',
+        HttpStatus.FORBIDDEN,
+      );
+    }
+    const deliverable = contract.deliverables?.find((d) => d._id?.toString() === deliverableId);
+    if (!deliverable) {
+      throw new AppError('Deliverable not found', HttpStatus.NOT_FOUND);
+    }
+    if (deliverable.status !== 'changes_requested') {
+      throw new AppError('No change request to approve for this deliverable', HttpStatus.BAD_REQUEST);
+    }
+    const updatedContract = await this._contractRepository.approveDeliverableChangeRequest(
+      contractId,
+      deliverableId,
+    );
+
+    return FreelancerDeliverableMapper.toDeliverableResponseDTO(
+      updatedContract!.deliverables!.find((d) => d._id?.toString() === deliverableId)!,
+      updatedContract!,
+    );
+
   }
 }

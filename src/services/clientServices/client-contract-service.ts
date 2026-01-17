@@ -46,6 +46,7 @@ import { DownloadDeliverableDTO } from '../../dto/clientDTO/client-deliverable.d
 import { FileDownloadInput } from '../../dto/files-download.dto';
 import archiver from 'archiver';
 import { DeliverableChangeStrategyFactory } from './factories/deliverableFactories/DeliverableChangeStrategyFactory';
+import { ContractCancellationStrategyFactory } from './factories/cancellationFactories/ContractCancellationStrategyFactory';
 import { IContractTransaction } from 'src/models/interfaces/contract-transaction.model.interface';
 
 @injectable()
@@ -58,16 +59,21 @@ export class ClientContractService implements IClientContractService {
   private _meetingRepository: IMeetingRepository;
   private _fileDownloadService: IFileDownloadService;
   private _deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory;
+  private _cancellationStrategyFactory: ContractCancellationStrategyFactory;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
     @inject('IClientWalletRepository') clientWalletRepository: IClientWalletRepository,
     @inject('IFreelancerWalletRepository') freelancerWalletRepository: IFreelancerWalletRepository,
     @inject('IUserRepository') userRepository: IUserRepository,
     @inject('IMeetingRepository') meetingRepository: IMeetingRepository,
     @inject('IFileDownloadService') fileDownloadService: IFileDownloadService,
-    @inject('DeliverableChangeStrategyFactory') deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory,
+    @inject('DeliverableChangeStrategyFactory')
+    deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory,
+    @inject('ContractCancellationStrategyFactory')
+    cancellationStrategyFactory: ContractCancellationStrategyFactory,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -77,6 +83,7 @@ export class ClientContractService implements IClientContractService {
     this._meetingRepository = meetingRepository;
     this._fileDownloadService = fileDownloadService;
     this._deliverableChangeStrategyFactory = deliverableChangeStrategyFactory;
+    this._cancellationStrategyFactory = cancellationStrategyFactory;
   }
 
   async getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO> {
@@ -102,24 +109,24 @@ export class ClientContractService implements IClientContractService {
     if (dto.deliverables && dto.deliverables.length > 0) {
       const checks = await Promise.all(
         dto.deliverables.map((_d) =>
-          this._meetingRepository.isMeetingAlreadyProposed(
-            contract._id?.toString() || '',
-          ),
+          this._meetingRepository.isMeetingAlreadyProposed(contract._id?.toString() || ''),
         ),
       );
 
-
-      
-
-      dto.deliverables = dto.deliverables.map((d, i) => ({ ...d, isMeetingProposalSent: !!checks[i] }));
+      dto.deliverables = dto.deliverables.map((d, i) => ({
+        ...d,
+        isMeetingProposalSent: !!checks[i],
+      }));
     }
-
-    console.log(dto.deliverables)
 
     return dto;
   }
 
-  async cancelContract(clientId: string, contractId: string): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
+  async cancelContract(
+    clientId: string,
+    contractId: string,
+    cancelContractReason: string,
+  ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
@@ -128,51 +135,101 @@ export class ClientContractService implements IClientContractService {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
 
-    const existing = await this._contractRepository.findContractDetailByIdForClient(
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
       contractId,
       clientId,
     );
-    if (!existing) {
+
+    if (!contract) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    if (existing.status === 'cancelled') {
+    if (contract.status === 'cancelled') {
       throw new AppError(ERROR_MESSAGES.CONTRACT.ALREADY_CANCELLED, HttpStatus.BAD_REQUEST);
     }
 
-    if (existing.status === 'refunded') {
+    if (contract.status === 'refunded') {
       throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_IN_PROGRESS, HttpStatus.BAD_REQUEST);
     }
 
-    if (existing.status === 'pending_funding') {
-      await this._contractRepository.updateStatusById(contractId, 'cancelled');
+    if (contract.status === 'pending_funding') {
+      await this._contractRepository.cancelContractByUser(contractId, 'client',cancelContractReason);
       return { cancelled: true, requiresDispute: false };
     }
 
-    const hasAnyDeliverables = await this._contractRepository.hasAnyDeliverables(contractId);
+    // Segregate cancellation logic by payment type
+    const paymentType = contract.paymentType;
 
-    if (!hasAnyDeliverables) {
-      const contract=await this._contractRepository.updateStatusById(contractId, 'cancelled');
-      //write a refund logic here
-      const totalFunded=await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+    switch (paymentType) {
+      case 'fixed':
+        return await this.cancelFixedContract(contract, contractId, cancelContractReason);
 
-     
-    const refundTransaction: Partial<IContractTransaction> = {
-      contractId: new Types.ObjectId(contractId),
-      amount: totalFunded,
-      purpose: 'refund',
-      description: 'Full refund for cancelled fixed-price contract',
-      clientId: contract?.clientId,
-      freelancerId: contract?.freelancerId,
+      case 'fixed_with_milestones':
+        return await this.cancelFixedWithMilestonesContract(contract, contractId, cancelContractReason);
 
-    };
+      case 'hourly':
+        return await this.cancelHourlyContract(contract, contractId, cancelContractReason);
+
+      default:
+        throw new AppError('Invalid contract type', HttpStatus.BAD_REQUEST);
+    }
+  }
+
+  private async cancelFixedContract(
+    contract: IContract,
+    contractId: string,
+    cancelContractReason: string,
+  ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
+    const paymentType = contract.paymentType || '';
+    const strategy = this._cancellationStrategyFactory.getStrategy(paymentType);
+
+    const totalFunded =
+      await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+
+    const cancellationResult = strategy.processCancellation(contract, totalFunded);
+
+    await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
+    if (contract?.isFunded) {
+      const refundTransaction: Partial<IContractTransaction> = {
+        contractId: new Types.ObjectId(contractId),
+        amount: cancellationResult.refundAmount,
+        purpose: 'refund',
+        description: 'Full refund for cancelled contract',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      };
 
       await this._contractTransactionRepository.createTransaction(refundTransaction);
 
       return { cancelled: true, requiresDispute: false };
     }
 
-    return { cancelled: false, requiresDispute: true };
+    return { cancelled: true, requiresDispute: false };
+  }
+
+  private async cancelFixedWithMilestonesContract(
+    _contract: IContract,
+    _contractId: string,
+    _cancelContractReason: string,
+  ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
+    // TODO: Implement milestone-specific cancellation logic
+    // Handle partial milestone completions, refund logic, etc.
+
+    const isClientFundedForAtLeastOneMilestone =
+
+
+    throw new AppError('Milestone contract cancellation not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+  }
+
+  private async cancelHourlyContract(
+    _contract: IContract,
+    _contractId: string,
+    _cancelContractReason: string,
+  ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
+    // TODO: Implement hourly-specific cancellation logic
+    // Handle work logs, hourly billing, etc.
+
+    throw new AppError('Hourly contract cancellation not yet implemented', HttpStatus.NOT_IMPLEMENTED);
   }
 
   async getAllContracts(
@@ -206,12 +263,18 @@ export class ClientContractService implements IClientContractService {
     };
   }
 
-  private async approveDeliverableInternal(contract: IContract, deliverable: ContractDeliverable, message: string): Promise<DeliverableResponseDTO> {
-
+  private async approveDeliverableInternal(
+    contract: IContract,
+    deliverable: ContractDeliverable,
+    message: string,
+  ): Promise<DeliverableResponseDTO> {
     // Find the held contract transaction for this contract
-    const heldTransactions = await this._contractTransactionRepository.findByContractId(contract._id?.toString() || '');
-    const fundingTransaction = heldTransactions.find(t => t.purpose === 'funding');
-    if (!fundingTransaction) throw new AppError('No funding transaction found', HttpStatus.BAD_REQUEST);
+    const heldTransactions = await this._contractTransactionRepository.findByContractId(
+      contract._id?.toString() || '',
+    );
+    const fundingTransaction = heldTransactions.find((t) => t.purpose === 'funding');
+    if (!fundingTransaction)
+      throw new AppError('No funding transaction found', HttpStatus.BAD_REQUEST);
 
     const paymentAmount = fundingTransaction.amount;
     const commission = Math.round(paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE); // 15% commission
@@ -240,10 +303,7 @@ export class ClientContractService implements IClientContractService {
     });
 
     // Update client wallet - deduct the funded amount
-    await this._clientWalletRepository.updateBalance(
-      contract.clientId.toString(),
-      -paymentAmount,
-    );
+    await this._clientWalletRepository.updateBalance(contract.clientId.toString(), -paymentAmount);
 
     // Update or create freelancer wallet
     const existingFreelancerWallet = await this._freelancerWalletRepository.findByFreelancerId(
@@ -264,9 +324,7 @@ export class ClientContractService implements IClientContractService {
         commission,
       );
     } else {
-      await this._freelancerWalletRepository.createWallet(
-        contract.freelancerId.toString(),
-      );
+      await this._freelancerWalletRepository.createWallet(contract.freelancerId.toString());
       await this._freelancerWalletRepository.updateBalance(
         contract.freelancerId.toString(),
         freelancerAmount,
@@ -282,27 +340,48 @@ export class ClientContractService implements IClientContractService {
     }
 
     // Update freelancer's user wallet balance (for display in their account)
-    const freelancer = await this._userRepository.updateWalletBalance(contract.freelancerId.toString(), freelancerAmount);
+    const freelancer = await this._userRepository.updateWalletBalance(
+      contract.freelancerId.toString(),
+      freelancerAmount,
+    );
     if (!freelancer) throw new AppError('Freelancer not found', HttpStatus.NOT_FOUND);
 
-    const updatedContract = await this._contractRepository.approveDeliverable(contract._id?.toString() || '', deliverable._id?.toString() || '', message);
-    if (!updatedContract) throw new AppError('Failed to approve deliverable', HttpStatus.INTERNAL_SERVER_ERROR);
-
+    const updatedContract = await this._contractRepository.approveDeliverable(
+      contract._id?.toString() || '',
+      deliverable._id?.toString() || '',
+      message,
+    );
+    if (!updatedContract)
+      throw new AppError('Failed to approve deliverable', HttpStatus.INTERNAL_SERVER_ERROR);
 
     const newTotalPaid = (updatedContract.totalPaid || 0) + paymentAmount;
     const newBalance = (updatedContract.fundedAmount || 0) - newTotalPaid;
-    const finalContract = await this._contractRepository.updateContractPayment(contract._id?.toString() || '', newTotalPaid, newBalance);
+    const finalContract = await this._contractRepository.updateContractPayment(
+      contract._id?.toString() || '',
+      newTotalPaid,
+      newBalance,
+    );
 
-
-    if ((contract.paymentType === 'fixed' || contract.paymentType === 'fixed_with_milestones')) {
-      const remainingFundingTransactions = await this._contractTransactionRepository.findByContractId(contract._id?.toString() || '');
-      const hasRemainingFunding = remainingFundingTransactions.some(t => t.purpose === 'funding' && t.transactionId !== fundingTransaction.transactionId);
-      if (!hasRemainingFunding) await this._contractRepository.markContractAsCompleted(contract._id?.toString() || '');
+    if (contract.paymentType === 'fixed' || contract.paymentType === 'fixed_with_milestones') {
+      const remainingFundingTransactions =
+        await this._contractTransactionRepository.findByContractId(contract._id?.toString() || '');
+      const hasRemainingFunding = remainingFundingTransactions.some(
+        (t) => t.purpose === 'funding' && t.transactionId !== fundingTransaction.transactionId,
+      );
+      if (!hasRemainingFunding)
+        await this._contractRepository.markContractAsCompleted(contract._id?.toString() || '');
     }
 
-    if (!finalContract) throw new AppError('Failed to update contract', HttpStatus.INTERNAL_SERVER_ERROR);
-    const approvedDeliverable = finalContract.deliverables?.find(d => d._id?.toString() === deliverable._id?.toString());
-    if (!approvedDeliverable) throw new AppError('Failed to retrieve approved deliverable', HttpStatus.INTERNAL_SERVER_ERROR);
+    if (!finalContract)
+      throw new AppError('Failed to update contract', HttpStatus.INTERNAL_SERVER_ERROR);
+    const approvedDeliverable = finalContract.deliverables?.find(
+      (d) => d._id?.toString() === deliverable._id?.toString(),
+    );
+    if (!approvedDeliverable)
+      throw new AppError(
+        'Failed to retrieve approved deliverable',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
 
     return {
       id: approvedDeliverable._id?.toString() || '',
@@ -317,36 +396,57 @@ export class ClientContractService implements IClientContractService {
     };
   }
 
-
-  async approveDeliverable(clientId: string, contractId: string, data: ApproveDeliverableDTO): Promise<DeliverableResponseDTO> {
-    if (!Types.ObjectId.isValid(clientId)) throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
-    if (!Types.ObjectId.isValid(contractId)) throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
-    if (!Types.ObjectId.isValid(data.deliverableId)) throw new AppError('Invalid deliverableId', HttpStatus.BAD_REQUEST);
+  async approveDeliverable(
+    clientId: string,
+    contractId: string,
+    data: ApproveDeliverableDTO,
+  ): Promise<DeliverableResponseDTO> {
+    if (!Types.ObjectId.isValid(clientId))
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    if (!Types.ObjectId.isValid(contractId))
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    if (!Types.ObjectId.isValid(data.deliverableId))
+      throw new AppError('Invalid deliverableId', HttpStatus.BAD_REQUEST);
 
     const contract = await this._contractRepository.findById(contractId);
     if (!contract) throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
-    if (contract.clientId.toString() !== clientId) throw new AppError('Unauthorized', HttpStatus.FORBIDDEN);
-    if (contract.status !== 'active') throw new AppError('Contract must be active', HttpStatus.BAD_REQUEST);
+    if (contract.clientId.toString() !== clientId)
+      throw new AppError('Unauthorized', HttpStatus.FORBIDDEN);
+    if (contract.status !== 'active')
+      throw new AppError('Contract must be active', HttpStatus.BAD_REQUEST);
 
-    const deliverable = contract.deliverables?.find((d) => d._id?.toString() === data.deliverableId);
+    const deliverable = contract.deliverables?.find(
+      (d) => d._id?.toString() === data.deliverableId,
+    );
     if (!deliverable) throw new AppError('Deliverable not found', HttpStatus.NOT_FOUND);
-    if (deliverable.status === 'approved') throw new AppError('Deliverable already approved', HttpStatus.BAD_REQUEST);
+    if (deliverable.status === 'approved')
+      throw new AppError('Deliverable already approved', HttpStatus.BAD_REQUEST);
 
-    return this.approveDeliverableInternal(contract, deliverable, data.message || 'Approved by client');
+    return this.approveDeliverableInternal(
+      contract,
+      deliverable,
+      data.message || 'Approved by client',
+    );
   }
-
 
   async autoApprovePendingDeliverables(): Promise<void> {
     const threeDaysAgo = new Date(Date.now() - 3 * 24 * 60 * 60 * 1000);
-    const contracts = await this._contractRepository.findContractsWithPendingDeliverables(threeDaysAgo);
+    const contracts =
+      await this._contractRepository.findContractsWithPendingDeliverables(threeDaysAgo);
 
     for (const contract of contracts) {
-      const pendingDeliverables = contract.deliverables?.filter((d: any) => d.status === 'submitted' && new Date(d.submittedAt) <= threeDaysAgo) || [];
+      const pendingDeliverables =
+        contract.deliverables?.filter(
+          (d: any) => d.status === 'submitted' && new Date(d.submittedAt) <= threeDaysAgo,
+        ) || [];
       for (const deliverable of pendingDeliverables) {
         try {
           await this.approveDeliverableInternal(contract, deliverable, 'Auto-approved by system');
         } catch (error) {
-          console.error(`Failed to auto-approve deliverable ${deliverable._id?.toString()} for contract ${contract._id?.toString()}:`, error);
+          console.error(
+            `Failed to auto-approve deliverable ${deliverable._id?.toString()} for contract ${contract._id?.toString()}:`,
+            error,
+          );
         }
       }
     }
@@ -386,7 +486,6 @@ export class ClientContractService implements IClientContractService {
       );
     }
 
-
     if (contract.status !== 'active') {
       throw new AppError('Contract must be active to request changes', HttpStatus.BAD_REQUEST);
     }
@@ -412,10 +511,7 @@ export class ClientContractService implements IClientContractService {
 
     // enforce revision limits using strategy
 
-  
-
     const strategy = this._deliverableChangeStrategyFactory.getStrategy(contract.paymentType || '');
-
 
     const allowedRevisions = strategy.getAllowedRevisions(contract, deliverable) || 0;
 
@@ -505,13 +601,10 @@ export class ClientContractService implements IClientContractService {
       throw new AppError('Deliverable already approved', HttpStatus.BAD_REQUEST);
     }
 
-
-
-
     // Find the held contract transaction for this milestone
     const heldTransactions = await this._contractTransactionRepository.findByContractId(contractId);
     const fundingTransaction = heldTransactions.find(
-      t => t.purpose === 'funding' && t.milestoneId?.toString() === data.milestoneId
+      (t) => t.purpose === 'funding' && t.milestoneId?.toString() === data.milestoneId,
     );
 
     if (!fundingTransaction) {
@@ -547,10 +640,7 @@ export class ClientContractService implements IClientContractService {
     });
 
     // Update client wallet - deduct the funded amount
-    await this._clientWalletRepository.updateBalance(
-      contract.clientId.toString(),
-      -paymentAmount,
-    );
+    await this._clientWalletRepository.updateBalance(contract.clientId.toString(), -paymentAmount);
 
     // Update or create freelancer wallet
     const existingFreelancerWallet = await this._freelancerWalletRepository.findByFreelancerId(
@@ -571,9 +661,7 @@ export class ClientContractService implements IClientContractService {
         commission,
       );
     } else {
-      await this._freelancerWalletRepository.createWallet(
-        contract.freelancerId.toString(),
-      );
+      await this._freelancerWalletRepository.createWallet(contract.freelancerId.toString());
       await this._freelancerWalletRepository.updateBalance(
         contract.freelancerId.toString(),
         freelancerAmount,
@@ -617,14 +705,13 @@ export class ClientContractService implements IClientContractService {
     );
 
     if (!finalContract) {
-      throw new AppError('Failed to update contract payment info', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        'Failed to update contract payment info',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
-    await this._contractRepository.updateMilestoneStatus(
-      contractId,
-      data.milestoneId,
-      'paid',
-    );
+    await this._contractRepository.updateMilestoneStatus(contractId, data.milestoneId, 'paid');
 
     await this._contractRepository.addTimelineEntry(
       contractId,
@@ -635,7 +722,6 @@ export class ClientContractService implements IClientContractService {
     );
 
     if (contract.paymentType === 'fixed_with_milestones') {
-
       const isAllMilestonesPaid = await this._contractRepository.isAllMilestonesPaid(contractId);
 
       if (isAllMilestonesPaid) {
@@ -702,10 +788,7 @@ export class ClientContractService implements IClientContractService {
     }
 
     if (contract.status !== 'active') {
-      throw new AppError(
-        'Contract must be active to request changes',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new AppError('Contract must be active to request changes', HttpStatus.BAD_REQUEST);
     }
 
     const milestone = contract.milestones?.find((m) => m._id?.toString() === data.milestoneId);
@@ -816,7 +899,10 @@ export class ClientContractService implements IClientContractService {
     );
 
     if (!updatedContract) {
-      throw new AppError('Failed to respond to extension request', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        'Failed to respond to extension request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const action = data.approved ? 'milestone_extension_approved' : 'milestone_extension_rejected';
@@ -833,17 +919,11 @@ export class ClientContractService implements IClientContractService {
     );
 
     if (!updatedMilestone?.extensionRequest) {
-      throw new AppError(
-        'Failed to retrieve extension response',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new AppError('Failed to retrieve extension response', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    return ClientMilestoneMapper.toMilestoneExtensionResponseDTO(
-      updatedMilestone.extensionRequest,
-    );
+    return ClientMilestoneMapper.toMilestoneExtensionResponseDTO(updatedMilestone.extensionRequest);
   }
-
 
   async getMilestoneDetail(
     clientId: string,
@@ -859,7 +939,7 @@ export class ClientContractService implements IClientContractService {
     }
     if (!Types.ObjectId.isValid(milestoneId)) {
       throw new AppError('Invalid milestoneId', HttpStatus.BAD_REQUEST);
-    } 
+    }
 
     const contract = await this._contractRepository.findById(contractId);
 
@@ -868,10 +948,7 @@ export class ClientContractService implements IClientContractService {
     }
 
     if (contract.clientId.toString() !== clientId) {
-      throw new AppError(
-        ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS,
-        HttpStatus.FORBIDDEN,
-      );
+      throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
     }
     const milestone = contract.milestones?.find((m) => m._id?.toString() === milestoneId);
 
@@ -919,7 +996,10 @@ export class ClientContractService implements IClientContractService {
     );
 
     if (!updatedContract) {
-      throw new AppError('Failed to respond to extension request', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        'Failed to respond to extension request',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const action = data.approved ? 'contract_extension_approved' : 'contract_extension_rejected';
@@ -932,10 +1012,7 @@ export class ClientContractService implements IClientContractService {
     );
 
     if (!updatedContract.extensionRequest) {
-      throw new AppError(
-        'Failed to retrieve extension response',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      throw new AppError('Failed to retrieve extension response', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     return ClientContractExtensionMapper.toContractExtensionResponseDTO(
@@ -1008,7 +1085,7 @@ export class ClientContractService implements IClientContractService {
 
     if (!contract) {
       throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
-    } 
+    }
     if (contract.clientId.toString() !== clientId) {
       throw new AppError(
         'You are not authorized to download deliverables for this contract',
@@ -1038,12 +1115,13 @@ export class ClientContractService implements IClientContractService {
       originalName: file.fileName,
     }));
 
-
-
     return this._fileDownloadService.getDeliverablesZip(files);
   }
 
-  async activateHourlyContract(clientId: string, contractId: string): Promise<{ activated: boolean }> {
+  async activateHourlyContract(
+    clientId: string,
+    contractId: string,
+  ): Promise<{ activated: boolean }> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }

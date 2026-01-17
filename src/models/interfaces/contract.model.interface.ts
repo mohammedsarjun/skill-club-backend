@@ -36,6 +36,7 @@ export interface ContractMilestone {
   submittedAt?: Date;
   approvedAt?: Date;
   revisionsAllowed?: number;
+    isFunded: boolean;
   deliverables?: MilestoneDeliverable[];
   extensionRequest?: MilestoneExtensionRequest;
 }
@@ -165,7 +166,11 @@ export interface IContract extends Document {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-
+  cancelledBy?: 'client' | 'freelancer';
+  cancelledAt?: Date;
+  cancellingReason?:string
+  isFunded?: boolean;
+  
   createdAt?: Date;
   updatedAt?: Date;
 }

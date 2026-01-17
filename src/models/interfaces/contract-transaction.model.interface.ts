@@ -1,6 +1,6 @@
 import { Document, Types } from 'mongoose';
 
-export type ContractTransactionPurpose = 'funding' | 'release' | 'commission' | 'refund';
+export type ContractTransactionPurpose = 'funding' | 'release' | 'commission' | 'refund'|'hold';
 
 export interface IContractTransaction extends Document {
   transactionId: string;

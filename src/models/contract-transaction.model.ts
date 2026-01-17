@@ -14,7 +14,7 @@ const ContractTransactionSchema = new Schema<IContractTransaction>(
     amount: { type: Number, required: true },
     purpose: {
       type: String,
-      enum: ['funding', 'release', 'commission', 'refund'],
+      enum: ['funding', 'release', 'commission', 'refund','hold'],
       required: true,
     },
     description: { type: String, required: true },

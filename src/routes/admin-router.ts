@@ -14,6 +14,7 @@ import { AdminJobController } from '../controllers/admin/admin-jobs-controller';
 import { AdminContractController } from '../controllers/admin/admin-contract-controller';
 import { AdminReviewController } from '../controllers/admin/admin-review-controller';
 import { AdminDashboardController } from '../controllers/admin/admin-dashboard-controller';
+import { AdminDisputeController } from '../controllers/admin/admin-dispute-controller';
 
 const adminRouter = express.Router();
 
@@ -23,6 +24,7 @@ const adminJobController = container.resolve(AdminJobController);
 const adminContractController = container.resolve(AdminContractController);
 const adminReviewController = container.resolve(AdminReviewController);
 const adminDashboardController = container.resolve(AdminDashboardController);
+const adminDisputeController = container.resolve(AdminDisputeController);
 //auth
 adminRouter.post('/login', adminAuthController.login.bind(adminAuthController));
 adminRouter.get(
@@ -213,6 +215,13 @@ adminRouter.get(
   authMiddleware,
   roleGuard('admin'),
   adminDashboardController.getRecentReviews.bind(adminDashboardController),
+);
+
+adminRouter.get(
+  '/disputes',
+  authMiddleware,
+  roleGuard('admin'),
+  adminDisputeController.getDisputes.bind(adminDisputeController),
 );
 
 export default adminRouter;

@@ -84,6 +84,7 @@ export interface ClientContractDetailDTO {
     revisionsAllowed?: number;
       revisionsLeft?: number;
       isMeetingProposalSent?: boolean;
+      isFunded?: boolean;
   }[];
 
   title: string;
@@ -123,7 +124,9 @@ export interface ClientContractDetailDTO {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-
+  isFunded?: boolean;
+  cancelledBy?: 'client' | 'freelancer';
+  hasActiveCancellationDisputeWindow?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

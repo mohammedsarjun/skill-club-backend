@@ -45,4 +45,10 @@ export interface IFreelancerContractService {
     data: RequestContractExtensionDTO,
   ): Promise<ContractExtensionResponseDTO>;
   cancelContract(freelancerId: string, contractId: string): Promise<{ cancelled: boolean; requiresDispute: boolean }>;
+  approveChangeRequest(
+    freelancerId: string,
+    contractId: string,
+    deliverableId: string,
+  ): Promise<DeliverableResponseDTO>;
+  
 }

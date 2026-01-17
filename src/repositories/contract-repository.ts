@@ -55,6 +55,15 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return await this.updateById(contractId, { status }, session);
   }
 
+  async cancelContractByUser(
+    contractId: string,
+    cancelledBy: 'client' | 'freelancer',
+    cancelContractReason: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
+    return await this.updateById(contractId, { status: 'cancelled', cancelledBy, cancellingReason:cancelContractReason, cancelledAt: new Date() }, session);
+  }
+
   async findAllForClient(
     clientId: string,
     query: ClientContractQueryParamsDTO,
@@ -638,4 +647,47 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       status: { $in: statusArray },
     });
   }
+
+  async approveDeliverableChangeRequest(
+    contractId: string,
+    deliverableId: string,
+  ): Promise<IContract | null> {
+    return (await this.model
+      .findByIdAndUpdate(
+        contractId,
+        {
+          $set: {
+            'deliverables.$[elem].status': 'change_request_approved',
+          },
+        },
+        {
+          new: true,
+          arrayFilters: [{ 'elem._id': deliverableId }],
+        },
+
+      )
+    ) as IContract | null;
+  }
+
+  updateMilestoneFundedAmount(
+    contractId: string,
+    milestoneId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[milestone].isFunded': true } },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+
+    if (session) {
+      query.session(session);
+    }
+
+    return (await query.exec()) as IContract | null;
+  }
+
 }

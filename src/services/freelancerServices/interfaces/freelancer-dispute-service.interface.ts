@@ -4,6 +4,7 @@ export interface IFreelancerDisputeService {
   createDispute(freelancerId: string, data: CreateDisputeRequestDTO): Promise<DisputeResponseDTO>;
   getDisputeById(freelancerId: string, disputeId: string): Promise<DisputeResponseDTO>;
   getDisputesByContract(freelancerId: string, contractId: string): Promise<DisputeResponseDTO[]>;
+  raiseDisputeForCancelledContract(freelancerId: string, contractId: string, notes: string): Promise<DisputeResponseDTO>;
   cancelContractWithDispute(
     freelancerId: string,
     contractId: string,

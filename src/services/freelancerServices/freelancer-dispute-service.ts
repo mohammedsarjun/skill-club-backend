@@ -113,6 +113,57 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
     return disputes.map(mapDisputeToResponseDTO);
   }
 
+  async raiseDisputeForCancelledContract(
+    freelancerId: string,
+    contractId: string,
+    notes: string,
+  ): Promise<DisputeResponseDTO> {
+    if (!Types.ObjectId.isValid(freelancerId)) {
+      throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.status !== 'cancelled') {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.CANNOT_RAISE_DISPUTE, HttpStatus.BAD_REQUEST);
+    }
+
+    if (contract.cancelledBy !== 'client') {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.CANNOT_RAISE_DISPUTE, HttpStatus.BAD_REQUEST);
+    }
+
+    const existingDispute = await this._disputeRepository.findActiveDisputeByContract(contractId);
+    if (existingDispute) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_EXISTS, HttpStatus.CONFLICT);
+    }
+
+    const dispute = await this._disputeRepository.createDispute({
+      contractId: new Types.ObjectId(contractId),
+      raisedBy: 'freelancer',
+      scope: 'contract',
+      scopeId: null,
+      contractType: contract.paymentType,
+      reasonCode: DISPUTE_REASONS.CLIENT_UNFAIR_CANCELLATION,
+      description: notes,
+      status: 'open',
+    });
+
+    await this._contractRepository.updateStatusById(contractId, 'disputed');
+
+    return mapDisputeToResponseDTO(dispute);
+  }
+
   async cancelContractWithDispute(
     freelancerId: string,
     contractId: string,

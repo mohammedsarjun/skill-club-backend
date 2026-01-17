@@ -63,8 +63,9 @@ export class ClientContractController implements IClientContractController {
   async cancelContract(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const { contractId } = req.params;
+    const { cancelContractReason } = req.body;
 
-    const result = await this._clientContractService.cancelContract(clientId, contractId);
+    const result = await this._clientContractService.cancelContract(clientId, contractId, cancelContractReason);
 
     res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
   }

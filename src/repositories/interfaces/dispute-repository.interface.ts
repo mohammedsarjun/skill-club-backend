@@ -1,4 +1,5 @@
 import { IDispute } from '../../models/interfaces/dispute.model.interface';
+import { AdminDisputeQueryParamsDTO } from '../../dto/adminDTO/admin-dispute.dto';
 
 export interface IDisputeRepository {
   createDispute(data: Partial<IDispute>): Promise<IDispute>;
@@ -18,4 +19,6 @@ export interface IDisputeRepository {
       decidedBy: 'admin' | 'system';
     },
   ): Promise<IDispute | null>;
+  findAllForAdmin(query: AdminDisputeQueryParamsDTO): Promise<IDispute[]>;
+  countForAdmin(query: AdminDisputeQueryParamsDTO): Promise<number>;
 }

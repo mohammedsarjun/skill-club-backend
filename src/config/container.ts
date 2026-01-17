@@ -246,6 +246,13 @@ container.register<IAdminContractService>('IAdminContractService', {
   useClass: AdminContractService,
 });
 
+import { IAdminDisputeService } from '../services/adminServices/interfaces/admin-dispute-service.interface';
+import { AdminDisputeService } from '../services/adminServices/admin-dispute-service';
+
+container.register<IAdminDisputeService>('IAdminDisputeService', {
+  useClass: AdminDisputeService,
+});
+
 import { IAdminReviewService } from '../services/interfaces/admin-review-service.interface';
 import { AdminReviewService } from '../services/adminServices/admin-review-service';
 
@@ -486,6 +493,25 @@ container.register<IDeliverableChangeStrategy>("IDeliverableChangeStrategy", {
 import { DeliverableChangeStrategyFactory } from '../services/clientServices/factories/deliverableFactories/DeliverableChangeStrategyFactory';
 container.register("DeliverableChangeStrategyFactory", {
   useClass: DeliverableChangeStrategyFactory,
+});
+
+import { IContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/IContractCancellationStrategy';
+import { FixedContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/fixedContractCancellationStrategy';
+import { HourlyContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/hourlyContractCancellationStrategy';
+import { MilestoneContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/milestoneContractCancellationStrategy';
+container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+  useClass: FixedContractCancellationStrategy,
+});
+container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+  useClass: HourlyContractCancellationStrategy,
+});
+container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+  useClass: MilestoneContractCancellationStrategy,
+});
+
+import { ContractCancellationStrategyFactory } from '../services/clientServices/factories/cancellationFactories/ContractCancellationStrategyFactory';
+container.register("ContractCancellationStrategyFactory", {
+  useClass: ContractCancellationStrategyFactory,
 });
 
 

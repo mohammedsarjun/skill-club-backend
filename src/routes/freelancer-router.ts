@@ -278,6 +278,16 @@ freelancerRouter.post(
 );
 
 freelancerRouter.post(
+  '/contracts/:contractId/deliverables/:deliverableId/approve-change',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.approveChangeRequest.bind(freelancerContractController),
+);
+
+
+
+freelancerRouter.post(
   '/contracts/:contractId/milestones/deliverables',
   authMiddleware,
   roleGuard('freelancer'),
@@ -309,6 +319,7 @@ freelancerRouter.post(
   freelancerContractController.cancelContract.bind(freelancerContractController),
 );
 
+
 freelancerRouter.post(
   '/contracts/:contractId/cancel-with-dispute',
   authMiddleware,
@@ -339,6 +350,14 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerDisputeController.getDisputesByContract.bind(freelancerDisputeController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/raise-dispute',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerDisputeController.raiseDisputeForCancelledContract.bind(freelancerDisputeController),
 );
 
 freelancerRouter.post(

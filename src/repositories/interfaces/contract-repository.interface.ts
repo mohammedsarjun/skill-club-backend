@@ -9,6 +9,7 @@ export interface IContractRepository extends BaseRepository<IContract> {
   createContract(data: Partial<IContract>, session?: ClientSession): Promise<IContract>;
   findByOfferId(offerId: string): Promise<IContract | null>;
   updateStatusById(contractId: string, status: IContract['status'], session?: ClientSession): Promise<IContract | null>;
+cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',cancelContractReason: string, session?: ClientSession): Promise<IContract | null>;
  
   findContractDetailByIdForClient(contractId: string, clientId: string): Promise<IContract | null>;
   findAllForClient(clientId: string, query: ClientContractQueryParamsDTO): Promise<IContract[]>;
@@ -120,4 +121,14 @@ export interface IContractRepository extends BaseRepository<IContract> {
   hasPendingDeliverables(contractId: string): Promise<boolean>;
   hasAnyDeliverables(contractId: string): Promise<boolean>;
   markContractCancellationPending(contractId: string, session?: ClientSession): Promise<IContract | null>;
+  approveDeliverableChangeRequest(
+    contractId: string,
+    deliverableId: string,
+  ): Promise<IContract | null>;
+  updateMilestoneFundedAmount(
+    contractId: string,
+    milestoneId: string,
+    status: string,
+    session?: ClientSession,
+  ): Promise<IContract | null>;
 }

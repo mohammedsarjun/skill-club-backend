@@ -63,6 +63,7 @@ const ContractMilestoneSchema = new Schema<ContractMilestone>({
     enum: ['pending_funding', 'funded','changes_requested','submitted', 'approved', 'paid'],
     default: 'pending_funding',
   },
+  isFunded: { type: Boolean, default: false },
   submittedAt: Date,
   approvedAt: Date,
   revisionsAllowed: { type: Number, default: 0 },
@@ -76,7 +77,7 @@ const ContractDeliverableSchema = new Schema<ContractDeliverable>({
   message: String,
   status: {
     type: String,
-    enum: ['submitted', 'approved', 'changes_requested'],
+    enum: ['submitted', 'approved', 'changes_requested','change_request_approved'],
     default: 'submitted',
   },
   version: { type: Number, required: true },
@@ -150,6 +151,10 @@ const ContractSchema = new Schema<IContract>(
     fundedAmount: { type: Number, default: 0 },
     totalPaid: { type: Number, default: 0 },
     balance: { type: Number, default: 0 },
+    cancelledBy: { type: String, enum: ['client', 'freelancer'] },
+    cancellingReason: {type:String},
+    cancelledAt: {type:Date},
+    isFunded: { type: Boolean, default: false },
   },
   { timestamps: true },
 );

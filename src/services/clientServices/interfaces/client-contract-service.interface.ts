@@ -25,7 +25,7 @@ import archiver from 'archiver';
 
 export interface IClientContractService {
   getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO>;
-  cancelContract(clientId: string, contractId: string): Promise<{ cancelled: boolean; requiresDispute: boolean }>;
+  cancelContract(clientId: string, contractId: string, cancelContractReason: string): Promise<{ cancelled: boolean; requiresDispute: boolean }>;
   getAllContracts(
     clientId: string,
     query: ClientContractQueryParamsDTO,

@@ -138,4 +138,17 @@ export class FreelancerContractController implements IFreelancerContractControll
     const result = await this._freelancerContractService.cancelContract(freelancerId, contractId);
 
     res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
-  }}
+  }
+
+  async approveChangeRequest(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId, deliverableId } = req.params; 
+    const result = await this._freelancerContractService.approveChangeRequest(
+      freelancerId,
+      contractId,
+      deliverableId,
+    );
+    res.status(HttpStatus.OK).json({ success: true, message: 'Change request approved', data: result });
+  }
+
+}

@@ -138,7 +138,8 @@ export interface FreelancerContractDetailDTO {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
-
+  cancelledBy?: 'client' | 'freelancer';
+hasActiveCancellationDisputeWindow?: boolean; 
   createdAt?: Date;
   updatedAt?: Date;
 }

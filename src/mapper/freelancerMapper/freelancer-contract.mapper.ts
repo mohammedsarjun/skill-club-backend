@@ -2,11 +2,9 @@ import { IContract } from '../../models/interfaces/contract.model.interface';
 import { FreelancerContractDetailDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 
 export function mapContractToFreelancerDetailDTO(contract: IContract): FreelancerContractDetailDTO {
-console.log(contract?.milestones?.[0]?.extensionRequest);
+
 
   return {
-
-    
     contractId: contract.contractId,
     offerId: contract.offerId?.toString() || '',
     offerType: (contract.offerId as unknown as { offerType?: 'direct' | 'proposal' })?.offerType,
@@ -74,6 +72,7 @@ console.log(contract?.milestones?.[0]?.extensionRequest);
     })),
 
     deliverables: contract.deliverables?.map((deliverable) => ({
+      id: (deliverable._id as unknown as { toString(): string })?.toString?.() || '',
       submittedBy: deliverable.submittedBy?.toString() || '',
       files: deliverable.files,
       message: deliverable.message,
@@ -130,8 +129,33 @@ console.log(contract?.milestones?.[0]?.extensionRequest);
     fundedAmount: contract.fundedAmount,
     totalPaid: contract.totalPaid,
     balance: contract.balance,
-
+    cancelledBy: contract.cancelledBy,
+    hasActiveCancellationDisputeWindow: hasActiveCancellationDisputeWindow(contract),
     createdAt: contract.createdAt,
     updatedAt: contract.updatedAt,
   };
 }
+
+function hasActiveCancellationDisputeWindow(contract: IContract): boolean { 
+//fixed
+  let isContractCancelled=contract.status==='cancelled';
+  if(!isContractCancelled){
+    return false;
+  }
+  let isContractFunded=contract.isFunded;
+  if(!isContractFunded){
+    return false;
+  }
+
+  let hasAnyDeliverablesSubmitted=contract.deliverables && contract.deliverables.length>0;
+  if(!hasAnyDeliverablesSubmitted){
+    return false;
+  }
+  let isWithinDisputeWindow= contract.cancelledAt? ( (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) ) <=5 : false;
+  if(!isWithinDisputeWindow){
+    return false;
+  }
+  return true;
+}
+
+

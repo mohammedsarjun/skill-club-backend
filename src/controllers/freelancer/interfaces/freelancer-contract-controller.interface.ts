@@ -8,4 +8,5 @@ export interface IFreelancerContractController {
   requestMilestoneExtension(req: Request, res: Response): Promise<void>;
   requestContractExtension(req: Request, res: Response): Promise<void>;
   cancelContract(req: Request, res: Response): Promise<void>;
+  approveChangeRequest(req: Request, res: Response): Promise<void>;
 }

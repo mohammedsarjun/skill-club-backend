@@ -178,8 +178,33 @@ export const mapContractModelToClientContractDetailDTO = (
     fundedAmount: contract.fundedAmount,
     totalPaid: contract.totalPaid,
     balance: contract.balance,
-
+    isFunded: contract.isFunded,
+    cancelledBy: contract.cancelledBy,
+    hasActiveCancellationDisputeWindow: hasActiveCancellationDisputeWindow(contract),
     createdAt: contract.createdAt,
     updatedAt: contract.updatedAt,
   };
 };
+
+
+const hasActiveCancellationDisputeWindow = (contract: IContract): boolean => {
+//fixed
+  let isContractCancelled=contract.status==='cancelled';
+  if(!isContractCancelled){
+    return false;
+  }
+  let isContractFunded=contract.isFunded;
+  if(!isContractFunded){
+    return false;
+  }
+
+  let hasAnyDeliverablesSubmitted=contract.deliverables && contract.deliverables.length>0;
+  if(!hasAnyDeliverablesSubmitted){
+    return false;
+  }
+  let isWithinDisputeWindow= contract.cancelledAt? ( (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) ) <=5 : false;
+  if(!isWithinDisputeWindow){
+    return false;
+  }
+  return true;
+}

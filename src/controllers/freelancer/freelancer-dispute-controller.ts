@@ -57,6 +57,24 @@ export class FreelancerDisputeController implements IFreelancerDisputeController
     });
   }
 
+  async raiseDisputeForCancelledContract(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const { notes } = req.body;
+
+    const result = await this._freelancerDisputeService.raiseDisputeForCancelledContract(
+      freelancerId,
+      contractId,
+      notes || '',
+    );
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Dispute raised successfully',
+      data: result,
+    });
+  }
+
   async cancelContractWithDispute(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
