@@ -1,4 +1,4 @@
-import { IOffer, OfferMilestone } from '../models/interfaces/offer.model.interface';
+import { IOffer, OfferMilestone,} from '../models/interfaces/offer.model.interface';
 import { IContract } from '../models/interfaces/contract.model.interface';
 import { Types } from 'mongoose';
 
@@ -32,6 +32,7 @@ export const mapOfferToContract = (offer: IOffer): Partial<IContract> => {
       amount: milestone.amount,
       expectedDelivery: milestone.expectedDelivery,
       status: 'pending_funding' as const,
+      isFunded: false,
       revisionsAllowed: typeof milestone.revisions === 'number' ? milestone.revisions : offer.revisions || 0,
     })),
     revisions: typeof offer.revisions === 'number' ? offer.revisions : 0,

@@ -181,4 +181,13 @@ export class ContractTransactionRepository
 
     return result.length > 0 ? result[0].total : 0;
   }
+
+  async findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number> {
+      const result = await this.model.aggregate([
+      { $match: { contractId: new Types.ObjectId(contractId), purpose: 'funding',milestoneId:new Types.ObjectId(milestoneId) } },
+      { $group: { _id: null, totalFunded: { $sum: '$amount' } } },
+    ]);
+        return result.length > 0 ? result[0].totalFunded : 0;
+  }
+
 }

@@ -153,7 +153,7 @@ export class ClientContractService implements IClientContractService {
     }
 
     if (contract.status === 'pending_funding') {
-      await this._contractRepository.cancelContractByUser(contractId, 'client',cancelContractReason);
+      await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
       return { cancelled: true, requiresDispute: false };
     }
 
@@ -208,17 +208,43 @@ export class ClientContractService implements IClientContractService {
   }
 
   private async cancelFixedWithMilestonesContract(
-    _contract: IContract,
-    _contractId: string,
-    _cancelContractReason: string,
+    contract: IContract,
+    contractId: string,
+    cancelContractReason: string,
   ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
-    // TODO: Implement milestone-specific cancellation logic
-    // Handle partial milestone completions, refund logic, etc.
-
-    const isClientFundedForAtLeastOneMilestone =
 
 
-    throw new AppError('Milestone contract cancellation not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+    const isClientFundedForAtLeastOneMilestone = contract?.milestones?.some((milestone) => milestone.isFunded == true)
+
+    if (!isClientFundedForAtLeastOneMilestone) {
+      await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
+      await this._contractRepository.markAllMilestonesAsCancelled(contractId);
+      return { cancelled: true, requiresDispute: false };
+    }
+
+    // const activeMilestone = contract.milestones?.find(milestone => milestone.status != 'paid');
+
+    const refundableMilestones = contract.milestones?.filter((milestone) => milestone.status == "funded")
+
+    refundableMilestones?.forEach(async (refundableMilestone) => {
+      const refundAmount = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(contractId, refundableMilestone._id?.toString()!)
+      const refundTransaction: Partial<IContractTransaction> = {
+        contractId: new Types.ObjectId(contractId),
+        milestoneId: new Types.ObjectId(refundableMilestone._id?.toString()),
+        amount: refundAmount,
+        purpose: 'refund',
+        description: 'Milestone refund due to contract cancellation',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      };
+
+      await this._contractTransactionRepository.createTransaction(refundTransaction);
+
+      await this._contractRepository.markMilestoneAsCancelled(contractId,refundableMilestone._id?.toString()!);
+    })
+
+    return { cancelled: true, requiresDispute: false };
+
   }
 
   private async cancelHourlyContract(

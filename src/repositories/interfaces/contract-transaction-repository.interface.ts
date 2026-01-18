@@ -25,4 +25,5 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
     groupBy: 'day' | 'month' | 'year',
   ): Promise<{ date: Date; revenue: number }[]>;
   getMonthlyRevenue(year: number, month: number): Promise<number>;
+  findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number>;
 }

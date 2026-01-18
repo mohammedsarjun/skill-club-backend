@@ -150,6 +150,9 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.message,
     );
 
+    const isFirstDeliverable=updatedContract?.deliverables?.length==1
+
+    if(isFirstDeliverable){
     const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
 
     await this._contractTransactionRepository.createTransaction({
@@ -160,6 +163,9 @@ export class FreelancerContractService implements IFreelancerContractService {
       clientId: contract.clientId,  
       freelancerId: contract.freelancerId,
     });
+    }
+
+
 
     if (
       !updatedContract ||
@@ -247,6 +253,24 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.files,
       data.message,
     );
+
+    const targetedMilestone=updatedContract?.milestones?.find((milestone)=>milestone._id?.toString()==data.milestoneId)
+
+    const isFirstDeliverableForMilestone=targetedMilestone?.deliverables?.length==1
+
+    if(isFirstDeliverableForMilestone){
+    const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(contractId,data.milestoneId);
+
+    await this._contractTransactionRepository.createTransaction({
+      contractId: new Types.ObjectId(contractId),
+      milestoneId:new Types.ObjectId(data.milestoneId),
+      amount: fundedAmount,
+      purpose: 'hold',
+      description: 'The deliverables for the milestone have been submitted by the freelancer, so the funds are now on hold.',
+      clientId: contract.clientId,  
+      freelancerId: contract.freelancerId,
+    });
+    }
 
     if (!updatedContract) {
       throw new AppError('Failed to submit milestone deliverable', HttpStatus.INTERNAL_SERVER_ERROR);

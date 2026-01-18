@@ -128,7 +128,8 @@ cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',ca
   updateMilestoneFundedAmount(
     contractId: string,
     milestoneId: string,
-    status: string,
     session?: ClientSession,
   ): Promise<IContract | null>;
+  markAllMilestonesAsCancelled(contractId: string, session?: ClientSession): Promise<IContract | null>;
+  markMilestoneAsCancelled(contractId:string,milestoneId:string,session?:ClientSession):Promise<IContract | null>;
 }

@@ -669,7 +669,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     ) as IContract | null;
   }
 
-  updateMilestoneFundedAmount(
+ async updateMilestoneFundedAmount(
     contractId: string,
     milestoneId: string,
     session?: ClientSession,
@@ -687,6 +687,35 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       query.session(session);
     }
 
+    return (await query.exec()) as IContract | null;
+  }
+
+  async markAllMilestonesAsCancelled(contractId: string, session?: ClientSession): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[].status': 'cancelled' } },
+      { new: true }
+    );
+
+    if (session) {
+      query.session(session);
+    }
+
+    return (await query.exec()) as IContract | null;
+  }
+
+  async markMilestoneAsCancelled(contractId: string, milestoneId: string, session?: ClientSession): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[milestone].status': 'cancelled' } },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+    if (session) {
+      query.session(session);
+    }
     return (await query.exec()) as IContract | null;
   }
 

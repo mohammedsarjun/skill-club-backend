@@ -291,22 +291,11 @@ export class ClientPaymentService implements IClientPaymentService {
             payment.contractId.toString(),
             payment.milestoneId.toString(),
             session,
+        
           );
         }
 
-        // // Fixed contract → fund all milestones
-        // if (contract.paymentType === 'fixed_with_milestones') {
-        //   for (const m of contract.milestones || []) {
-        //     if (m?._id) {
-        //       await this.contractRepository.updateMilestoneStatus(
-        //         payment.contractId.toString(),
-        //         m._id.toString(),
-        //         'funded',
-        //         session,
-        //       );
-        //     }
-        //   }
-        // }
+
 
         // -------------------------------
         // 7. Contract transaction creation (replaces escrow + transaction)
