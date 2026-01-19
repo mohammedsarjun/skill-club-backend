@@ -32,6 +32,8 @@ export const mapOfferToContract = (offer: IOffer): Partial<IContract> => {
       amount: milestone.amount,
       expectedDelivery: milestone.expectedDelivery,
       status: 'pending_funding' as const,
+      disputeEligible: false,
+      disputeWindowEndsAt: undefined,
       isFunded: false,
       revisionsAllowed: typeof milestone.revisions === 'number' ? milestone.revisions : offer.revisions || 0,
     })),

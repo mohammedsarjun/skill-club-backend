@@ -224,4 +224,11 @@ adminRouter.get(
   adminDisputeController.getDisputes.bind(adminDisputeController),
 );
 
+adminRouter.get(
+  '/disputes/:disputeId',
+  authMiddleware,
+  roleGuard('admin'),
+  adminDisputeController.getDisputeById.bind(adminDisputeController),
+);
+
 export default adminRouter;

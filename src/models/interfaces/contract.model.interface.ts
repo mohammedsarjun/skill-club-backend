@@ -1,8 +1,22 @@
 import { Document, Types } from 'mongoose';
 
-export type ContractStatus = 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
+export type ContractStatus =
+  | 'pending_funding'
+  | 'held'
+  | 'active'
+  | 'completed'
+  | 'cancelled'
+  | 'refunded'
+  | 'disputed';
 
-export type MilestoneStatus = 'pending_funding' | 'funded'|'changes_requested' | 'submitted' | 'approved' | 'paid';
+export type MilestoneStatus =
+  | 'pending_funding'
+  | 'funded'
+  | 'changes_requested'
+  | 'submitted'
+  | 'approved'
+  | 'paid'
+  | 'cancelled';
 
 export interface MilestoneDeliverable {
   _id?: Types.ObjectId;
@@ -36,7 +50,9 @@ export interface ContractMilestone {
   submittedAt?: Date;
   approvedAt?: Date;
   revisionsAllowed?: number;
-    isFunded: boolean;
+  isFunded: boolean;
+  disputeEligible: boolean;
+  disputeWindowEndsAt?: Date;
   deliverables?: MilestoneDeliverable[];
   extensionRequest?: MilestoneExtensionRequest;
 }
@@ -168,9 +184,9 @@ export interface IContract extends Document {
   balance: number;
   cancelledBy?: 'client' | 'freelancer';
   cancelledAt?: Date;
-  cancellingReason?:string
+  cancellingReason?: string;
   isFunded?: boolean;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }

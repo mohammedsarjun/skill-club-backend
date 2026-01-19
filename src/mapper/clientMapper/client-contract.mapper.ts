@@ -68,6 +68,8 @@ export const mapContractModelToClientContractDetailDTO = (
       submittedAt: m.submittedAt,
       approvedAt: m.approvedAt,
       revisionsAllowed: (m as any).revisionsAllowed,
+      disputeEligible: m.disputeEligible || false,
+      disputeWindowEndsAt: m.disputeWindowEndsAt,
       deliverables: (m.deliverables || []).map((d: any, index: number) => ({
         id: docIdToString(d._id) || `deliverable-${index}`,
         submittedBy: docIdToString(d.submittedBy) || '',

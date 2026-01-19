@@ -34,4 +34,16 @@ export class AdminDisputeController implements IAdminDisputeController {
       data: result,
     });
   }
+
+  async getDisputeById(req: Request, res: Response): Promise<void> {
+    const { disputeId } = req.params;
+
+    const result = await this._adminDisputeService.getDisputeById(disputeId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Dispute details fetched successfully',
+      data: result,
+    });
+  }
 }

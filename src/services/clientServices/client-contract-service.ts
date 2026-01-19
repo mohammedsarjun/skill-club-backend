@@ -152,10 +152,9 @@ export class ClientContractService implements IClientContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_IN_PROGRESS, HttpStatus.BAD_REQUEST);
     }
 
-    if (contract.status === 'pending_funding') {
+
       await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
-      return { cancelled: true, requiresDispute: false };
-    }
+
 
     // Segregate cancellation logic by payment type
     const paymentType = contract.paymentType;
@@ -243,6 +242,21 @@ export class ClientContractService implements IClientContractService {
       await this._contractRepository.markMilestoneAsCancelled(contractId,refundableMilestone._id?.toString()!);
     })
 
+    //cancelling unpaid milestones
+
+    const unpaidMilestones = contract.milestones?.filter((milestone) => milestone.status == "pending_funding")
+
+    unpaidMilestones?.forEach(async (unpaidMilestone) => {
+      await this._contractRepository.markMilestoneAsCancelled(contractId,unpaidMilestone._id?.toString()!);
+    })
+
+    //marking current active milestone dispute eligible
+    const currentActiveMilestone = contract.milestones?.find((milestone) => milestone.status != "pending_funding" && milestone.status != "approved" && milestone.status != "paid" && milestone.status != "cancelled")
+
+    if (currentActiveMilestone) {
+      const disputeWindowEndsAt = new Date(Date.now() + 5*24*60*60*1000); 
+      await this._contractRepository.markMilestoneAsDisputeEligible(contractId,currentActiveMilestone._id?.toString()!, disputeWindowEndsAt);
+    }
     return { cancelled: true, requiresDispute: false };
 
   }

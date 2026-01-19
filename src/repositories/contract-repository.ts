@@ -719,4 +719,18 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return (await query.exec()) as IContract | null;
   }
 
+  async markMilestoneAsDisputeEligible(contractId: string, milestoneId: string,disputeWindowEndsAt:Date, session?: ClientSession): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[milestone].disputeEligible': true, 'milestones.$[milestone].disputeWindowEndsAt': disputeWindowEndsAt } },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+    if (session) {
+      query.session(session);
+    } 
+    return (await query.exec()) as IContract | null;
+  }
 }

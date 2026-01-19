@@ -64,6 +64,8 @@ const ContractMilestoneSchema = new Schema<ContractMilestone>({
     default: 'pending_funding',
   },
   isFunded: { type: Boolean, default: false },
+  disputeEligible: { type: Boolean, default: false },
+  disputeWindowEndsAt: Date,
   submittedAt: Date,
   approvedAt: Date,
   revisionsAllowed: { type: Number, default: 0 },

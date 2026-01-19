@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import { IFreelancerDisputeService } from './interfaces/freelancer-dispute-service.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
-import { CreateDisputeRequestDTO, DisputeResponseDTO } from '../../dto/freelancerDTO/freelancer-dispute.dto';
+import { CreateDisputeRequestDTO, DisputeResponseDTO, RaiseDisputeForCancelledContractDTO } from '../../dto/freelancerDTO/freelancer-dispute.dto';
 import { mapDisputeToResponseDTO } from '../../mapper/freelancerMapper/freelancer-dispute.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -24,6 +24,8 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
   }
 
   async createDispute(freelancerId: string, data: CreateDisputeRequestDTO): Promise<DisputeResponseDTO> {
+
+    console.log("normakl duipsute flow")
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -116,8 +118,9 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
   async raiseDisputeForCancelledContract(
     freelancerId: string,
     contractId: string,
-    notes: string,
+    data: RaiseDisputeForCancelledContractDTO,
   ): Promise<DisputeResponseDTO> {
+    
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -148,14 +151,32 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
       throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
 
+    let scope: 'contract' | 'milestone' | 'worklog' = 'contract';
+    let scopeId: Types.ObjectId | null = null;
+
+    if (contract.paymentType === 'fixed_with_milestones') {
+      if (!data.milestoneId) {
+        throw new AppError('Milestone ID is required for milestone-based contracts', HttpStatus.BAD_REQUEST);
+      }
+
+      if (!Types.ObjectId.isValid(data.milestoneId)) {
+        throw new AppError('Invalid milestoneId', HttpStatus.BAD_REQUEST);
+      }
+
+      scope = 'milestone';
+      scopeId = new Types.ObjectId(data.milestoneId);
+    } else if (contract.paymentType === 'hourly') {
+      throw new AppError('Dispute for hourly contracts is not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+    }
+
     const dispute = await this._disputeRepository.createDispute({
       contractId: new Types.ObjectId(contractId),
       raisedBy: 'freelancer',
-      scope: 'contract',
-      scopeId: null,
+      scope,
+      scopeId,
       contractType: contract.paymentType,
       reasonCode: DISPUTE_REASONS.CLIENT_UNFAIR_CANCELLATION,
-      description: notes,
+      description: data.notes,
       status: 'open',
     });
 

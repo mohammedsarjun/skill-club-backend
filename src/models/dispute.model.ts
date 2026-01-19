@@ -56,7 +56,7 @@ DisputeSchema.index({ createdAt: -1 });
 const CounterSchema = new Schema({ _id: String, seq: { type: Number, default: 0 } });
 const Counter = mongoose.models.Counter || mongoose.model('Counter', CounterSchema);
 
-DisputeSchema.pre<IDispute>('save', async function (next) {
+DisputeSchema.pre<IDispute>('validate', async function (next) {
   if (!this.isNew) return next();
   try {
     const counter = await Counter.findOneAndUpdate(

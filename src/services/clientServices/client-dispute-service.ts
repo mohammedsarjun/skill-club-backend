@@ -32,6 +32,8 @@ export class ClientDisputeService implements IClientDisputeService {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
 
+   
+
     const contract = await this._contractRepository.findContractDetailByIdForClient(
       data.contractId,
       clientId,
@@ -119,6 +121,7 @@ export class ClientDisputeService implements IClientDisputeService {
     reasonCode: string,
     description: string,
   ): Promise<DisputeResponseDTO> {
+  
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }

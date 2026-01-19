@@ -26,4 +26,5 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   ): Promise<{ date: Date; revenue: number }[]>;
   getMonthlyRevenue(year: number, month: number): Promise<number>;
   findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number>;
+  findHoldTransactionByContract(contractId: string, milestoneId?: string): Promise<IContractTransaction | null>;
 }

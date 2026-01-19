@@ -190,4 +190,17 @@ export class ContractTransactionRepository
         return result.length > 0 ? result[0].totalFunded : 0;
   }
 
+  async findHoldTransactionByContract(contractId: string, milestoneId?: string): Promise<IContractTransaction | null> {
+    const filter: Record<string, unknown> = {
+      contractId: new Types.ObjectId(contractId),
+      purpose: 'hold',
+    };
+
+    if (milestoneId) {
+      filter.milestoneId = new Types.ObjectId(milestoneId);
+    }
+
+    return await super.findOne(filter);
+  }
+
 }

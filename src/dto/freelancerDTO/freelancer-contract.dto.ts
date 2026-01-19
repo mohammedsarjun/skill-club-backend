@@ -62,7 +62,7 @@ export interface FreelancerContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-  status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested';
+  status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested'|   'cancelled';
     submittedAt?: Date;
     approvedAt?: Date;
     revisionsAllowed?: number;

@@ -2,8 +2,6 @@ import { IContract } from '../../models/interfaces/contract.model.interface';
 import { FreelancerContractDetailDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 
 export function mapContractToFreelancerDetailDTO(contract: IContract): FreelancerContractDetailDTO {
-
-
   return {
     contractId: contract.contractId,
     offerId: contract.offerId?.toString() || '',
@@ -36,20 +34,27 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
       status: milestone.status,
       submittedAt: milestone.submittedAt,
       approvedAt: milestone.approvedAt,
+      disputeEligible: milestone.disputeEligible || false,
+      disputeWindowEndsAt: milestone.disputeWindowEndsAt,
       revisionsAllowed: (milestone as any).revisionsAllowed,
-      deliverables: milestone.deliverables?.map((deliverable, index) => ({
-        id: (deliverable._id as unknown as { toString(): string })?.toString?.() || `deliverable-${index}`,
-        submittedBy: deliverable.submittedBy?.toString() || '',
-        files: deliverable.files || [],
-        message: deliverable.message,
-        status: deliverable.status,
-        version: deliverable.version || 1,
-        submittedAt: deliverable.submittedAt,
-        approvedAt: deliverable.approvedAt,
-        revisionsRequested: (deliverable as any).revisionsRequested || 0,
-        revisionsAllowed: (milestone as any).revisionsAllowed,
-        revisionsLeft: ((milestone as any).revisionsAllowed || 0) - ((deliverable as any).revisionsRequested || 0),
-      })) || [],
+      deliverables:
+        milestone.deliverables?.map((deliverable, index) => ({
+          id:
+            (deliverable._id as unknown as { toString(): string })?.toString?.() ||
+            `deliverable-${index}`,
+          submittedBy: deliverable.submittedBy?.toString() || '',
+          files: deliverable.files || [],
+          message: deliverable.message,
+          status: deliverable.status,
+          version: deliverable.version || 1,
+          submittedAt: deliverable.submittedAt,
+          approvedAt: deliverable.approvedAt,
+          revisionsRequested: (deliverable as any).revisionsRequested || 0,
+          revisionsAllowed: (milestone as any).revisionsAllowed,
+          revisionsLeft:
+            ((milestone as any).revisionsAllowed || 0) -
+            ((deliverable as any).revisionsRequested || 0),
+        })) || [],
       extensionRequest: (milestone as any).extensionRequest
         ? {
             requestedBy: (milestone as any).extensionRequest.requestedBy?.toString(),
@@ -80,7 +85,8 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
       submittedAt: deliverable.submittedAt,
       approvedAt: deliverable.approvedAt,
       revisionsRequested: (deliverable as any).revisionsRequested,
-      revisionsAllowed: typeof (contract as any).revisions === 'number' ? (contract as any).revisions : undefined,
+      revisionsAllowed:
+        typeof (contract as any).revisions === 'number' ? (contract as any).revisions : undefined,
       revisionsLeft:
         (typeof (contract as any).revisions === 'number' ? (contract as any).revisions : 0) -
         ((deliverable as any).revisionsRequested || 0),
@@ -136,26 +142,26 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
   };
 }
 
-function hasActiveCancellationDisputeWindow(contract: IContract): boolean { 
-//fixed
-  let isContractCancelled=contract.status==='cancelled';
-  if(!isContractCancelled){
+function hasActiveCancellationDisputeWindow(contract: IContract): boolean {
+  //fixed
+  let isContractCancelled = contract.status === 'cancelled';
+  if (!isContractCancelled) {
     return false;
   }
-  let isContractFunded=contract.isFunded;
-  if(!isContractFunded){
+  let isContractFunded = contract.isFunded;
+  if (!isContractFunded) {
     return false;
   }
 
-  let hasAnyDeliverablesSubmitted=contract.deliverables && contract.deliverables.length>0;
-  if(!hasAnyDeliverablesSubmitted){
+  let hasAnyDeliverablesSubmitted = contract.deliverables && contract.deliverables.length > 0;
+  if (!hasAnyDeliverablesSubmitted) {
     return false;
   }
-  let isWithinDisputeWindow= contract.cancelledAt? ( (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) ) <=5 : false;
-  if(!isWithinDisputeWindow){
+  let isWithinDisputeWindow = contract.cancelledAt
+    ? (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) <= 5
+    : false;
+  if (!isWithinDisputeWindow) {
     return false;
   }
   return true;
 }
-
-

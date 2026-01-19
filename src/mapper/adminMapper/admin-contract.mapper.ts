@@ -93,6 +93,7 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
       title: milestone.title,
       amount: milestone.amount,
       expectedDelivery: milestone.expectedDelivery,
+    
       status: milestone.status,
       submittedAt: milestone.submittedAt,
       approvedAt: milestone.approvedAt,
