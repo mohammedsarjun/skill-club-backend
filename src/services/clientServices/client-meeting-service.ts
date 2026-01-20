@@ -345,7 +345,7 @@ export class ClientMeetingService implements IClientMeetingService {
     // Generate Agora token
     const token = generateAgoraToken({
       channelName:meetingId, 
-      account: _clientId, 
+      account: 0 as unknown as string, 
       expireSeconds: remainingSeconds > 0 ? remainingSeconds : 3600,
     });
 
@@ -353,7 +353,7 @@ export class ClientMeetingService implements IClientMeetingService {
     token,
     channelName: meetingId,
     appId: process.env.AGORA_APP_ID!,
-    uid: _clientId
+    uid: 0 as unknown as string,
     }
   }
 }
