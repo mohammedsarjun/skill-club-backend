@@ -152,9 +152,7 @@ export class ClientContractService implements IClientContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_IN_PROGRESS, HttpStatus.BAD_REQUEST);
     }
 
-
-      await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
-
+    await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
 
     // Segregate cancellation logic by payment type
     const paymentType = contract.paymentType;
@@ -164,7 +162,11 @@ export class ClientContractService implements IClientContractService {
         return await this.cancelFixedContract(contract, contractId, cancelContractReason);
 
       case 'fixed_with_milestones':
-        return await this.cancelFixedWithMilestonesContract(contract, contractId, cancelContractReason);
+        return await this.cancelFixedWithMilestonesContract(
+          contract,
+          contractId,
+          cancelContractReason,
+        );
 
       case 'hourly':
         return await this.cancelHourlyContract(contract, contractId, cancelContractReason);
@@ -199,6 +201,10 @@ export class ClientContractService implements IClientContractService {
       };
 
       await this._contractTransactionRepository.createTransaction(refundTransaction);
+      await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
+        contractId,
+        'refunded_back_to_client',
+      );
 
       return { cancelled: true, requiresDispute: false };
     }
@@ -211,22 +217,32 @@ export class ClientContractService implements IClientContractService {
     contractId: string,
     cancelContractReason: string,
   ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
-
-
-    const isClientFundedForAtLeastOneMilestone = contract?.milestones?.some((milestone) => milestone.isFunded == true)
+    const isClientFundedForAtLeastOneMilestone = contract?.milestones?.some(
+      (milestone) => milestone.isFunded == true,
+    );
 
     if (!isClientFundedForAtLeastOneMilestone) {
-      await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
+      await this._contractRepository.cancelContractByUser(
+        contractId,
+        'client',
+        cancelContractReason,
+      );
       await this._contractRepository.markAllMilestonesAsCancelled(contractId);
       return { cancelled: true, requiresDispute: false };
     }
 
     // const activeMilestone = contract.milestones?.find(milestone => milestone.status != 'paid');
 
-    const refundableMilestones = contract.milestones?.filter((milestone) => milestone.status == "funded")
+    const refundableMilestones = contract.milestones?.filter(
+      (milestone) => milestone.status == 'funded',
+    );
 
     refundableMilestones?.forEach(async (refundableMilestone) => {
-      const refundAmount = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(contractId, refundableMilestone._id?.toString()!)
+      const refundAmount =
+        await this._contractTransactionRepository.findTotalFundedAmountForMilestone(
+          contractId,
+          refundableMilestone._id?.toString()!,
+        );
       const refundTransaction: Partial<IContractTransaction> = {
         contractId: new Types.ObjectId(contractId),
         milestoneId: new Types.ObjectId(refundableMilestone._id?.toString()),
@@ -239,26 +255,49 @@ export class ClientContractService implements IClientContractService {
 
       await this._contractTransactionRepository.createTransaction(refundTransaction);
 
-      await this._contractRepository.markMilestoneAsCancelled(contractId,refundableMilestone._id?.toString()!);
-    })
+      await this._contractTransactionRepository.updateTransactionStatusForMilestoneContract(
+        contractId,
+        refundableMilestone._id?.toString()!,
+        'refunded_back_to_client',
+      );
+
+      await this._contractRepository.markMilestoneAsCancelled(
+        contractId,
+        refundableMilestone._id?.toString()!,
+      );
+    });
 
     //cancelling unpaid milestones
 
-    const unpaidMilestones = contract.milestones?.filter((milestone) => milestone.status == "pending_funding")
+    const unpaidMilestones = contract.milestones?.filter(
+      (milestone) => milestone.status == 'pending_funding',
+    );
 
     unpaidMilestones?.forEach(async (unpaidMilestone) => {
-      await this._contractRepository.markMilestoneAsCancelled(contractId,unpaidMilestone._id?.toString()!);
-    })
+      await this._contractRepository.markMilestoneAsCancelled(
+        contractId,
+        unpaidMilestone._id?.toString()!,
+      );
+    });
 
     //marking current active milestone dispute eligible
-    const currentActiveMilestone = contract.milestones?.find((milestone) => milestone.status != "pending_funding" && milestone.status != "approved" && milestone.status != "paid" && milestone.status != "cancelled")
+    const currentActiveMilestone = contract.milestones?.find(
+      (milestone) =>
+        milestone.status != 'pending_funding' &&
+        milestone.status != 'approved' &&
+        milestone.status != 'paid' &&
+        milestone.status != 'cancelled',
+    );
 
     if (currentActiveMilestone) {
-      const disputeWindowEndsAt = new Date(Date.now() + 5*24*60*60*1000); 
-      await this._contractRepository.markMilestoneAsDisputeEligible(contractId,currentActiveMilestone._id?.toString()!, disputeWindowEndsAt);
+      const disputeWindowEndsAt = new Date(Date.now() + 5 * 24 * 60 * 60 * 1000);
+      await this._contractRepository.markMilestoneAsDisputeEligible(
+        contractId,
+        currentActiveMilestone._id?.toString()!,
+        disputeWindowEndsAt,
+      );
     }
     return { cancelled: true, requiresDispute: false };
-
   }
 
   private async cancelHourlyContract(
@@ -269,7 +308,10 @@ export class ClientContractService implements IClientContractService {
     // TODO: Implement hourly-specific cancellation logic
     // Handle work logs, hourly billing, etc.
 
-    throw new AppError('Hourly contract cancellation not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+    throw new AppError(
+      'Hourly contract cancellation not yet implemented',
+      HttpStatus.NOT_IMPLEMENTED,
+    );
   }
 
   async getAllContracts(
@@ -330,6 +372,11 @@ export class ClientContractService implements IClientContractService {
       purpose: 'release',
       description: `Payment release for approved deliverable - ${contract.title}`,
     });
+
+    await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
+      contract._id?.toString() || '',
+      'released_to_freelancer',
+    );
 
     // Create commission transaction
     await this._contractTransactionRepository.createTransaction({
@@ -678,6 +725,12 @@ export class ClientContractService implements IClientContractService {
       purpose: 'commission',
       description: `Platform commission (${COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE * 100}%) for milestone - ${milestone.title}`,
     });
+
+    await this._contractTransactionRepository.updateTransactionStatusForMilestoneContract(
+      contractId,
+      data.milestoneId,
+      'released_to_freelancer',
+    );
 
     // Update client wallet - deduct the funded amount
     await this._clientWalletRepository.updateBalance(contract.clientId.toString(), -paymentAmount);

@@ -252,16 +252,19 @@ export class ClientPaymentService implements IClientPaymentService {
         );
 
         if (updateContract?.paymentType === 'hourly') {
+          console.log(updateContract.estimatedHoursPerWeek, updateContract.hourlyRate, updateContract.balance);
           if (
-            updateContract.estimatedHoursPerWeek! * (updateContract.hourlyRate || 0) >=
+            updateContract.estimatedHoursPerWeek! * (updateContract.hourlyRate || 0) >
             (updateContract.balance || 0)
           ) {
+      
             await this.contractRepository.updateStatusById(
               payment.contractId.toString(),
               'held',
               session,
             );
           } else {
+       
             // Activate contract
             await this.contractRepository.updateStatusById(
               payment.contractId.toString(),

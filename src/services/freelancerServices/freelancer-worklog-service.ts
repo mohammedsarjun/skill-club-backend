@@ -2,28 +2,53 @@ import { injectable, inject } from 'tsyringe';
 import { IFreelancerWorklogService } from './interfaces/freelancer-worklog-service.interface';
 import { IWorklogRepository } from '../../repositories/interfaces/worklog-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
-import { SubmitWorklogDTO, WorklogResponseDTO, WorklogListResponseDTO, WorklogDetailDTO } from '../../dto/freelancerDTO/freelancer-worklog.dto';
+import {
+  SubmitWorklogDTO,
+  WorklogResponseDTO,
+  WorklogListResponseDTO,
+  WorklogDetailDTO,
+} from '../../dto/freelancerDTO/freelancer-worklog.dto';
 import { WorklogValidationResponseDTO } from '../../dto/freelancerDTO/freelancer-worklog-validation.dto';
-import { mapWorklogToResponseDTO, mapWorklogToListItemDTO, mapWorklogToDetailDTO } from '../../mapper/freelancerMapper/freelancer-worklog.mapper';
+import { RaiseWorklogDisputeDTO } from '../../dto/freelancerDTO/freelancer-worklog-dispute.dto';
+import { DisputeResponseDTO } from '../../dto/freelancerDTO/freelancer-dispute.dto';
+import {
+  mapWorklogToResponseDTO,
+  mapWorklogToListItemDTO,
+  mapWorklogToDetailDTO,
+} from '../../mapper/freelancerMapper/freelancer-worklog.mapper';
+import { mapDisputeToResponseDTO } from '../../mapper/freelancerMapper/freelancer-dispute.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { Types } from 'mongoose';
+import { IContractTransactionRepository } from 'src/repositories/interfaces/contract-transaction-repository.interface';
+import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
+import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { DISPUTE_REASONS } from '../../contants/dispute.constants';
 
 @injectable()
 export class FreelancerWorklogService implements IFreelancerWorklogService {
   private _worklogRepository: IWorklogRepository;
   private _contractRepository: IContractRepository;
+  private _contractTransactionRepository: IContractTransactionRepository;
+  private _disputeRepository: IDisputeRepository;
 
   constructor(
     @inject('IWorklogRepository') worklogRepository: IWorklogRepository,
-    @inject('IContractRepository') contractRepository: IContractRepository
+    @inject('IContractRepository') contractRepository: IContractRepository,
+    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
   ) {
     this._worklogRepository = worklogRepository;
     this._contractRepository = contractRepository;
+    this._contractTransactionRepository = contractTransactionRepository;
+    this._disputeRepository = disputeRepository;
   }
 
   async submitWorklog(freelancerId: string, data: SubmitWorklogDTO): Promise<WorklogResponseDTO> {
-    const contract = await this._contractRepository.findDetailByIdForFreelancer(data.contractId, freelancerId);
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      data.contractId,
+      freelancerId,
+    );
 
     if (!contract) {
       throw new AppError('Contract not found or unauthorized', HttpStatus.NOT_FOUND);
@@ -56,11 +81,31 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       status: 'submitted',
     });
 
+    const amountToHold = (contract.hourlyRate || 0) * (data.duration / 3600000); 
+
+    await this._contractTransactionRepository.createTransaction({
+      contractId: new Types.ObjectId(data.contractId),
+      workLogId: new Types.ObjectId(worklog._id),
+      amount: amountToHold,
+      purpose: 'hold',
+      status: 'active_hold',
+      description:
+      'Worklog has been submitted by the freelancer, so the funds are now on hold.',
+      clientId: contract.clientId,
+      freelancerId: contract.freelancerId,
+    });
+
     return mapWorklogToResponseDTO(worklog);
   }
 
-  async getWorklogsByContract(freelancerId: string, contractId: string): Promise<WorklogResponseDTO[]> {
-    const contract = await this._contractRepository.findDetailByIdForFreelancer(contractId, freelancerId);
+  async getWorklogsByContract(
+    freelancerId: string,
+    contractId: string,
+  ): Promise<WorklogResponseDTO[]> {
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
 
     if (!contract) {
       throw new AppError('Contract not found or unauthorized', HttpStatus.NOT_FOUND);
@@ -75,15 +120,23 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
     contractId: string,
     page: number,
     limit: number,
-    status?: string
+    status?: string,
   ): Promise<WorklogListResponseDTO> {
-    const contract = await this._contractRepository.findDetailByIdForFreelancer(contractId, freelancerId);
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
 
     if (!contract) {
       throw new AppError('Contract not found or unauthorized', HttpStatus.NOT_FOUND);
     }
 
-    const worklogs = await this._worklogRepository.getWorklogsByContractWithPagination(contractId, page, limit, status);
+    const worklogs = await this._worklogRepository.getWorklogsByContractWithPagination(
+      contractId,
+      page,
+      limit,
+      status,
+    );
     const total = await this._worklogRepository.countWorklogsByContract(contractId, status);
     const pages = Math.ceil(total / limit);
 
@@ -96,8 +149,15 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
     };
   }
 
-  async getWorklogDetail(freelancerId: string, contractId: string, worklogId: string): Promise<WorklogDetailDTO> {
-    const contract = await this._contractRepository.findDetailByIdForFreelancer(contractId, freelancerId);
+  async getWorklogDetail(
+    freelancerId: string,
+    contractId: string,
+    worklogId: string,
+  ): Promise<WorklogDetailDTO> {
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
 
     if (!contract) {
       throw new AppError('Contract not found or unauthorized', HttpStatus.NOT_FOUND);
@@ -117,11 +177,20 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       throw new AppError('Unauthorized access to worklog', HttpStatus.FORBIDDEN);
     }
 
-    return mapWorklogToDetailDTO(worklog);
+    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(worklog._id.toString());
+    const disputeRaisedBy = dispute ? dispute.raisedBy : undefined;
+
+    return mapWorklogToDetailDTO(worklog, disputeRaisedBy);
   }
 
-  async checkWorklogValidation(freelancerId: string, contractId: string): Promise<WorklogValidationResponseDTO> {
-    const contract = await this._contractRepository.findDetailByIdForFreelancer(contractId, freelancerId);
+  async checkWorklogValidation(
+    freelancerId: string,
+    contractId: string,
+  ): Promise<WorklogValidationResponseDTO> {
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
 
     if (!contract) {
       throw new AppError('Contract not found or unauthorized', HttpStatus.NOT_FOUND);
@@ -130,7 +199,8 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
     if (contract.status === 'held') {
       return {
         canLogWork: false,
-        reason: 'Contract is currently on hold. You cannot log work until the contract is reactivated.',
+        reason:
+          'Contract is currently on hold. You cannot log work until the contract is reactivated.',
         contractStatus: contract.status,
       };
     }
@@ -150,13 +220,14 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
         contractId,
         freelancerId,
         weekStart,
-        weekEnd
+        weekEnd,
       );
 
       if (weeklyHoursWorked >= contract.estimatedHoursPerWeek) {
         return {
           canLogWork: false,
-          reason: 'You have already worked the estimated hours for this week. Please wait for the next week to log more hours.',
+          reason:
+            'You have already worked the estimated hours for this week. Please wait for the next week to log more hours.',
           weeklyHoursWorked,
           estimatedHoursPerWeek: contract.estimatedHoursPerWeek,
           contractStatus: contract.status,
@@ -183,5 +254,75 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       canLogWork: true,
       contractStatus: contract.status,
     };
+  }
+
+  async raiseWorklogDispute(
+    freelancerId: string,
+    contractId: string,
+    data: RaiseWorklogDisputeDTO,
+  ): Promise<DisputeResponseDTO> {
+    if (!Types.ObjectId.isValid(freelancerId)) {
+      throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
+
+    if (!contract) {
+      throw new AppError('Contract not found or unauthorized', HttpStatus.NOT_FOUND);
+    }
+
+    const worklog = await this._worklogRepository.getWorklogById(data.worklogId);
+
+    if (!worklog) {
+      throw new AppError('Worklog not found', HttpStatus.NOT_FOUND);
+    }
+
+    if (worklog.contractId.toString() !== contractId) {
+      throw new AppError('Worklog does not belong to this contract', HttpStatus.FORBIDDEN);
+    }
+
+    if (worklog.freelancerId.toString() !== freelancerId) {
+      throw new AppError('Unauthorized access to worklog', HttpStatus.FORBIDDEN);
+    }
+
+    if (worklog.status !== 'rejected') {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.WORKLOG_NOT_REJECTED, HttpStatus.BAD_REQUEST);
+    }
+
+    if (!worklog.disputeWindowEndDate || new Date() > worklog.disputeWindowEndDate) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.DISPUTE_WINDOW_EXPIRED, HttpStatus.BAD_REQUEST);
+    }
+
+    const existingDispute = await this._disputeRepository.findActiveDisputeByWorklog(
+      worklog._id.toString(),
+    );
+    if (existingDispute) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.WORKLOG_DISPUTE_EXISTS, HttpStatus.CONFLICT);
+    }
+
+    const dispute = await this._disputeRepository.createDispute({
+      contractId: new Types.ObjectId(contractId),
+      raisedBy: 'freelancer',
+      scope: 'worklog',
+      scopeId: new Types.ObjectId(worklog._id),
+      contractType: contract.paymentType,
+      reasonCode: DISPUTE_REASONS.WORKLOG_UNFAIR_REJECTION,
+      description: data.description,
+      status: 'open',
+    });
+
+    await this._contractTransactionRepository.updateTransactionStatusByWorklogId(
+      worklog._id.toString(),
+      'frozen_dispute',
+    );
+
+    return mapDisputeToResponseDTO(dispute);
   }
 }

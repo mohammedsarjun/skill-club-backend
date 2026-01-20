@@ -203,4 +203,40 @@ export class ContractTransactionRepository
     return await super.findOne(filter);
   }
 
+  async updateTransactionStatusForFixedContract(contractId: string, status: IContractTransaction['status']): Promise<void> {
+    await this.model.updateOne(
+      { contractId: new Types.ObjectId(contractId), purpose: 'hold' },
+      { $set: { status } }
+    );
+  }
+
+  async updateTransactionStatusForMilestoneContract(contractId: string, milestoneId: string, status: IContractTransaction['status']): Promise<void> {
+    await this.model.updateOne(
+      { contractId: new Types.ObjectId(contractId), milestoneId: new Types.ObjectId(milestoneId), purpose: 'hold' },
+      { $set: { status } }
+    );
+  }
+
+  async updateTransactionStatusForWorklog(
+    workLogId: string,
+    status: IContractTransaction['status'],
+    session?: ClientSession,
+  ): Promise<void> {
+    await this.model.updateOne(
+      { workLogId: new Types.ObjectId(workLogId), purpose: 'hold' },
+      { $set: { status } },
+      { session }
+    );
+  }
+
+  async updateTransactionStatusByWorklogId(
+    workLogId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void> {
+    await this.model.updateOne(
+      { workLogId: new Types.ObjectId(workLogId), purpose: 'hold' },
+      { $set: { status } }
+    );
+  }
+
 }

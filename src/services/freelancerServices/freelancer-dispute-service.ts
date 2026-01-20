@@ -2,30 +2,39 @@ import { injectable, inject } from 'tsyringe';
 import { IFreelancerDisputeService } from './interfaces/freelancer-dispute-service.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
-import { CreateDisputeRequestDTO, DisputeResponseDTO, RaiseDisputeForCancelledContractDTO } from '../../dto/freelancerDTO/freelancer-dispute.dto';
+import {
+  CreateDisputeRequestDTO,
+  DisputeResponseDTO,
+  RaiseDisputeForCancelledContractDTO,
+} from '../../dto/freelancerDTO/freelancer-dispute.dto';
 import { mapDisputeToResponseDTO } from '../../mapper/freelancerMapper/freelancer-dispute.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { DISPUTE_REASONS } from '../../contants/dispute.constants';
 import { Types } from 'mongoose';
+import { IContractTransactionRepository } from 'src/repositories/interfaces/contract-transaction-repository.interface';
 
 @injectable()
 export class FreelancerDisputeService implements IFreelancerDisputeService {
   private _disputeRepository: IDisputeRepository;
   private _contractRepository: IContractRepository;
-
+  private _contractTransactionRepository: IContractTransactionRepository;
   constructor(
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
+    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
+    this._contractTransactionRepository= contractTransactionRepository;
   }
 
-  async createDispute(freelancerId: string, data: CreateDisputeRequestDTO): Promise<DisputeResponseDTO> {
-
-    console.log("normakl duipsute flow")
+  async createDispute(
+    freelancerId: string,
+    data: CreateDisputeRequestDTO,
+  ): Promise<DisputeResponseDTO> {
+    console.log('normakl duipsute flow');
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -44,11 +53,13 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
     }
 
     const validReasons = Object.values(DISPUTE_REASONS);
-    if (!validReasons.includes(data.reasonCode as typeof validReasons[number])) {
+    if (!validReasons.includes(data.reasonCode as (typeof validReasons)[number])) {
       throw new AppError(ERROR_MESSAGES.DISPUTE.INVALID_REASON, HttpStatus.BAD_REQUEST);
     }
 
-    const existingDispute = await this._disputeRepository.findActiveDisputeByContract(data.contractId);
+    const existingDispute = await this._disputeRepository.findActiveDisputeByContract(
+      data.contractId,
+    );
     if (existingDispute) {
       throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
@@ -67,6 +78,19 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
       description: data.description,
       status: 'open',
     });
+
+    if (contract.paymentType === 'fixed') {
+      await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
+        data.contractId,
+        'frozen_dispute',
+      );
+    }else if(contract.paymentType === 'fixed_with_milestones'){
+      await this._contractTransactionRepository.updateTransactionStatusForMilestoneContract(
+        data.contractId,
+         data.scopeId!,
+        'frozen_dispute',
+      );
+    }
 
     return mapDisputeToResponseDTO(dispute);
   }
@@ -93,7 +117,10 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
     return mapDisputeToResponseDTO(dispute);
   }
 
-  async getDisputesByContract(freelancerId: string, contractId: string): Promise<DisputeResponseDTO[]> {
+  async getDisputesByContract(
+    freelancerId: string,
+    contractId: string,
+  ): Promise<DisputeResponseDTO[]> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -120,7 +147,6 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
     contractId: string,
     data: RaiseDisputeForCancelledContractDTO,
   ): Promise<DisputeResponseDTO> {
-    
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -156,7 +182,10 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
 
     if (contract.paymentType === 'fixed_with_milestones') {
       if (!data.milestoneId) {
-        throw new AppError('Milestone ID is required for milestone-based contracts', HttpStatus.BAD_REQUEST);
+        throw new AppError(
+          'Milestone ID is required for milestone-based contracts',
+          HttpStatus.BAD_REQUEST,
+        );
       }
 
       if (!Types.ObjectId.isValid(data.milestoneId)) {
@@ -166,7 +195,10 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
       scope = 'milestone';
       scopeId = new Types.ObjectId(data.milestoneId);
     } else if (contract.paymentType === 'hourly') {
-      throw new AppError('Dispute for hourly contracts is not yet implemented', HttpStatus.NOT_IMPLEMENTED);
+      throw new AppError(
+        'Dispute for hourly contracts is not yet implemented',
+        HttpStatus.NOT_IMPLEMENTED,
+      );
     }
 
     const dispute = await this._disputeRepository.createDispute({

@@ -521,6 +521,14 @@ freelancerRouter.get(
 );
 
 freelancerRouter.post(
+  '/contracts/:contractId/worklogs/raise-dispute',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerWorklogController.raiseWorklogDispute.bind(freelancerWorklogController),
+);
+
+freelancerRouter.post(
   '/contracts/:contractId/review',
   authMiddleware,
   roleGuard('freelancer'),

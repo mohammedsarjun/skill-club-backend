@@ -6,4 +6,5 @@ export interface IFreelancerWorklogController {
   getWorklogsList(req: Request, res: Response): Promise<void>;
   getWorklogDetail(req: Request, res: Response): Promise<void>;
   checkWorklogValidation(req: Request, res: Response): Promise<void>;
+  raiseWorklogDispute(req: Request, res: Response): Promise<void>;
 }

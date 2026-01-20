@@ -6,6 +6,7 @@ export interface IDisputeRepository {
   findDisputeById(disputeId: string): Promise<IDispute | null>;
   findDisputesByContractId(contractId: string): Promise<IDispute[]>;
   findActiveDisputeByContract(contractId: string): Promise<IDispute | null>;
+  findActiveDisputeByWorklog(worklogId: string): Promise<IDispute | null>;
   updateDisputeStatus(
     disputeId: string,
     status: 'open' | 'under_review' | 'resolved' | 'rejected',

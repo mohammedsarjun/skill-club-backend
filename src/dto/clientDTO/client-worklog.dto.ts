@@ -34,6 +34,7 @@ export interface ClientWorklogDetailDTO {
   submittedAt: Date;
   reviewedAt?: Date;
   reviewMessage?: string;
+  disputeRaisedBy?: string;
 }
 
 export interface ClientWorklogListResultDTO {

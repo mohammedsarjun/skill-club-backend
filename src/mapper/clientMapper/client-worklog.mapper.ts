@@ -13,7 +13,7 @@ export function mapWorklogToListItemDTO(worklog: IWorklog): ClientWorklogListIte
   };
 }
 
-export function mapWorklogToDetailDTO(worklog: IWorklog & { freelancerName?: string }): ClientWorklogDetailDTO {
+export function mapWorklogToDetailDTO(worklog: IWorklog & { freelancerName?: string }, disputeRaisedBy?: string): ClientWorklogDetailDTO {
   return {
     worklogId: worklog.worklogId,
     contractId: worklog.contractId.toString(),
@@ -29,5 +29,6 @@ export function mapWorklogToDetailDTO(worklog: IWorklog & { freelancerName?: str
     submittedAt: worklog.createdAt!,
     reviewedAt: worklog.reviewedAt,
     reviewMessage: worklog.reviewMessage,
+    disputeRaisedBy,
   };
 }

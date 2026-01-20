@@ -87,4 +87,12 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     return totalMilliseconds / (1000 * 60 * 60);
   }
 
+  async updateDisputeWindowEndDate(worklogId: string, newEndDate: Date, session?: mongoose.ClientSession): Promise<IWorklog | null> {
+    return this.model.findOneAndUpdate(
+      { worklogId },
+      { disputeWindowEndDate: newEndDate },
+      { new: true, session }
+    ).exec();
+  }
+
 }

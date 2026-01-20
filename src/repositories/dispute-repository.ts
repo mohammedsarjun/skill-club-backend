@@ -30,6 +30,14 @@ export class DisputeRepository extends BaseRepository<IDispute> implements IDisp
     });
   }
 
+  async findActiveDisputeByWorklog(worklogId: string): Promise<IDispute | null> {
+    return await super.findOne({
+      scopeId: worklogId,
+      scope: 'worklog',
+      status: { $in: ['open', 'under_review'] },
+    });
+  }
+
   async updateDisputeStatus(
     disputeId: string,
     status: 'open' | 'under_review' | 'resolved' | 'rejected',

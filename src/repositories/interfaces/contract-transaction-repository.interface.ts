@@ -27,4 +27,19 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   getMonthlyRevenue(year: number, month: number): Promise<number>;
   findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number>;
   findHoldTransactionByContract(contractId: string, milestoneId?: string): Promise<IContractTransaction | null>;
+  updateTransactionStatusForFixedContract(contractId: string, status: IContractTransaction['status']): Promise<void>;
+  updateTransactionStatusForMilestoneContract(
+    contractId: string,
+    milestoneId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void>;
+  updateTransactionStatusForWorklog(
+    workLogId: string,
+    status: IContractTransaction['status'],
+    session?: ClientSession,
+  ): Promise<void>;
+  updateTransactionStatusByWorklogId(
+    workLogId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void>;
 }

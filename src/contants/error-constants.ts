@@ -97,6 +97,9 @@ export const ERROR_MESSAGES = {
     ALREADY_RESOLVED: 'This dispute has already been resolved',
     CANNOT_RAISE_DISPUTE: 'Cannot raise dispute for this contract in current state',
     INVALID_STATUS: 'Invalid dispute status',
+    WORKLOG_NOT_REJECTED: 'Worklog must be rejected to raise a dispute',
+    DISPUTE_WINDOW_EXPIRED: 'The dispute window for this worklog has expired',
+    WORKLOG_DISPUTE_EXISTS: 'A dispute already exists for this worklog',
   },
   MEETING: {
     NOT_FOUND: 'Meeting not found',
