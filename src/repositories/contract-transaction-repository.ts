@@ -5,7 +5,6 @@ import { ContractTransaction } from '../models/contract-transaction.model';
 import { IContractTransactionRepository } from './interfaces/contract-transaction-repository.interface';
 import { ClientSession, Types } from 'mongoose';
 
-
 @injectable()
 export class ContractTransactionRepository
   extends BaseRepository<IContractTransaction>
@@ -15,7 +14,10 @@ export class ContractTransactionRepository
     super(ContractTransaction);
   }
 
-  async createTransaction(data: Partial<IContractTransaction>, session?: ClientSession): Promise<IContractTransaction> {
+  async createTransaction(
+    data: Partial<IContractTransaction>,
+    session?: ClientSession,
+  ): Promise<IContractTransaction> {
     return await super.create(data, session);
   }
 
@@ -23,7 +25,10 @@ export class ContractTransactionRepository
     return await super.findAll({ contractId });
   }
 
-  async findByMilestoneId(contractId: string, milestoneId: string): Promise<IContractTransaction[]> {
+  async findByMilestoneId(
+    contractId: string,
+    milestoneId: string,
+  ): Promise<IContractTransaction[]> {
     return await super.findAll({ contractId, milestoneId });
   }
 
@@ -37,9 +42,9 @@ export class ContractTransactionRepository
 
   async findSpentTransactionsByClientId(clientId: string): Promise<IContractTransaction[]> {
     return await this.model
-      .find({ 
-        clientId, 
-        purpose: { $in: ['funding', 'commission'] } 
+      .find({
+        clientId,
+        purpose: { $in: ['funding', 'commission'] },
       })
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })
@@ -48,16 +53,16 @@ export class ContractTransactionRepository
 
   async findRefundTransactionsByClientId(clientId: string): Promise<IContractTransaction[]> {
     return await this.model
-      .find({ 
-        clientId, 
-        purpose: 'refund' 
+      .find({
+        clientId,
+        purpose: 'refund',
       })
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })
       .lean();
   }
 
-  async findTotalFundedAmountForFixedContract(contractId: string): Promise<number> {  
+  async findTotalFundedAmountForFixedContract(contractId: string): Promise<number> {
     const result = await this.model.aggregate([
       { $match: { contractId: new Types.ObjectId(contractId), purpose: 'funding' } },
       { $group: { _id: null, totalFunded: { $sum: '$amount' } } },
@@ -72,8 +77,11 @@ export class ContractTransactionRepository
     startDate?: Date,
     endDate?: Date,
   ): Promise<IContractTransaction[]> {
-    const filter: Record<string, unknown> = { freelancerId: new Types.ObjectId(freelancerId),purpose:'release' };
-    
+    const filter: Record<string, unknown> = {
+      freelancerId: new Types.ObjectId(freelancerId),
+      purpose: 'release',
+    };
+
     if (startDate || endDate) {
       filter.createdAt = {};
       if (startDate) {
@@ -84,10 +92,8 @@ export class ContractTransactionRepository
       }
     }
 
-    
-
     const skip = (page - 1) * limit;
-    
+
     return await this.model
       .find(filter)
       .populate('clientId', 'firstName lastName')
@@ -97,9 +103,13 @@ export class ContractTransactionRepository
       .lean();
   }
 
-  async countByFreelancerId(freelancerId: string, startDate?: Date, endDate?: Date): Promise<number> {
+  async countByFreelancerId(
+    freelancerId: string,
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<number> {
     const filter: Record<string, unknown> = { freelancerId: new Types.ObjectId(freelancerId) };
-    
+
     if (startDate || endDate) {
       filter.createdAt = {};
       if (startDate) {
@@ -115,11 +125,11 @@ export class ContractTransactionRepository
 
   async findPendingEarningsByFreelancerId(freelancerId: string): Promise<number> {
     const result = await this.model.aggregate([
-      { 
-        $match: { 
+      {
+        $match: {
           freelancerId: new Types.ObjectId(freelancerId),
-          purpose: 'release'
-        } 
+          purpose: 'release',
+        },
       },
       { $group: { _id: null, totalPending: { $sum: '$amount' } } },
     ]);
@@ -182,15 +192,27 @@ export class ContractTransactionRepository
     return result.length > 0 ? result[0].total : 0;
   }
 
-  async findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number> {
-      const result = await this.model.aggregate([
-      { $match: { contractId: new Types.ObjectId(contractId), purpose: 'funding',milestoneId:new Types.ObjectId(milestoneId) } },
+  async findTotalFundedAmountForMilestone(
+    contractId: string,
+    milestoneId: string,
+  ): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+          purpose: 'funding',
+          milestoneId: new Types.ObjectId(milestoneId),
+        },
+      },
       { $group: { _id: null, totalFunded: { $sum: '$amount' } } },
     ]);
-        return result.length > 0 ? result[0].totalFunded : 0;
+    return result.length > 0 ? result[0].totalFunded : 0;
   }
 
-  async findHoldTransactionByContract(contractId: string, milestoneId?: string): Promise<IContractTransaction | null> {
+  async findHoldTransactionByContract(
+    contractId: string,
+    milestoneId?: string,
+  ): Promise<IContractTransaction | null> {
     const filter: Record<string, unknown> = {
       contractId: new Types.ObjectId(contractId),
       purpose: 'hold',
@@ -203,17 +225,28 @@ export class ContractTransactionRepository
     return await super.findOne(filter);
   }
 
-  async updateTransactionStatusForFixedContract(contractId: string, status: IContractTransaction['status']): Promise<void> {
+  async updateTransactionStatusForFixedContract(
+    contractId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void> {
     await this.model.updateOne(
       { contractId: new Types.ObjectId(contractId), purpose: 'hold' },
-      { $set: { status } }
+      { $set: { status } },
     );
   }
 
-  async updateTransactionStatusForMilestoneContract(contractId: string, milestoneId: string, status: IContractTransaction['status']): Promise<void> {
+  async updateTransactionStatusForMilestoneContract(
+    contractId: string,
+    milestoneId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void> {
     await this.model.updateOne(
-      { contractId: new Types.ObjectId(contractId), milestoneId: new Types.ObjectId(milestoneId), purpose: 'hold' },
-      { $set: { status } }
+      {
+        contractId: new Types.ObjectId(contractId),
+        milestoneId: new Types.ObjectId(milestoneId),
+        purpose: 'hold',
+      },
+      { $set: { status } },
     );
   }
 
@@ -225,7 +258,7 @@ export class ContractTransactionRepository
     await this.model.updateOne(
       { workLogId: new Types.ObjectId(workLogId), purpose: 'hold' },
       { $set: { status } },
-      { session }
+      { session },
     );
   }
 
@@ -235,8 +268,261 @@ export class ContractTransactionRepository
   ): Promise<void> {
     await this.model.updateOne(
       { workLogId: new Types.ObjectId(workLogId), purpose: 'hold' },
-      { $set: { status } }
+      { $set: { status } },
     );
   }
 
+  async findActiveHoldTransactionsByWorklogIds(
+    worklogIds: string[],
+  ): Promise<IContractTransaction[]> {
+    const objectIds = worklogIds.map((id) => new Types.ObjectId(id));
+    return await super.findAll({
+      workLogId: { $in: objectIds },
+      purpose: 'hold',
+      status: 'active_hold',
+    });
+  }
+
+  async releaseHoldTransactionsToContract(worklogId: string): Promise<IContractTransaction | null> {
+    const objectId = new Types.ObjectId(worklogId);
+    return await super.update(
+      {
+        workLogId: objectId,
+        purpose: 'hold',
+        status: 'active_hold',
+      },
+      {
+        $set: { status: 'released_back_to_contract' },
+      },
+    );
+  }
+  async findHourlyContractRefundAmount(contractId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      { $match: { contractId: new Types.ObjectId(contractId) } },
+      {
+        $group: {
+          _id: contractId,
+          totalFunding: { $sum: { $cond: [{ $eq: ['$purpose', 'funding'] }, '$amount', 0] } },
+          totalReleased: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'release'] }, '$amount', 0],
+            },
+          },
+          totalRefunded: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'refund'] }, '$amount', 0],
+            },
+          },
+          totalCommission: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'commission'] }, '$amount', 0],
+            },
+          },
+          holdRefundsToContract: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$purpose', 'hold'] },
+                    { $eq: ['$status', 'released_back_to_contract'] },
+                  ],
+                },
+                '$amount',
+                0,
+              ],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          availableBalance: {
+            $subtract: [
+              '$totalFunding',
+              {
+                $add: [
+                  '$totalReleased',
+                  '$totalRefunded',
+                  '$totalCommission',
+                  '$holdRefundsToContract',
+                ],
+              },
+            ],
+          },
+        },
+      },
+    ]);
+    return result.length > 0 ? result[0].availableBalance : 0;
+  }
+
+  async findTotalFundedByContractId(contractId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+          purpose: 'funding',
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].total : 0;
+  }
+
+  async findTotalPaidToFreelancerByContractId(contractId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+          purpose: 'release',
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].total : 0;
+  }
+
+  async findTotalCommissionByContractId(contractId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+          purpose: 'commission',
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].total : 0;
+  }
+
+  async findTotalHeldByContractId(contractId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+          purpose: 'hold',
+          status: 'active_hold',
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].total : 0;
+  }
+
+  async findTotalRefundByContractId(contractId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+          purpose: 'refund',
+        },
+      },
+      { $group: { _id: null, total: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].total : 0;
+  }
+
+  async findFinancialSummaryByContractId(contractId: string): Promise<{
+    totalFunded: number;
+    totalPaidToFreelancer: number;
+    commissionPaid: number;
+    totalHeld: number;
+    totalRefund: number;
+    availableContractBalance: number;
+  }> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          contractId: new Types.ObjectId(contractId),
+        },
+      },
+      {
+        $group: {
+          _id: contractId,
+          totalFunded: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'funding'] }, '$amount', 0],
+            },
+          },
+          totalPaidToFreelancer: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'release'] }, '$amount', 0],
+            },
+          },
+          commissionPaid: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'commission'] }, '$amount', 0],
+            },
+          },
+          holdRefundsToContract: {
+            $sum: {
+              $cond: [
+                {
+                  $and: [
+                    { $eq: ['$purpose', 'hold'] },
+                    { $eq: ['$status', 'released_back_to_contract'] },
+                  ],
+                },
+                '$amount',
+                0,
+              ],
+            },
+          },
+          totalRefund: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'refund'] }, '$amount', 0],
+            },
+          },
+          totalHeld: {
+            $sum: {
+              $cond: [
+                { $and: [{ $eq: ['$purpose', 'hold'] }, { $eq: ['$status', 'active_hold'] }] },
+                '$amount',
+                0,
+              ],
+            },
+          },
+        },
+      },
+
+      {
+        $project: {
+          totalFunded: 1,
+          totalPaidToFreelancer: 1,
+          commissionPaid: 1,
+          totalHeld: 1,
+          totalRefund: 1,
+          availableContractBalance: {
+            $subtract: [
+              '$totalFunded',
+              {
+                $add: [
+                  '$totalPaidToFreelancer',
+                  '$commissionPaid',
+                  '$totalRefund',
+                  '$holdRefundsToContract',
+                ],
+              },
+            ],
+          },
+        },
+      },
+    ]);
+    return result.length > 0
+      ? {
+          totalFunded: result[0].totalFunded,
+          totalPaidToFreelancer: result[0].totalPaidToFreelancer,
+          commissionPaid: result[0].commissionPaid,
+          totalHeld: result[0].totalHeld,
+          totalRefund: result[0].totalRefund,
+          availableContractBalance: result[0].availableContractBalance,
+        }
+      : {
+          totalFunded: 0,
+          totalPaidToFreelancer: 0,
+          commissionPaid: 0,
+          totalHeld: 0,
+          totalRefund: 0,
+          availableContractBalance: 0,
+        };
+  }
 }

@@ -49,6 +49,8 @@ import { IFileDownloadService } from '../services/commonServices/interfaces/file
 import { FileDownloadService } from '../services/commonServices/file-download-service';
 import { IMeetingStatusService } from '../services/commonServices/interfaces/meeting-status-service.interface';
 import { MeetingStatusService } from '../services/commonServices/meeting-status-service';
+import { IWorklogTransactionService } from '../services/commonServices/interfaces/worklog-transaction-service.interface';
+import { WorklogTransactionService } from '../services/commonServices/worklog-transaction-service';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -90,6 +92,7 @@ container.register<IFileUploadService>('IFileUploadService', { useClass: FileUpl
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 container.register<IFileDownloadService>('IFileDownloadService', { useClass: FileDownloadService });
 container.register<IMeetingStatusService>('IMeetingStatusService', { useClass: MeetingStatusService });
+container.register<IWorklogTransactionService>('IWorklogTransactionService', { useClass: WorklogTransactionService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';

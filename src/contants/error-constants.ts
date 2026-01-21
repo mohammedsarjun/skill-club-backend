@@ -81,6 +81,8 @@ export const ERROR_MESSAGES = {
     INVALID_PAYMENT_TYPE: 'This operation is only valid for fixed payment contracts',
     PENDING_DELIVERABLES: 'Please approve or reject all pending deliverables before cancelling the contract',
     CANCELLATION_IN_PROGRESS: 'Contract cancellation is already in progress',
+    INVALID_END_STATUS: 'Contract must be active to be ended',
+    PENDING_WORKLOGS: 'Please approve or reject all pending worklogs before ending the contract',
   },
   REVIEW: {
     ALREADY_SUBMITTED: 'You have already submitted a review for this contract',

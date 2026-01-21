@@ -14,3 +14,4 @@ export interface IClientContractController {
   downloadDeliverableFiles(req: Request, res: Response): Promise<void>;
   activateHourlyContract(req: Request, res: Response): Promise<void>;
 }
+

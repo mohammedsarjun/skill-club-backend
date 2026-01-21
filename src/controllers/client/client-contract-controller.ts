@@ -236,4 +236,15 @@ export class ClientContractController implements IClientContractController {
       data: result,
     });
   }
+  async endHourlyContract(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const result = await this._clientContractService.endHourlyContract(clientId, contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  }
 }

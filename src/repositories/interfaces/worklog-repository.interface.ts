@@ -27,4 +27,7 @@ export interface IWorklogRepository extends IBaseRepository<IWorklog> {
     newEndDate: Date,
     session?: mongoose.ClientSession
   ): Promise<IWorklog | null>;
+  findWorklogsWithExpiredDisputeWindow(): Promise<IWorklog[]>;
+  hasPendingWorklogs(contractId: string): Promise<boolean>;
 }
+
