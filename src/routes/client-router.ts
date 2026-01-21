@@ -388,6 +388,13 @@ clientRouter.post(
   clientContractController.activateHourlyContract.bind(clientContractController),
 );
 
+clientRouter.post('/contracts/:contractId/end',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.endHourlyContract.bind(clientContractController),
+);
+
 clientRouter.get(
   '/contracts/:contractId/worklogs',
   authMiddleware,

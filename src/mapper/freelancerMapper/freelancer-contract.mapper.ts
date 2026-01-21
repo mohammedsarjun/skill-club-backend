@@ -1,7 +1,17 @@
 import { IContract } from '../../models/interfaces/contract.model.interface';
 import { FreelancerContractDetailDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 
-export function mapContractToFreelancerDetailDTO(contract: IContract): FreelancerContractDetailDTO {
+export function mapContractToFreelancerDetailDTO(
+  contract: IContract,
+  financialSummary: {
+    totalFunded: number;
+    totalPaidToFreelancer: number;
+    commissionPaid: number;
+    totalHeld: number;
+    totalRefund: number;
+    availableContractBalance: number;
+  },
+): FreelancerContractDetailDTO {
   return {
     contractId: contract.contractId,
     offerId: contract.offerId?.toString() || '',
@@ -132,9 +142,12 @@ export function mapContractToFreelancerDetailDTO(contract: IContract): Freelance
       : undefined,
 
     status: contract.status,
-    fundedAmount: contract.fundedAmount,
-    totalPaid: contract.totalPaid,
-    balance: contract.balance,
+    totalFunded: financialSummary.totalFunded,
+    totalPaidToFreelancer: financialSummary.totalPaidToFreelancer,
+    totalCommissionPaid: financialSummary.commissionPaid,
+    totalAmountHeld: financialSummary.totalHeld,
+    totalRefund: financialSummary.totalRefund,
+    availableContractBalance: financialSummary.availableContractBalance,
     cancelledBy: contract.cancelledBy,
     hasActiveCancellationDisputeWindow: hasActiveCancellationDisputeWindow(contract),
     createdAt: contract.createdAt,

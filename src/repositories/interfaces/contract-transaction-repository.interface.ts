@@ -42,4 +42,20 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
     workLogId: string,
     status: IContractTransaction['status'],
   ): Promise<void>;
+  findActiveHoldTransactionsByWorklogIds(worklogIds: string[]): Promise<IContractTransaction[]>;
+  releaseHoldTransactionsToContract(worklogIds: string): Promise<IContractTransaction | null> ;
+  findHourlyContractRefundAmount(contractId: string): Promise<number>;
+  findTotalFundedByContractId(contractId: string): Promise<number>;
+  findTotalPaidToFreelancerByContractId(contractId: string): Promise<number>;
+  findTotalCommissionByContractId(contractId: string): Promise<number>;
+  findTotalHeldByContractId(contractId: string): Promise<number>;
+  findTotalRefundByContractId(contractId: string): Promise<number>;
+  findFinancialSummaryByContractId(contractId: string): Promise<{
+    totalFunded: number;
+    totalPaidToFreelancer: number;
+    commissionPaid: number;
+    totalHeld: number;
+    totalRefund: number;
+    availableContractBalance: number;
+  }>;
 }

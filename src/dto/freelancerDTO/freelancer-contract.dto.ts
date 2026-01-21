@@ -135,9 +135,12 @@ export interface FreelancerContractDetailDTO {
   };
 
   status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
-  fundedAmount: number;
-  totalPaid: number;
-  balance: number;
+  totalFunded: number;
+  totalPaidToFreelancer: number;
+  totalCommissionPaid: number;
+  totalAmountHeld: number;
+  totalRefund: number;
+  availableContractBalance: number;
   cancelledBy?: 'client' | 'freelancer';
 hasActiveCancellationDisputeWindow?: boolean; 
   createdAt?: Date;

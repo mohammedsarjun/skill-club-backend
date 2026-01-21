@@ -133,4 +133,5 @@ cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',ca
   markAllMilestonesAsCancelled(contractId: string, session?: ClientSession): Promise<IContract | null>;
   markMilestoneAsCancelled(contractId:string,milestoneId:string,session?:ClientSession):Promise<IContract | null>;
   markMilestoneAsDisputeEligible(contractId:string,milestoneId:string,disputeWindowEndsAt:Date,session?:ClientSession):Promise<IContract | null>;
+  endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null>;
 }

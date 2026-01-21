@@ -95,4 +95,20 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     ).exec();
   }
 
+  async findWorklogsWithExpiredDisputeWindow(): Promise<IWorklog[]> {
+    return this.model.find({
+      status: 'rejected',
+      disputeWindowEndDate: { $lt: new Date() },
+    }).exec();
+  }
+
+  async hasPendingWorklogs(contractId: string): Promise<boolean> {
+    const count = await this.model.countDocuments({
+      contractId,
+      status: 'submitted'
+    }).exec();
+    return count > 0;
+  }
+
 }
+

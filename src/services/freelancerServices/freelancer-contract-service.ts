@@ -101,7 +101,11 @@ export class FreelancerContractService implements IFreelancerContractService {
       );
     }
 
-    return mapContractToFreelancerDetailDTO(contract);
+    const financialSummary = await this._contractTransactionRepository.findFinancialSummaryByContractId(
+      contractId,
+    );
+
+    return mapContractToFreelancerDetailDTO(contract, financialSummary);
   }
 
   async submitDeliverable(

@@ -733,4 +733,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     } 
     return (await query.exec()) as IContract | null;
   }
+  async endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null> {
+    return await this.updateById(contractId, { status: 'completed' }, session);
+  }
 }

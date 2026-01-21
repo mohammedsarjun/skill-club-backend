@@ -79,4 +79,6 @@ export interface IClientContractService {
   ): Promise<archiver.Archiver>;
   
   activateHourlyContract(clientId: string, contractId: string): Promise<{ activated: boolean }>;
+  endHourlyContract(clientId: string, contractId: string): Promise<{ ended: boolean; message: string }>;
 }
+

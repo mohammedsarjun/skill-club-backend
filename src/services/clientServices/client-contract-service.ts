@@ -47,6 +47,7 @@ import { FileDownloadInput } from '../../dto/files-download.dto';
 import archiver from 'archiver';
 import { DeliverableChangeStrategyFactory } from './factories/deliverableFactories/DeliverableChangeStrategyFactory';
 import { ContractCancellationStrategyFactory } from './factories/cancellationFactories/ContractCancellationStrategyFactory';
+import { IWorklogRepository } from '../../repositories/interfaces/worklog-repository.interface';
 import { IContractTransaction } from 'src/models/interfaces/contract-transaction.model.interface';
 
 @injectable()
@@ -58,6 +59,7 @@ export class ClientContractService implements IClientContractService {
   private _userRepository: IUserRepository;
   private _meetingRepository: IMeetingRepository;
   private _fileDownloadService: IFileDownloadService;
+    private _worklogRepository: IWorklogRepository;
   private _deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory;
   private _cancellationStrategyFactory: ContractCancellationStrategyFactory;
 
@@ -70,6 +72,7 @@ export class ClientContractService implements IClientContractService {
     @inject('IUserRepository') userRepository: IUserRepository,
     @inject('IMeetingRepository') meetingRepository: IMeetingRepository,
     @inject('IFileDownloadService') fileDownloadService: IFileDownloadService,
+    @inject('IWorklogRepository') worklogRepository: IWorklogRepository,
     @inject('DeliverableChangeStrategyFactory')
     deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory,
     @inject('ContractCancellationStrategyFactory')
@@ -82,6 +85,7 @@ export class ClientContractService implements IClientContractService {
     this._userRepository = userRepository;
     this._meetingRepository = meetingRepository;
     this._fileDownloadService = fileDownloadService;
+    this._worklogRepository = worklogRepository;
     this._deliverableChangeStrategyFactory = deliverableChangeStrategyFactory;
     this._cancellationStrategyFactory = cancellationStrategyFactory;
   }
@@ -104,8 +108,11 @@ export class ClientContractService implements IClientContractService {
       throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
     }
 
-    const dto = mapContractModelToClientContractDetailDTO(contract);
+    const financialSummary = await this._contractTransactionRepository.findFinancialSummaryByContractId(
+      contractId,
+    );
 
+    const dto = mapContractModelToClientContractDetailDTO(contract, financialSummary);
     if (dto.deliverables && dto.deliverables.length > 0) {
       const checks = await Promise.all(
         dto.deliverables.map((_d) =>
@@ -596,9 +603,8 @@ export class ClientContractService implements IClientContractService {
       );
     }
 
-    // enforce revision limits using strategy
-
-    const strategy = this._deliverableChangeStrategyFactory.getStrategy(contract.paymentType || '');
+    const strategy =
+      this._deliverableChangeStrategyFactory.getStrategy(contract.paymentType || '');
 
     const allowedRevisions = strategy.getAllowedRevisions(contract, deliverable) || 0;
 
@@ -1249,4 +1255,58 @@ export class ClientContractService implements IClientContractService {
 
     return { activated: true };
   }
+
+  async endHourlyContract(clientId: string, contractId: string): Promise<{ ended: boolean; message: string }> {
+    if (!Types.ObjectId.isValid(clientId)) {
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findContractDetailByIdForClient(contractId, clientId);
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.paymentType !== 'hourly') {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_HOURLY, HttpStatus.BAD_REQUEST);
+    }
+
+    if (contract.status !== 'active') {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.INVALID_END_STATUS, HttpStatus.BAD_REQUEST);
+    }
+
+    const hasPendingWorklogs = await this._worklogRepository.hasPendingWorklogs(contractId);
+
+    if (hasPendingWorklogs) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.PENDING_WORKLOGS, HttpStatus.BAD_REQUEST);
+    }
+
+    const amountAvailableForRefund = await this._contractTransactionRepository.findHourlyContractRefundAmount(contractId);
+    console.log('Amount available for refund:', amountAvailableForRefund);
+
+
+    const refundTransaction: Partial<IContractTransaction> = {
+        contractId: new Types.ObjectId(contractId),
+        amount: amountAvailableForRefund,
+        purpose: 'refund',
+        description: 'Hourly Contract refund due to contract completion',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      };
+
+      await this._contractTransactionRepository.createTransaction(refundTransaction);
+
+    await this._contractRepository.endHourlyContract(contractId);
+
+    return { ended: true, message: 'Contract ended successfully' };
+  }
 }
+
+
+
+
+

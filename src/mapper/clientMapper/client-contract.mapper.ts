@@ -1,6 +1,6 @@
 import { IContract, ContractDeliverable } from '../../models/interfaces/contract.model.interface';
 import { ClientDeliverableMapper } from './client-deliverable.mapper';
-import { ClientContractDetailDTO } from '../../dto/clientDTO/client-contract.dto';
+import { ClientContractDetailDTO, EndHourlyContractResponseDTO } from '../../dto/clientDTO/client-contract.dto';
 
 function docIdToString(id: unknown): string | undefined {
   if (!id) return undefined;
@@ -18,7 +18,16 @@ function docIdToString(id: unknown): string | undefined {
 
 export const mapContractModelToClientContractDetailDTO = (
   contract: IContract,
+  financialSummary: {
+    totalFunded: number;
+    totalPaidToFreelancer: number;
+    commissionPaid: number;
+    totalHeld: number;
+    totalRefund: number;
+    availableContractBalance: number;
+  },
 ): ClientContractDetailDTO => {
+  console.log(financialSummary)
   const rawObj = contract as unknown as Record<string, unknown>;
 
   const freelancerPopulated = rawObj.freelancerId as unknown as {
@@ -177,9 +186,12 @@ export const mapContractModelToClientContractDetailDTO = (
       : undefined,
 
     status: contract.status,
-    fundedAmount: contract.fundedAmount,
-    totalPaid: contract.totalPaid,
-    balance: contract.balance,
+    totalFunded: financialSummary.totalFunded,
+    totalPaidToFreelancer: financialSummary.totalPaidToFreelancer,
+    totalCommissionPaid: financialSummary.commissionPaid,
+    totalAmountHeld: financialSummary.totalHeld,
+    totalRefund: financialSummary.totalRefund,
+    availableContractBalance: financialSummary.availableContractBalance,
     isFunded: contract.isFunded,
     cancelledBy: contract.cancelledBy,
     hasActiveCancellationDisputeWindow: hasActiveCancellationDisputeWindow(contract),
@@ -210,3 +222,10 @@ const hasActiveCancellationDisputeWindow = (contract: IContract): boolean => {
   }
   return true;
 }
+
+export const mapToEndHourlyContractResponseDTO = (): EndHourlyContractResponseDTO => {
+  return {
+    ended: true,
+    message: 'Contract ended successfully',
+  };
+};
