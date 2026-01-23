@@ -134,7 +134,7 @@ export interface FreelancerContractDetailDTO {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
+  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
   totalFunded: number;
   totalPaidToFreelancer: number;
   totalCommissionPaid: number;

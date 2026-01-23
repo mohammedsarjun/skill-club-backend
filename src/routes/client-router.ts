@@ -285,6 +285,38 @@ clientRouter.post(
 );
 
 clientRouter.post(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.createCancellationRequest.bind(clientContractController),
+);
+
+clientRouter.get(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getCancellationRequest.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/cancellation-request/accept',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.acceptCancellationRequest.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/cancellation-request/dispute',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.raiseCancellationDispute.bind(clientContractController),
+);
+
+clientRouter.post(
   '/contracts/:contractId/cancel-with-dispute',
   authMiddleware,
   roleGuard('client'),

@@ -21,6 +21,8 @@ import {
   RespondToContractExtensionDTO,
   ContractExtensionResponseDTO,
 } from '../../../dto/clientDTO/client-contract-extension.dto';
+import { CreateCancellationRequestDTO, CancellationRequestResponseDTO } from '../../../dto/clientDTO/client-cancellation-request.dto';
+import { AcceptCancellationRequestDTO } from '../../../dto/clientDTO/client-accept-cancellation-request.dto';
 import archiver from 'archiver';
 
 export interface IClientContractService {
@@ -80,5 +82,9 @@ export interface IClientContractService {
   
   activateHourlyContract(clientId: string, contractId: string): Promise<{ activated: boolean }>;
   endHourlyContract(clientId: string, contractId: string): Promise<{ ended: boolean; message: string }>;
+  createCancellationRequest(clientId: string, contractId: string, data: CreateCancellationRequestDTO): Promise<CancellationRequestResponseDTO>;
+  getCancellationRequest(clientId: string, contractId: string): Promise<CancellationRequestResponseDTO | null>;
+  acceptCancellationRequest(clientId: string, contractId: string, data: AcceptCancellationRequestDTO): Promise<{ success: boolean; message: string }>;
+  raiseCancellationDispute(clientId: string, contractId: string, notes: string): Promise<{ success: boolean; message: string }>;
 }
 

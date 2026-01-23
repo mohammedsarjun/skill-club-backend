@@ -147,7 +147,7 @@ const ContractSchema = new Schema<IContract>(
 
     status: {
       type: String,
-      enum: ['pending_funding','held' ,'active', 'completed', 'cancelled', 'refunded','disputed'],
+      enum: ['pending_funding','held' ,'active', 'completed', 'cancelled', 'refunded','disputed','cancellation_requested'],
       default: 'pending_funding',
     },
     fundedAmount: { type: Number, default: 0 },

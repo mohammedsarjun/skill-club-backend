@@ -83,6 +83,10 @@ export const ERROR_MESSAGES = {
     CANCELLATION_IN_PROGRESS: 'Contract cancellation is already in progress',
     INVALID_END_STATUS: 'Contract must be active to be ended',
     PENDING_WORKLOGS: 'Please approve or reject all pending worklogs before ending the contract',
+    CANCELLATION_REQUEST_EXISTS: 'A cancellation request already exists for this contract',
+    INVALID_SPLIT_PERCENTAGE: 'Split percentages must add up to 100',
+    NOT_FUNDED: 'Contract must be funded to create cancellation request',
+    NO_DELIVERABLES: 'Cannot create cancellation request without deliverables',
   },
   REVIEW: {
     ALREADY_SUBMITTED: 'You have already submitted a review for this contract',
@@ -102,6 +106,13 @@ export const ERROR_MESSAGES = {
     WORKLOG_NOT_REJECTED: 'Worklog must be rejected to raise a dispute',
     DISPUTE_WINDOW_EXPIRED: 'The dispute window for this worklog has expired',
     WORKLOG_DISPUTE_EXISTS: 'A dispute already exists for this worklog',
+  },
+  CANCELLATION_REQUEST: {
+    NOT_FOUND: 'Cancellation request not found',
+    NOT_PENDING: 'Cancellation request is not in pending status',
+    ALREADY_RESPONDED: 'You have already responded to this cancellation request',
+    UNAUTHORIZED_ACCESS: 'You are not authorized to respond to this cancellation request',
+    DISPUTE_ALREADY_RAISED: 'A dispute has already been raised for this cancellation',
   },
   MEETING: {
     NOT_FOUND: 'Meeting not found',

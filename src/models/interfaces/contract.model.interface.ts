@@ -7,7 +7,8 @@ export type ContractStatus =
   | 'completed'
   | 'cancelled'
   | 'refunded'
-  | 'disputed';
+  | 'disputed'
+  | 'cancellation_requested';
 
 export type MilestoneStatus =
   | 'pending_funding'

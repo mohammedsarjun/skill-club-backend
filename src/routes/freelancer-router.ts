@@ -319,6 +319,38 @@ freelancerRouter.post(
   freelancerContractController.cancelContract.bind(freelancerContractController),
 );
 
+freelancerRouter.get(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.getCancellationRequest.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/cancellation-request/accept',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.acceptCancellationRequest.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/cancellation-request/raise-dispute',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.raiseCancellationDispute.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.createCancellationRequest.bind(freelancerContractController),
+);
+
 
 freelancerRouter.post(
   '/contracts/:contractId/cancel-with-dispute',

@@ -11,6 +11,8 @@ import {
   RequestMilestoneExtensionDTO,
 } from '../../dto/freelancerDTO/freelancer-milestone.dto';
 import { RequestContractExtensionDTO } from '../../dto/freelancerDTO/freelancer-contract-extension.dto';
+import { AcceptCancellationRequestDTO } from '../../dto/freelancerDTO/freelancer-cancellation-request.dto';
+import { CreateFreelancerCancellationRequestDTO } from '../../dto/freelancerDTO/freelancer-create-cancellation-request.dto';
 
 @injectable()
 export class FreelancerContractController implements IFreelancerContractController {
@@ -58,6 +60,16 @@ export class FreelancerContractController implements IFreelancerContractControll
       message: 'Contract detail fetched successfully',
       data: result,
     });
+  }
+
+  async cancelContract(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const { cancelContractReason } = req.body;
+
+    const result = await this._freelancerContractService.cancelContract(freelancerId, contractId, cancelContractReason);
+
+    res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancellation processed', data: result });
   }
 
   async submitDeliverable(req: Request, res: Response): Promise<void> {
@@ -131,14 +143,6 @@ export class FreelancerContractController implements IFreelancerContractControll
       data: result,
     });
   }
-  async cancelContract(req: Request, res: Response): Promise<void> {
-    const freelancerId = req.user?.userId as string;
-    const { contractId } = req.params;
-
-    const result = await this._freelancerContractService.cancelContract(freelancerId, contractId);
-
-    res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
-  }
 
   async approveChangeRequest(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
@@ -149,6 +153,61 @@ export class FreelancerContractController implements IFreelancerContractControll
       deliverableId,
     );
     res.status(HttpStatus.OK).json({ success: true, message: 'Change request approved', data: result });
+  }
+
+  async getCancellationRequest(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._freelancerContractService.getCancellationRequest(freelancerId, contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Cancellation request fetched successfully',
+      data: result,
+    });
+  }
+
+  async acceptCancellationRequest(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: AcceptCancellationRequestDTO = req.body;
+
+    const result = await this._freelancerContractService.acceptCancellationRequest(freelancerId, contractId, data);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  }
+
+  async raiseCancellationDispute(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const { notes } = req.body;
+
+    const result = await this._freelancerContractService.raiseCancellationDispute(freelancerId, contractId, notes);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  }
+
+  async createCancellationRequest(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: CreateFreelancerCancellationRequestDTO = req.body;
+
+    const result = await this._freelancerContractService.createCancellationRequest(freelancerId, contractId, data);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Cancellation request created successfully',
+      data: result,
+    });
   }
 
 }

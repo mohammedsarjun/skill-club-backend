@@ -24,11 +24,14 @@ import {
   RespondToContractExtensionDTO,
   ContractExtensionResponseDTO,
 } from '../../dto/clientDTO/client-contract-extension.dto';
+import { CreateCancellationRequestDTO, CancellationRequestResponseDTO } from '../../dto/clientDTO/client-cancellation-request.dto';
+import { AcceptCancellationRequestDTO } from '../../dto/clientDTO/client-accept-cancellation-request.dto';
 import { mapContractModelToClientContractDetailDTO } from '../../mapper/clientMapper/client-contract.mapper';
 import { mapContractModelToClientContractListItemDTO } from '../../mapper/clientMapper/client-contract-list.mapper';
 import { ClientDeliverableMapper } from '../../mapper/clientMapper/client-deliverable.mapper';
 import { ClientMilestoneMapper } from '../../mapper/clientMapper/client-milestone.mapper';
 import { ClientContractExtensionMapper } from '../../mapper/clientMapper/client-contract-extension.mapper';
+import { toCancellationRequestResponseDTO } from '../../mapper/clientMapper/client-cancellation-request.mapper';
 import { isHourlyContractBalanceSufficient } from '../../mapper/clientMapper/client-hourly-contract.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -49,6 +52,7 @@ import { DeliverableChangeStrategyFactory } from './factories/deliverableFactori
 import { ContractCancellationStrategyFactory } from './factories/cancellationFactories/ContractCancellationStrategyFactory';
 import { IWorklogRepository } from '../../repositories/interfaces/worklog-repository.interface';
 import { IContractTransaction } from 'src/models/interfaces/contract-transaction.model.interface';
+import { ICancellationRequestRepository } from '../../repositories/interfaces/cancellation-request-repository.interface';
 
 @injectable()
 export class ClientContractService implements IClientContractService {
@@ -59,9 +63,10 @@ export class ClientContractService implements IClientContractService {
   private _userRepository: IUserRepository;
   private _meetingRepository: IMeetingRepository;
   private _fileDownloadService: IFileDownloadService;
-    private _worklogRepository: IWorklogRepository;
+  private _worklogRepository: IWorklogRepository;
   private _deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory;
   private _cancellationStrategyFactory: ContractCancellationStrategyFactory;
+  private _cancellationRequestRepository: ICancellationRequestRepository;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -77,6 +82,7 @@ export class ClientContractService implements IClientContractService {
     deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory,
     @inject('ContractCancellationStrategyFactory')
     cancellationStrategyFactory: ContractCancellationStrategyFactory,
+    @inject('ICancellationRequestRepository') cancellationRequestRepository: ICancellationRequestRepository,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -88,6 +94,7 @@ export class ClientContractService implements IClientContractService {
     this._worklogRepository = worklogRepository;
     this._deliverableChangeStrategyFactory = deliverableChangeStrategyFactory;
     this._cancellationStrategyFactory = cancellationStrategyFactory;
+    this._cancellationRequestRepository = cancellationRequestRepository;
   }
 
   async getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO> {
@@ -108,9 +115,8 @@ export class ClientContractService implements IClientContractService {
       throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
     }
 
-    const financialSummary = await this._contractTransactionRepository.findFinancialSummaryByContractId(
-      contractId,
-    );
+    const financialSummary =
+      await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
 
     const dto = mapContractModelToClientContractDetailDTO(contract, financialSummary);
     if (dto.deliverables && dto.deliverables.length > 0) {
@@ -198,21 +204,24 @@ export class ClientContractService implements IClientContractService {
 
     await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
     if (contract?.isFunded) {
-      const refundTransaction: Partial<IContractTransaction> = {
-        contractId: new Types.ObjectId(contractId),
-        amount: cancellationResult.refundAmount,
-        purpose: 'refund',
-        description: 'Full refund for cancelled contract',
-        clientId: contract.clientId,
-        freelancerId: contract.freelancerId,
-      };
+      const hasDeliverables = await this._contractRepository.hasAnyDeliverables(contractId);
+      if (hasDeliverables) {
+      } else {
+        const refundTransaction: Partial<IContractTransaction> = {
+          contractId: new Types.ObjectId(contractId),
+          amount: cancellationResult.refundAmount,
+          purpose: 'refund',
+          description: 'Full refund for cancelled contract',
+          clientId: contract.clientId,
+          freelancerId: contract.freelancerId,
+        };
 
-      await this._contractTransactionRepository.createTransaction(refundTransaction);
-      await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
-        contractId,
-        'refunded_back_to_client',
-      );
-
+        await this._contractTransactionRepository.createTransaction(refundTransaction);
+        await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
+          contractId,
+          'refunded_back_to_client',
+        );
+      }
       return { cancelled: true, requiresDispute: false };
     }
 
@@ -603,8 +612,7 @@ export class ClientContractService implements IClientContractService {
       );
     }
 
-    const strategy =
-      this._deliverableChangeStrategyFactory.getStrategy(contract.paymentType || '');
+    const strategy = this._deliverableChangeStrategyFactory.getStrategy(contract.paymentType || '');
 
     const allowedRevisions = strategy.getAllowedRevisions(contract, deliverable) || 0;
 
@@ -1256,7 +1264,10 @@ export class ClientContractService implements IClientContractService {
     return { activated: true };
   }
 
-  async endHourlyContract(clientId: string, contractId: string): Promise<{ ended: boolean; message: string }> {
+  async endHourlyContract(
+    clientId: string,
+    contractId: string,
+  ): Promise<{ ended: boolean; message: string }> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
@@ -1265,7 +1276,10 @@ export class ClientContractService implements IClientContractService {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
 
-    const contract = await this._contractRepository.findContractDetailByIdForClient(contractId, clientId);
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
+      contractId,
+      clientId,
+    );
 
     if (!contract) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -1285,28 +1299,245 @@ export class ClientContractService implements IClientContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.PENDING_WORKLOGS, HttpStatus.BAD_REQUEST);
     }
 
-    const amountAvailableForRefund = await this._contractTransactionRepository.findHourlyContractRefundAmount(contractId);
+    const amountAvailableForRefund =
+      await this._contractTransactionRepository.findHourlyContractRefundAmount(contractId);
     console.log('Amount available for refund:', amountAvailableForRefund);
 
-
     const refundTransaction: Partial<IContractTransaction> = {
-        contractId: new Types.ObjectId(contractId),
-        amount: amountAvailableForRefund,
-        purpose: 'refund',
-        description: 'Hourly Contract refund due to contract completion',
-        clientId: contract.clientId,
-        freelancerId: contract.freelancerId,
-      };
+      contractId: new Types.ObjectId(contractId),
+      amount: amountAvailableForRefund,
+      purpose: 'refund',
+      description: 'Hourly Contract refund due to contract completion',
+      clientId: contract.clientId,
+      freelancerId: contract.freelancerId,
+    };
 
-      await this._contractTransactionRepository.createTransaction(refundTransaction);
+    await this._contractTransactionRepository.createTransaction(refundTransaction);
 
     await this._contractRepository.endHourlyContract(contractId);
 
     return { ended: true, message: 'Contract ended successfully' };
   }
+
+  async createCancellationRequest(
+    clientId: string,
+    contractId: string,
+    data: CreateCancellationRequestDTO,
+  ): Promise<CancellationRequestResponseDTO> {
+    if (!Types.ObjectId.isValid(clientId)) {
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (data.clientSplitPercentage + data.freelancerSplitPercentage !== 100) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.INVALID_SPLIT_PERCENTAGE, HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findContractDetailByIdForClient(
+      contractId,
+      clientId,
+    );
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.status === 'cancelled' || contract.status === 'cancellation_requested') {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.ALREADY_CANCELLED, HttpStatus.BAD_REQUEST);
+    }
+
+    if (contract.paymentType !== 'fixed') {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.INVALID_PAYMENT_TYPE, HttpStatus.BAD_REQUEST);
+    }
+
+    if (!contract.isFunded) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FUNDED, HttpStatus.BAD_REQUEST);
+    }
+
+    const hasDeliverables = await this._contractRepository.hasAnyDeliverables(contractId);
+    if (!hasDeliverables) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NO_DELIVERABLES, HttpStatus.BAD_REQUEST);
+    }
+
+    const existingRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    if (existingRequest) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_REQUEST_EXISTS, HttpStatus.BAD_REQUEST);
+    }
+
+    const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+    const totalPaid = await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
+    const totalCommission = await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
+    const totalHeldAmount = totalFunded - totalPaid - totalCommission;
+
+    const clientAmount = (totalHeldAmount * data.clientSplitPercentage) / 100;
+    const freelancerAmount = (totalHeldAmount * data.freelancerSplitPercentage) / 100;
+
+    const cancellationRequest = await this._cancellationRequestRepository.create({
+      contractId: new Types.ObjectId(contractId),
+      initiatedBy: 'client',
+      initiatorId: new Types.ObjectId(clientId),
+      reason: data.reason,
+      clientSplitPercentage: data.clientSplitPercentage,
+      freelancerSplitPercentage: data.freelancerSplitPercentage,
+      totalHeldAmount,
+      clientAmount,
+      freelancerAmount,
+      status: 'pending',
+    });
+
+    await this._contractRepository.updateStatusById(contractId, 'cancellation_requested');
+
+    return toCancellationRequestResponseDTO(cancellationRequest);
+  }
+
+  async getCancellationRequest(clientId: string, contractId: string): Promise<CancellationRequestResponseDTO | null> {
+    if (!Types.ObjectId.isValid(clientId)) {
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findById(contractId);
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.clientId.toString() !== clientId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+    }
+
+    const cancellationRequest = await this._cancellationRequestRepository.findByContractId(contractId);
+
+    if (!cancellationRequest) {
+      return null;
+    }
+
+    return toCancellationRequestResponseDTO(cancellationRequest);
+  }
+
+  async acceptCancellationRequest(clientId: string, contractId: string, data: AcceptCancellationRequestDTO): Promise<{ success: boolean; message: string }> {
+    if (!Types.ObjectId.isValid(clientId)) {
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findById(contractId);
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.clientId.toString() !== clientId) {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+    }
+
+    const cancellationRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+
+    if (!cancellationRequest) {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (cancellationRequest.status !== 'pending') {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_PENDING, HttpStatus.BAD_REQUEST);
+    }
+
+    if (cancellationRequest.initiatedBy !== 'freelancer') {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+    }
+
+    await this._cancellationRequestRepository.updateStatus(
+      cancellationRequest._id.toString(),
+      'accepted',
+      clientId,
+      data.responseMessage,
+    );
+
+    const refundTransaction: Partial<IContractTransaction> = {
+      contractId: new Types.ObjectId(contractId),
+      amount: cancellationRequest.clientAmount,
+      purpose: 'refund',
+      description: 'Refund to client based on accepted cancellation request',
+      clientId: contract.clientId,
+      freelancerId: contract.freelancerId,
+    };
+
+    await this._contractTransactionRepository.createTransaction(refundTransaction);
+
+    if (cancellationRequest.freelancerAmount > 0) {
+      const releaseTransaction: Partial<IContractTransaction> = {
+        contractId: new Types.ObjectId(contractId),
+        amount: cancellationRequest.freelancerAmount,
+        purpose: 'release',
+        description: 'Release to freelancer based on accepted cancellation request',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      };
+
+      await this._contractTransactionRepository.createTransaction(releaseTransaction);
+    }
+
+    await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
+      contractId,
+      'amount_split_between_parties',
+    );
+
+    await this._contractRepository.updateStatusById(contractId, 'cancelled');
+
+    return { success: true, message: 'Cancellation request accepted successfully' };
+  }
+
+  async raiseCancellationDispute(clientId: string, contractId: string, notes: string): Promise<{ success: boolean; message: string }> {
+    if (!Types.ObjectId.isValid(clientId)) {
+      throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findById(contractId);
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (contract.clientId.toString() !== clientId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+    }
+
+    const cancellationRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+
+    if (!cancellationRequest) {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (cancellationRequest.status !== 'pending') {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_PENDING, HttpStatus.BAD_REQUEST);
+    }
+
+    if (cancellationRequest.initiatedBy !== 'freelancer') {
+      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+    }
+
+    await this._cancellationRequestRepository.updateStatus(
+      cancellationRequest._id.toString(),
+      'disputed',
+      clientId,
+      notes,
+    );
+
+    await this._contractRepository.updateStatusById(contractId, 'disputed');
+
+    return { success: true, message: 'Cancellation dispute raised successfully' };
+  }
 }
-
-
-
-
 

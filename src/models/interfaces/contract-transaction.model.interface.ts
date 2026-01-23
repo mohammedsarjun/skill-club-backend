@@ -20,6 +20,7 @@ export interface IContractTransaction extends Document {
     | 'released_to_freelancer'
     | 'refunded_back_to_client'
     | 'released_back_to_contract'
+    |'amount_split_between_parties'
     | 'completed';
   description: string;
 

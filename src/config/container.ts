@@ -68,6 +68,9 @@ container.register<IContractRepository>('IContractRepository', { useClass: Contr
 import { IDisputeRepository } from '../repositories/interfaces/dispute-repository.interface';
 import { DisputeRepository } from '../repositories/dispute-repository';
 container.register<IDisputeRepository>('IDisputeRepository', { useClass: DisputeRepository });
+import { ICancellationRequestRepository } from '../repositories/interfaces/cancellation-request-repository.interface';
+import { CancellationRequestRepository } from '../repositories/cancellation-request-repository';
+container.register<ICancellationRequestRepository>('ICancellationRequestRepository', { useClass: CancellationRequestRepository });
 container.register<IPaymentRepository>('IPaymentRepository', { useClass: PaymentRepository });
 container.register<ITransactionRepository>('ITransactionRepository', {
   useClass: TransactionRepository,
