@@ -599,80 +599,75 @@ export class FreelancerContractService implements IFreelancerContractService {
   private async cancelFixedWithMilestonesContract(
     contract: IContract,
     contractId: string,
-    _cancelContractReason: string,
+    cancelContractReason: string,
   ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
     const isClientFundedForAtLeastOneMilestone = contract?.milestones?.some(
       (milestone) => milestone.isFunded === true,
     );
 
     if (!isClientFundedForAtLeastOneMilestone) {
-      await this._contractRepository.updateStatusById(contractId, 'cancelled');
+      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
       await this._contractRepository.markAllMilestonesAsCancelled(contractId);
       return { cancelled: true, requiresDispute: false };
     }
 
-    const refundableMilestones = contract.milestones?.filter(
-      (milestone) => milestone.status === 'funded',
+    const hasSubmittedMilestoneDeliverables = contract.milestones?.some(
+      (milestone) => milestone.deliverables && milestone.deliverables.length > 0,
     );
 
-    refundableMilestones?.forEach(async (refundableMilestone) => {
-      const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(
-        contractId,
-        refundableMilestone._id?.toString() || '',
+    if (!hasSubmittedMilestoneDeliverables) {
+      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+
+      const fundedMilestones = contract.milestones?.filter(
+        (milestone) => milestone.isFunded === true,
       );
 
-      const refundTransaction: Partial<IContractTransaction> = {
-        contractId: new Types.ObjectId(contractId),
-        milestoneId: refundableMilestone._id,
-        amount: totalFunded,
-        purpose: 'refund',
-        description: `Refund for milestone: ${refundableMilestone.title}`,
-        clientId: contract.clientId,
-        freelancerId: contract.freelancerId,
-      };
+      for (const milestone of fundedMilestones || []) {
+        const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(
+          contractId,
+          milestone._id?.toString() || '',
+        );
 
-      await this._contractTransactionRepository.createTransaction(refundTransaction);
-      await this._contractTransactionRepository.updateTransactionStatusForMilestoneContract(
-        contractId,
-        refundableMilestone._id?.toString() || '',
-        'refunded_back_to_client',
+        const refundTransaction: Partial<IContractTransaction> = {
+          contractId: new Types.ObjectId(contractId),
+          milestoneId: milestone._id,
+          amount: totalFunded,
+          purpose: 'refund',
+          description: `Refund for milestone: ${milestone.title} due to contract cancellation`,
+          clientId: contract.clientId,
+          freelancerId: contract.freelancerId,
+        };
+
+        await this._contractTransactionRepository.createTransaction(refundTransaction);
+        await this._contractTransactionRepository.updateTransactionStatusForMilestoneContract(
+          contractId,
+          milestone._id?.toString() || '',
+          'refunded_back_to_client',
+        );
+
+        await this._contractRepository.updateMilestoneStatus(
+          contractId,
+          milestone._id?.toString() || '',
+          'cancelled',
+        );
+      }
+
+      const unpaidMilestones = contract.milestones?.filter(
+        (milestone) => milestone.status === 'pending_funding',
       );
 
-      await this._contractRepository.updateMilestoneStatus(
-        contractId,
-        refundableMilestone._id?.toString() || '',
-        'cancelled',
-      );
-    });
+      for (const unpaidMilestone of unpaidMilestones || []) {
+        await this._contractRepository.updateMilestoneStatus(
+          contractId,
+          unpaidMilestone._id?.toString() || '',
+          'cancelled',
+        );
+      }
 
-    const unpaidMilestones = contract.milestones?.filter(
-      (milestone) => milestone.status === 'pending_funding',
-    );
-
-    unpaidMilestones?.forEach(async (unpaidMilestone) => {
-      await this._contractRepository.updateMilestoneStatus(
-        contractId,
-        unpaidMilestone._id?.toString() || '',
-        'cancelled',
-      );
-    });
-
-    const currentActiveMilestone = contract.milestones?.find(
-      (milestone) =>
-        milestone.status !== 'pending_funding' &&
-        milestone.status !== 'approved' &&
-        milestone.status !== 'paid' &&
-        milestone.status !== 'cancelled',
-    );
-
-    if (currentActiveMilestone) {
-      await this._contractRepository.updateMilestoneStatus(
-        contractId,
-        currentActiveMilestone._id?.toString() || '',
-        'dispute_eligible',
-      );
+      return { cancelled: true, requiresDispute: false };
     }
-    return { cancelled: true, requiresDispute: false };
+
+    return { cancelled: false, requiresDispute: true };
   }
 
   private async cancelHourlyContract(
@@ -958,28 +953,42 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.ALREADY_CANCELLED, HttpStatus.BAD_REQUEST);
     }
 
-    if (contract.paymentType !== 'fixed') {
+    if (contract.paymentType !== 'fixed' && contract.paymentType !== 'fixed_with_milestones') {
       throw new AppError(ERROR_MESSAGES.CONTRACT.INVALID_PAYMENT_TYPE, HttpStatus.BAD_REQUEST);
     }
 
-    if (!contract.isFunded) {
-      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FUNDED, HttpStatus.BAD_REQUEST);
-    }
+    let totalHeldAmount = 0;
 
-    const hasDeliverables = await this._contractRepository.hasAnyDeliverables(contractId);
-    if (!hasDeliverables) {
-      throw new AppError(ERROR_MESSAGES.CONTRACT.NO_DELIVERABLES, HttpStatus.BAD_REQUEST);
+    if (contract.paymentType === 'fixed') {
+      if (!contract.isFunded) {
+        throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FUNDED, HttpStatus.BAD_REQUEST);
+      }
+
+      const hasDeliverables = await this._contractRepository.hasAnyDeliverables(contractId);
+      if (!hasDeliverables) {
+        throw new AppError(ERROR_MESSAGES.CONTRACT.NO_DELIVERABLES, HttpStatus.BAD_REQUEST);
+      }
+
+      const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+      const totalPaid = await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
+      const totalCommission = await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
+      totalHeldAmount = totalFunded - totalPaid - totalCommission;
+    } else if (contract.paymentType === 'fixed_with_milestones') {
+      const milestoneWithDeliverables = contract.milestones?.find(
+        (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+      );
+
+      if (!milestoneWithDeliverables) {
+        throw new AppError(ERROR_MESSAGES.CONTRACT.NO_DELIVERABLES, HttpStatus.BAD_REQUEST);
+      }
+
+      totalHeldAmount = milestoneWithDeliverables.amount || 0;
     }
 
     const existingRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
     if (existingRequest) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_REQUEST_EXISTS, HttpStatus.BAD_REQUEST);
     }
-
-    const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
-    const totalPaid = await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
-    const totalCommission = await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
-    const totalHeldAmount = totalFunded - totalPaid - totalCommission;
 
     const clientAmount = (totalHeldAmount * data.clientSplitPercentage) / 100;
     const freelancerAmount = (totalHeldAmount * data.freelancerSplitPercentage) / 100;
