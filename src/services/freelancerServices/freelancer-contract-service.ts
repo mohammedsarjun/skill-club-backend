@@ -167,20 +167,20 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.message,
     );
 
-    const isFirstDeliverable=updatedContract?.deliverables?.length==1
+    const isFirstDeliverable = updatedContract?.deliverables?.length == 1
 
-    if(isFirstDeliverable){
-    const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+    if (isFirstDeliverable) {
+      const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
 
-    await this._contractTransactionRepository.createTransaction({
-      contractId: new Types.ObjectId(contractId),
-      amount: fundedAmount,
-      purpose: 'hold',
-      status: 'active_hold',
-      description: 'The deliverables have been submitted by the freelancer, so the funds are now on hold.',
-      clientId: contract.clientId,  
-      freelancerId: contract.freelancerId,
-    });
+      await this._contractTransactionRepository.createTransaction({
+        contractId: new Types.ObjectId(contractId),
+        amount: fundedAmount,
+        purpose: 'hold',
+        status: 'active_hold',
+        description: 'The deliverables have been submitted by the freelancer, so the funds are now on hold.',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      });
     }
 
 
@@ -262,7 +262,7 @@ export class FreelancerContractService implements IFreelancerContractService {
       );
     }
 
-   
+
 
     const updatedContract = await this._contractRepository.submitMilestoneDeliverable(
       contractId,
@@ -272,23 +272,23 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.message,
     );
 
-    const targetedMilestone=updatedContract?.milestones?.find((milestone)=>milestone._id?.toString()==data.milestoneId)
+    const targetedMilestone = updatedContract?.milestones?.find((milestone) => milestone._id?.toString() == data.milestoneId)
 
-    const isFirstDeliverableForMilestone=targetedMilestone?.deliverables?.length==1
+    const isFirstDeliverableForMilestone = targetedMilestone?.deliverables?.length == 1
 
-    if(isFirstDeliverableForMilestone){
-    const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(contractId,data.milestoneId);
+    if (isFirstDeliverableForMilestone) {
+      const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(contractId, data.milestoneId);
 
-    await this._contractTransactionRepository.createTransaction({
-      contractId: new Types.ObjectId(contractId),
-      milestoneId:new Types.ObjectId(data.milestoneId),
-      amount: fundedAmount,
-      purpose: 'hold',
-      status: 'active_hold',
-      description: 'The deliverables for the milestone have been submitted by the freelancer, so the funds are now on hold.',
-      clientId: contract.clientId,  
-      freelancerId: contract.freelancerId,
-    });
+      await this._contractTransactionRepository.createTransaction({
+        contractId: new Types.ObjectId(contractId),
+        milestoneId: new Types.ObjectId(data.milestoneId),
+        amount: fundedAmount,
+        purpose: 'hold',
+        status: 'active_hold',
+        description: 'The deliverables for the milestone have been submitted by the freelancer, so the funds are now on hold.',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      });
     }
 
     if (!updatedContract) {
@@ -1005,6 +1005,24 @@ export class FreelancerContractService implements IFreelancerContractService {
       freelancerAmount,
       status: 'pending',
     });
+
+    const refundableMilestones= contract.milestones?.filter(
+      (milestone) => milestone.status == 'funded'
+    ) || [];
+
+    refundableMilestones.forEach(async (milestone) => {
+      const refundTransaction: Partial<IContractTransaction> = {
+      contractId: new Types.ObjectId(contractId),
+      milestoneId: new Types.ObjectId(milestone._id),
+      amount: milestone.amount,
+      purpose: 'refund',
+      description: 'Refund to client for milestone funded but work not done',
+      clientId: contract.clientId,
+      freelancerId: contract.freelancerId,
+    };
+
+    await this._contractTransactionRepository.createTransaction(refundTransaction);
+  });  
 
     await this._contractRepository.updateStatusById(contractId, 'cancellation_requested');
 

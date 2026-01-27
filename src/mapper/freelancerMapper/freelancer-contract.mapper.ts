@@ -47,6 +47,7 @@ export function mapContractToFreelancerDetailDTO(
       disputeEligible: milestone.disputeEligible || false,
       disputeWindowEndsAt: milestone.disputeWindowEndsAt,
       revisionsAllowed: (milestone as any).revisionsAllowed,
+      isFunded: milestone.isFunded,
       deliverables:
         milestone.deliverables?.map((deliverable, index) => ({
           id:

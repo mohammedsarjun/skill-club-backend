@@ -1395,6 +1395,26 @@ export class ClientContractService implements IClientContractService {
       status: 'pending',
     });
 
+    const refundableMilestones= contract.milestones?.filter(
+      (milestone) => milestone.status == 'funded'
+    ) || [];
+
+    refundableMilestones.forEach(async (milestone) => {
+      const refundTransaction: Partial<IContractTransaction> = {
+      contractId: new Types.ObjectId(contractId),
+      milestoneId: new Types.ObjectId(milestone._id),
+      amount: milestone.amount,
+      purpose: 'refund',
+      description: 'Refund to client for milestone funded but work not done',
+      clientId: contract.clientId,
+      freelancerId: contract.freelancerId,
+    };
+
+    await this._contractTransactionRepository.createTransaction(refundTransaction);
+  });  
+
+
+   
     await this._contractRepository.updateStatusById(contractId, 'cancellation_requested');
 
     return toCancellationRequestResponseDTO(cancellationRequest);
