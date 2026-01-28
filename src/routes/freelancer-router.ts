@@ -351,6 +351,13 @@ freelancerRouter.post(
   freelancerContractController.createCancellationRequest.bind(freelancerContractController),
 );
 
+freelancerRouter.post(
+  '/contracts/:contractId/end',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.endHourlyContract.bind(freelancerContractController),
+);
 
 freelancerRouter.post(
   '/contracts/:contractId/cancel-with-dispute',

@@ -231,4 +231,11 @@ adminRouter.get(
   adminDisputeController.getDisputeById.bind(adminDisputeController),
 );
 
+adminRouter.post(
+  '/disputes/:disputeId/split',
+  authMiddleware,
+  roleGuard('admin'),
+  adminDisputeController.splitDisputeFunds.bind(adminDisputeController),
+);
+
 export default adminRouter;

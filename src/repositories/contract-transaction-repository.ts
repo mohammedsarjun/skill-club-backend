@@ -525,4 +525,45 @@ export class ContractTransactionRepository
           availableContractBalance: 0,
         };
   }
+
+  async updateHoldTransactionStatusToSplit(
+    transactionId: string,
+    clientRefundAmount: number,
+    freelancerReleaseAmount: number,
+  ): Promise<void> {
+    await this.model.findByIdAndUpdate(transactionId, {
+      status: 'amount_split_between_parties',
+    });
+
+    const holdTransaction = await this.model.findById(transactionId);
+    if (!holdTransaction) {
+      return;
+    }
+
+    if (clientRefundAmount > 0) {
+      await this.model.create({
+        contractId: holdTransaction.contractId,
+        clientId: holdTransaction.clientId,
+        freelancerId: holdTransaction.freelancerId,
+        amount: clientRefundAmount,
+        purpose: 'refund',
+        status: 'refunded_back_to_client',
+        description: 'Refund from dispute resolution - admin split decision',
+        milestoneId: holdTransaction.milestoneId,
+      });
+    }
+
+    if (freelancerReleaseAmount > 0) {
+      await this.model.create({
+        contractId: holdTransaction.contractId,
+        clientId: holdTransaction.clientId,
+        freelancerId: holdTransaction.freelancerId,
+        amount: freelancerReleaseAmount,
+        purpose: 'release',
+        status: 'released_to_freelancer',
+        description: 'Release from dispute resolution - admin split decision',
+        milestoneId: holdTransaction.milestoneId,
+      });
+    }
+  }
 }

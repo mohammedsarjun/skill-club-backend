@@ -8,6 +8,7 @@ import {
   AdminDisputeListResultDTO,
   AdminDisputeDetailDTO,
 } from '../../dto/adminDTO/admin-dispute.dto';
+import { SplitDisputeFundsDTO, SplitDisputeFundsResponseDTO } from '../../dto/adminDTO/admin-split-dispute-funds.dto';
 import { mapDisputeToAdminListItemDTO, mapDisputeToAdminDetailDTO } from '../../mapper/adminMapper/admin-dispute.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -78,5 +79,57 @@ export class AdminDisputeService implements IAdminDisputeService {
     );
 
     return mapDisputeToAdminDetailDTO(dispute, contract, holdTransaction);
+  }
+
+  async splitDisputeFunds(disputeId: string, data: SplitDisputeFundsDTO): Promise<SplitDisputeFundsResponseDTO> {
+    if (!Types.ObjectId.isValid(disputeId)) {
+      throw new AppError('Invalid disputeId', HttpStatus.BAD_REQUEST);
+    }
+
+    if (data.clientPercentage + data.freelancerPercentage !== 100) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.INVALID_SPLIT_PERCENTAGE, HttpStatus.BAD_REQUEST);
+    }
+
+    const dispute = await this._disputeRepository.findDisputeById(disputeId);
+    if (!dispute) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    if (dispute.status === 'resolved') {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_RESOLVED, HttpStatus.BAD_REQUEST);
+    }
+
+    const contractId = dispute.contractId.toString();
+    const scopeId = dispute.scope === 'milestone' && dispute.scopeId
+      ? dispute.scopeId.toString()
+      : undefined;
+
+    const holdTransaction = await this._contractTransactionRepository.findHoldTransactionByContract(
+      contractId,
+      scopeId,
+    );
+
+    if (!holdTransaction) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.NO_HOLD_TRANSACTION, HttpStatus.NOT_FOUND);
+    }
+
+    const totalHeldAmount = holdTransaction.amount;
+    const clientRefundAmount = (totalHeldAmount * data.clientPercentage) / 100;
+    const freelancerReleaseAmount = (totalHeldAmount * data.freelancerPercentage) / 100;
+
+    await this._contractTransactionRepository.updateHoldTransactionStatusToSplit(
+      (holdTransaction._id as Types.ObjectId).toString(),
+      clientRefundAmount,
+      freelancerReleaseAmount,
+    );
+
+    await this._disputeRepository.updateDisputeStatus(disputeId, 'resolved');
+
+    return {
+      success: true,
+      message: 'Funds have been split successfully',
+      clientRefundAmount,
+      freelancerReleaseAmount,
+    };
   }
 }

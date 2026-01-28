@@ -58,4 +58,9 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
     totalRefund: number;
     availableContractBalance: number;
   }>;
+  updateHoldTransactionStatusToSplit(
+    transactionId: string,
+    clientRefundAmount: number,
+    freelancerReleaseAmount: number,
+  ): Promise<void>;
 }

@@ -210,4 +210,17 @@ export class FreelancerContractController implements IFreelancerContractControll
     });
   }
 
+  async endHourlyContract(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._freelancerContractService.endHourlyContract(freelancerId, contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  }
+
 }

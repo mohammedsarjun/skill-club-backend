@@ -106,6 +106,8 @@ export const ERROR_MESSAGES = {
     WORKLOG_NOT_REJECTED: 'Worklog must be rejected to raise a dispute',
     DISPUTE_WINDOW_EXPIRED: 'The dispute window for this worklog has expired',
     WORKLOG_DISPUTE_EXISTS: 'A dispute already exists for this worklog',
+    NO_HOLD_TRANSACTION: 'No hold transaction found for this dispute',
+    INVALID_SPLIT_PERCENTAGE: 'Client and freelancer percentages must total 100',
   },
   CANCELLATION_REQUEST: {
     NOT_FOUND: 'Cancellation request not found',

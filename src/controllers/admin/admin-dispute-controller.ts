@@ -4,6 +4,7 @@ import { IAdminDisputeController } from './interfaces/admin-dispute-controller.i
 import { IAdminDisputeService } from '../../services/adminServices/interfaces/admin-dispute-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { AdminDisputeQueryParamsDTO } from '../../dto/adminDTO/admin-dispute.dto';
+import { SplitDisputeFundsDTO } from '../../dto/adminDTO/admin-split-dispute-funds.dto';
 
 @injectable()
 export class AdminDisputeController implements IAdminDisputeController {
@@ -43,6 +44,19 @@ export class AdminDisputeController implements IAdminDisputeController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Dispute details fetched successfully',
+      data: result,
+    });
+  }
+
+  async splitDisputeFunds(req: Request, res: Response): Promise<void> {
+    const { disputeId } = req.params;
+    const data: SplitDisputeFundsDTO = req.body;
+
+    const result = await this._adminDisputeService.splitDisputeFunds(disputeId, data);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Funds split successfully',
       data: result,
     });
   }
