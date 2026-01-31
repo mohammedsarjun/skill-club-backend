@@ -53,6 +53,7 @@ import { ContractCancellationStrategyFactory } from './factories/cancellationFac
 import { IWorklogRepository } from '../../repositories/interfaces/worklog-repository.interface';
 import { IContractTransaction } from 'src/models/interfaces/contract-transaction.model.interface';
 import { ICancellationRequestRepository } from '../../repositories/interfaces/cancellation-request-repository.interface';
+import { IDisputeRepository } from 'src/repositories/interfaces/dispute-repository.interface';
 
 @injectable()
 export class ClientContractService implements IClientContractService {
@@ -67,6 +68,7 @@ export class ClientContractService implements IClientContractService {
   private _deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory;
   private _cancellationStrategyFactory: ContractCancellationStrategyFactory;
   private _cancellationRequestRepository: ICancellationRequestRepository;
+  private _disputeRepository: IDisputeRepository;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -83,6 +85,7 @@ export class ClientContractService implements IClientContractService {
     @inject('ContractCancellationStrategyFactory')
     cancellationStrategyFactory: ContractCancellationStrategyFactory,
     @inject('ICancellationRequestRepository') cancellationRequestRepository: ICancellationRequestRepository,
+    @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -95,6 +98,7 @@ export class ClientContractService implements IClientContractService {
     this._deliverableChangeStrategyFactory = deliverableChangeStrategyFactory;
     this._cancellationStrategyFactory = cancellationStrategyFactory;
     this._cancellationRequestRepository = cancellationRequestRepository;
+    this._disputeRepository = disputeRepository;
   }
 
   async getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO> {
@@ -1554,6 +1558,23 @@ export class ClientContractService implements IClientContractService {
     if (cancellationRequest.initiatedBy !== 'freelancer') {
       throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
     }
+
+    const existingDispute = await this._disputeRepository.findActiveDisputeByContract(contractId);
+
+    if (existingDispute) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_EXISTS, HttpStatus.BAD_REQUEST);
+    }
+
+    await this._disputeRepository.createDispute({
+      contractId: new Types.ObjectId(contractId),
+      raisedBy: 'client',
+      scope: 'contract',
+      scopeId: null,
+      contractType: contract.paymentType,
+      reasonCode: 'cancellation_terms',
+      description: notes,
+      status: 'open',
+    });
 
     await this._cancellationRequestRepository.updateStatus(
       cancellationRequest._id.toString(),
