@@ -15,6 +15,7 @@ import { authMiddleware } from '../middlewares/auth-middleware';
 import { HttpStatus } from '../enums/http-status.enum';
 import { jwtConfig } from '../config/jwt.config';
 
+
 const authRouter = express.Router();
 
 const authController = container.resolve(AuthController);
@@ -70,10 +71,11 @@ authRouter.post('/google', googleAuthController.googleLogin.bind(googleAuthContr
 
 authRouter.post('/logout', authController.logout.bind(authController));
 
+authRouter.get('/me', authMiddleware, authController.me.bind(authController));
+
 authRouter.post('/refresh-token', (req, res) => {
   const refreshToken = req.cookies.refreshToken;
-  console.log('dsahu');
-  console.log(refreshToken);
+
   try {
     const decoded = jwtService.verifyToken(refreshToken);
 

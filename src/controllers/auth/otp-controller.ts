@@ -39,14 +39,7 @@ export class OtpController implements IOtpController {
         await this._userServices.markUserVerified(userId);
 
         // 🔹 Create tokens
-        const payload = {
-          userId: userId,
-          roles: null,
-          activeRole: null,
-          isOnboardingCompleted: false,
-          clientProfile: null,
-          freelancerProfile: null,
-        };
+        const payload = {userId:userId}
         const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
         const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 

@@ -7,6 +7,7 @@ import {
   EducationInfo,
   UserDto,
   UserProfileDto,
+  UserStateDto,
 } from '../dto/user.dto';
 import { IExperience, IUser } from '../models/interfaces/user.model.interface';
 import { Types } from 'mongoose';
@@ -36,6 +37,12 @@ export const mapUserModelToUserProfileDto = (modelData: IUser): UserProfileDto =
   };
 };
 
+export const mapUserModelToUserStateDto = (modelData: IUser): UserStateDto => {
+  return {
+    userId: modelData._id.toString(),
+    activeRole: modelData.activeRole,
+  }
+}
 export function mapFreelancerDtoToUserModel(raw: FreelancerRawDto): Partial<IUser> {
   return {
     freelancerProfile: {

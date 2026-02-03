@@ -10,8 +10,8 @@ import {
 import bcrypt from 'bcryptjs';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { UserDto, UserProfileDto } from '../../dto/user.dto';
-import { mapUserModelToUserDto, mapUserModelToUserProfileDto } from '../../mapper/user.mapper';
+import { UserDto, UserProfileDto, UserStateDto } from '../../dto/user.dto';
+import { mapUserModelToUserDto, mapUserModelToUserProfileDto, mapUserModelToUserStateDto } from '../../mapper/user.mapper';
 import { genRandom } from '../../utils/crypto-generator';
 import sendEmailOtp from '../../utils/send-otp';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
@@ -242,5 +242,13 @@ export class AuthService implements IAuthService {
     const { expiresAt } = await this._otpService.createOtp(newEmail as string, 'changeEmail');
 
     return { expiresAt };
+  }
+
+  async me(userId: string): Promise<UserStateDto | null> {
+    const user = await this._userRepository.findById(userId);
+    if(!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    return user ? mapUserModelToUserStateDto(user) : null;
   }
 }

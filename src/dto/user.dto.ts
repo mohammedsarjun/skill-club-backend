@@ -1,3 +1,8 @@
+export interface  UserStateDto{
+  userId:string;
+  activeRole:string;
+}
+
 export interface UserDto {
   userId: string;
   roles: string[];
