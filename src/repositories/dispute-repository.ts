@@ -19,6 +19,9 @@ export class DisputeRepository extends BaseRepository<IDispute> implements IDisp
     return await super.findById(disputeId);
   }
 
+    async findDisputeByDisputeId(disputeId: string): Promise<IDispute | null> {
+    return await this.model.findOne({ disputeId });
+  }
   async findDisputesByContractId(contractId: string): Promise<IDispute[]> {
     return await super.findAll({ contractId });
   }
@@ -108,5 +111,12 @@ export class DisputeRepository extends BaseRepository<IDispute> implements IDisp
     }
 
     return await super.count(filter);
+  }
+
+  async  updateDisputeStatusByDisputeId(
+    disputeId: string,
+    status: 'open' | 'under_review' | 'resolved' | 'rejected',
+  ): Promise<IDispute | null> {
+    return await super.update({ disputeId }, { status });
   }
 }

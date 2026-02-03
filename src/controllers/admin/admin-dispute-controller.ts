@@ -60,4 +60,16 @@ export class AdminDisputeController implements IAdminDisputeController {
       data: result,
     });
   }
+
+  async releaseHoldHourly(req: Request, res: Response): Promise<void> {
+    const { disputeId } = req.params;
+
+    console.log('Releasing hold for hourly dispute:', disputeId);
+
+    await this._adminDisputeService.releaseHoldHourly(disputeId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Hold released successfully for hourly worklog',
+    });
+  }
 }

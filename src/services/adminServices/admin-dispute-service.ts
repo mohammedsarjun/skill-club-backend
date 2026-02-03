@@ -8,18 +8,26 @@ import {
   AdminDisputeListResultDTO,
   AdminDisputeDetailDTO,
 } from '../../dto/adminDTO/admin-dispute.dto';
-import { SplitDisputeFundsDTO, SplitDisputeFundsResponseDTO } from '../../dto/adminDTO/admin-split-dispute-funds.dto';
-import { mapDisputeToAdminListItemDTO, mapDisputeToAdminDetailDTO } from '../../mapper/adminMapper/admin-dispute.mapper';
+import {
+  SplitDisputeFundsDTO,
+  SplitDisputeFundsResponseDTO,
+} from '../../dto/adminDTO/admin-split-dispute-funds.dto';
+import {
+  mapDisputeToAdminListItemDTO,
+  mapDisputeToAdminDetailDTO,
+} from '../../mapper/adminMapper/admin-dispute.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { Types } from 'mongoose';
+import { IWorklogRepository } from 'src/repositories/interfaces/worklog-repository.interface';
 
 @injectable()
 export class AdminDisputeService implements IAdminDisputeService {
   private _disputeRepository: IDisputeRepository;
   private _contractRepository: IContractRepository;
   private _contractTransactionRepository: IContractTransactionRepository;
+  private _workLogRepository: IWorklogRepository;
 
   constructor(
     @inject('IDisputeRepository')
@@ -28,10 +36,13 @@ export class AdminDisputeService implements IAdminDisputeService {
     contractRepository: IContractRepository,
     @inject('IContractTransactionRepository')
     contractTransactionRepository: IContractTransactionRepository,
+    @inject('IWorklogRepository')
+    workLogRepository: IWorklogRepository,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
+    this._workLogRepository = workLogRepository;
   }
 
   async getAllDisputes(query: AdminDisputeQueryParamsDTO): Promise<AdminDisputeListResultDTO> {
@@ -40,6 +51,8 @@ export class AdminDisputeService implements IAdminDisputeService {
 
     const disputes = await this._disputeRepository.findAllForAdmin(query);
     const total = await this._disputeRepository.countForAdmin(query);
+
+  
 
     const items = disputes.map(mapDisputeToAdminListItemDTO);
     const pages = Math.ceil(total / limit);
@@ -69,19 +82,31 @@ export class AdminDisputeService implements IAdminDisputeService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const scopeId = dispute.scope === 'milestone' && dispute.scopeId
-      ? dispute.scopeId.toString()
-      : undefined;
+    const scopeId =
+      (dispute.scope === 'milestone' || dispute.scope == 'worklog') && dispute.scopeId
+        ? dispute.scopeId.toString()
+        : undefined;
 
+    const isWorkLogDispute = dispute.scope == 'worklog';
+    let worklog = undefined;
+    if (isWorkLogDispute) {
+      worklog = await this._workLogRepository.getWorklogsByObjectId(new Types.ObjectId(scopeId!));
+    }
+
+    {
+    }
     const holdTransaction = await this._contractTransactionRepository.findHoldTransactionByContract(
       contractId,
       scopeId,
     );
 
-    return mapDisputeToAdminDetailDTO(dispute, contract, holdTransaction);
+    return mapDisputeToAdminDetailDTO(dispute, contract, holdTransaction, worklog);
   }
 
-  async splitDisputeFunds(disputeId: string, data: SplitDisputeFundsDTO): Promise<SplitDisputeFundsResponseDTO> {
+  async splitDisputeFunds(
+    disputeId: string,
+    data: SplitDisputeFundsDTO,
+  ): Promise<SplitDisputeFundsResponseDTO> {
     if (!Types.ObjectId.isValid(disputeId)) {
       throw new AppError('Invalid disputeId', HttpStatus.BAD_REQUEST);
     }
@@ -100,9 +125,8 @@ export class AdminDisputeService implements IAdminDisputeService {
     }
 
     const contractId = dispute.contractId.toString();
-    const scopeId = dispute.scope === 'milestone' && dispute.scopeId
-      ? dispute.scopeId.toString()
-      : undefined;
+    const scopeId =
+      dispute.scope === 'milestone' && dispute.scopeId ? dispute.scopeId.toString() : undefined;
 
     const holdTransaction = await this._contractTransactionRepository.findHoldTransactionByContract(
       contractId,
@@ -131,5 +155,49 @@ export class AdminDisputeService implements IAdminDisputeService {
       clientRefundAmount,
       freelancerReleaseAmount,
     };
+  }
+  async releaseHoldHourly(disputeId: string): Promise<void> {
+
+    const dispute = await this._disputeRepository.findDisputeByDisputeId(disputeId);
+    if (!dispute) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    if (dispute.status === 'resolved') {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_RESOLVED, HttpStatus.BAD_REQUEST);
+    }
+    const isHourlyDispute = dispute.scope == 'worklog';
+    if (!isHourlyDispute) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.NOT_HOURLY_DISPUTE, HttpStatus.BAD_REQUEST);
+    }
+    const contractId = dispute.contractId.toString();
+
+    const contract = await this._contractRepository.findDetailByIdForAdmin(contractId);
+
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const scopeId =
+      dispute.scope === 'worklog' && dispute.scopeId ? dispute.scopeId.toString() : undefined;
+    const holdTransaction = await this._contractTransactionRepository.findHoldTransactionByWorklog(
+      contractId,
+      scopeId!,
+    );
+    if (!holdTransaction) {
+      throw new AppError(ERROR_MESSAGES.DISPUTE.NO_HOLD_TRANSACTION, HttpStatus.NOT_FOUND);
+    }
+    await this._contractTransactionRepository.updateHoldTransactionStatusToReleased(
+      holdTransaction._id!.toString(),
+    );
+    await this._disputeRepository.updateDisputeStatusByDisputeId(disputeId, 'resolved');
+
+    await this._contractTransactionRepository.createTransaction({
+      contractId: dispute.contractId,
+      workLogId: dispute.scopeId || undefined,
+      purpose: 'release',
+      amount: holdTransaction.amount,
+      description: `Released funds to freelancer for worklog dispute ${disputeId}`,
+      clientId: contract.clientId,
+      freelancerId: contract.freelancerId,
+    });
   }
 }

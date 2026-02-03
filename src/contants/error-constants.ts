@@ -108,6 +108,7 @@ export const ERROR_MESSAGES = {
     WORKLOG_DISPUTE_EXISTS: 'A dispute already exists for this worklog',
     NO_HOLD_TRANSACTION: 'No hold transaction found for this dispute',
     INVALID_SPLIT_PERCENTAGE: 'Client and freelancer percentages must total 100',
+    NOT_HOURLY_DISPUTE: 'This operation is only valid for hourly worklog disputes',
   },
   CANCELLATION_REQUEST: {
     NOT_FOUND: 'Cancellation request not found',

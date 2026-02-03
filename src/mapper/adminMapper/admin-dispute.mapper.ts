@@ -2,24 +2,26 @@ import { IDispute } from '../../models/interfaces/dispute.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { AdminDisputeListItemDTO, AdminDisputeDetailDTO } from '../../dto/adminDTO/admin-dispute.dto';
+import { IWorklog } from 'src/models/interfaces/worklog.model.interface';
 
 export function mapDisputeToAdminListItemDTO(dispute: IDispute): AdminDisputeListItemDTO {
-  const contractData = dispute.contractId as unknown as {
-    title?: string;
-    clientId?: { firstName?: string; lastName?: string };
-    freelancerId?: { firstName?: string; lastName?: string };
+    console.log(dispute)
+  const contractData = (dispute.contractId || {}) as unknown as {
+    title?: string | null;
+    clientId?: { firstName?: string; lastName?: string } | null;
+    freelancerId?: { firstName?: string; lastName?: string } | null;
   };
 
-  console.log(contractData)
+
 
   let raisedByName = 'System';
   if (dispute.raisedBy === 'client') {
-    const client = contractData.clientId;
+    const client = contractData?.clientId as { firstName?: string; lastName?: string } | null | undefined;
     raisedByName = client
       ? `${client.firstName || ''} ${client.lastName || ''}`.trim() || 'Client'
       : 'Client';
   } else if (dispute.raisedBy === 'freelancer') {
-    const freelancer = contractData.freelancerId;
+    const freelancer = contractData?.freelancerId as { firstName?: string; lastName?: string } | null | undefined;
     raisedByName = freelancer
       ? `${freelancer.firstName || ''} ${freelancer.lastName || ''}`.trim() || 'Freelancer'
       : 'Freelancer';
@@ -28,7 +30,7 @@ export function mapDisputeToAdminListItemDTO(dispute: IDispute): AdminDisputeLis
   return {
     id: dispute._id?.toString() || '',
     disputeId: dispute.disputeId,
-    contractTitle: contractData.title || 'N/A',
+    contractTitle: contractData?.title || 'N/A',
     raisedBy: {
       name: raisedByName,
       role: dispute.raisedBy,
@@ -43,6 +45,7 @@ export function mapDisputeToAdminDetailDTO(
   dispute: IDispute,
   contract: IContract,
   holdTransaction?: IContractTransaction | null,
+  workLogDetail?:IWorklog|null
 ): AdminDisputeDetailDTO {
   const client = contract.clientId as unknown as {
     _id: string;
@@ -51,7 +54,7 @@ export function mapDisputeToAdminDetailDTO(
     companyName?: string;
   };
 
-  const freelancer = contract.freelancerId as unknown as {
+  const freelancer = contract?.freelancerId as unknown as {
     _id: string;
     firstName: string;
     lastName: string;
@@ -92,6 +95,27 @@ export function mapDisputeToAdminDetailDTO(
         approvedAt: d.approvedAt?.toISOString(),
       }))
     : undefined;
+
+    const workLog:Partial<IWorklog>|undefined=contract.paymentType=='hourly'&& workLogDetail?{
+      worklogId:workLogDetail.worklogId,
+      contractId:workLogDetail.contractId,
+      milestoneId:workLogDetail.milestoneId,
+      freelancerId:workLogDetail?.freelancerId,
+      startTime:workLogDetail.startTime,
+      endTime:workLogDetail.endTime,
+      duration:workLogDetail.duration,
+      files:workLogDetail.files,
+      description:workLogDetail.description,
+      status:workLogDetail.status,
+      reviewedAt:workLogDetail.reviewedAt,
+      disputeWindowEndDate:workLogDetail.disputeWindowEndDate,
+      reviewMessage:workLogDetail.reviewMessage,
+    }
+    :undefined;
+
+  
+
+    
 
   return {
     disputeId: dispute.disputeId,
@@ -140,5 +164,6 @@ export function mapDisputeToAdminDetailDTO(
       : undefined,
     milestones,
     deliverables,
+    workLog
   };
 }

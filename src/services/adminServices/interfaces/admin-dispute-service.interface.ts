@@ -9,4 +9,5 @@ export interface IAdminDisputeService {
   getAllDisputes(query: AdminDisputeQueryParamsDTO): Promise<AdminDisputeListResultDTO>;
   getDisputeById(disputeId: string): Promise<AdminDisputeDetailDTO>;
   splitDisputeFunds(disputeId: string, data: SplitDisputeFundsDTO): Promise<SplitDisputeFundsResponseDTO>;
+  releaseHoldHourly(disputeId: string): Promise<void>;
 }

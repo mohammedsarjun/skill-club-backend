@@ -308,6 +308,15 @@ export class ContractTransactionRepository
               $cond: [{ $eq: ['$purpose', 'release'] }, '$amount', 0],
             },
           },
+          totalHeld: {
+            $sum: {
+              $cond: [
+                { $and: [{ $eq: ['$purpose', 'hold'] }, { $eq: ['$status', 'active_hold'] }] },
+                '$amount',
+                0,
+              ],
+            },
+          },
           totalRefunded: {
             $sum: {
               $cond: [{ $eq: ['$purpose', 'refund'] }, '$amount', 0],
@@ -338,7 +347,9 @@ export class ContractTransactionRepository
         $project: {
           availableBalance: {
             $subtract: [
-              '$totalFunding',
+              {
+                $subtract: ['$totalFunding', '$totalHeld'],
+              },
               {
                 $add: [
                   '$totalReleased',
@@ -493,7 +504,9 @@ export class ContractTransactionRepository
           totalRefund: 1,
           availableContractBalance: {
             $subtract: [
-              '$totalFunded',
+              {
+                $subtract: ['$totalFunded', '$totalHeld'],
+              },
               {
                 $add: [
                   '$totalPaidToFreelancer',
@@ -565,5 +578,22 @@ export class ContractTransactionRepository
         milestoneId: holdTransaction.milestoneId,
       });
     }
+  }
+
+  async updateHoldTransactionStatusToReleased(transactionId: string): Promise<void> {
+    await this.model.findByIdAndUpdate(transactionId, {
+      status: 'released_to_freelancer',
+    });
+  }
+
+  async findHoldTransactionByWorklog(
+    contractId: string,
+    worklogId: string,
+  ): Promise<IContractTransaction | null> {
+    return await super.findOne({
+      contractId: new Types.ObjectId(contractId),
+      workLogId: new Types.ObjectId(worklogId),
+      purpose: 'hold',
+    });
   }
 }

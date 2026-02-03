@@ -32,6 +32,10 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     return this.findOne({ worklogId });
   }
 
+  async getWorklogsByObjectId(worklogObjectId: mongoose.Types.ObjectId): Promise<IWorklog | null> {
+    return this.findOne({ _id: worklogObjectId });
+  }
+
   async getWorklogsByContractWithPagination(
     contractId: string,
     page: number,

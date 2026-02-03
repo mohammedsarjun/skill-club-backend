@@ -238,4 +238,10 @@ adminRouter.post(
   adminDisputeController.splitDisputeFunds.bind(adminDisputeController),
 );
 
+adminRouter.post(
+  '/disputes/:disputeId/release-hold/hourly',
+  authMiddleware,
+  roleGuard('admin'),
+  adminDisputeController.releaseHoldHourly.bind(adminDisputeController),
+);
 export default adminRouter;

@@ -22,4 +22,9 @@ export interface IDisputeRepository {
   ): Promise<IDispute | null>;
   findAllForAdmin(query: AdminDisputeQueryParamsDTO): Promise<IDispute[]>;
   countForAdmin(query: AdminDisputeQueryParamsDTO): Promise<number>;
+  findDisputeByDisputeId(disputeId: string): Promise<IDispute | null>;
+  updateDisputeStatusByDisputeId(
+    disputeId: string,
+    status: 'open' | 'under_review' | 'resolved' | 'rejected',
+  ): Promise<IDispute | null>;
 }
