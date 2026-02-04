@@ -124,4 +124,12 @@ export const ERROR_MESSAGES = {
     REJECT_FAILED: 'Failed to reject meeting',
     UPDATE_FAILED: 'Failed to update meeting',
   },
+  FINANCE: {
+    INSUFFICIENT_BALANCE: 'Insufficient balance for withdrawal',
+    INVALID_AMOUNT: 'Invalid withdrawal amount',
+  },
+  BANK: {
+    INVALID_DETAILS: 'Invalid bank details provided',
+    NOT_FOUND: 'Bank details not found',
+  },
 };

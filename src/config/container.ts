@@ -217,6 +217,14 @@ container.register<IClientFinanceService>('IClientFinanceService', {
   useClass: ClientFinanceService,
 });
 
+import { IBankDetailsRepository } from '../repositories/interfaces/bank-details-repository.interface';
+import { BankDetailsRepository } from '../repositories/bank-details-repository';
+import { IClientBankService } from '../services/clientServices/interfaces/client-bank-service.interface';
+import { ClientBankService } from '../services/clientServices/client-bank-service';
+
+container.register<IBankDetailsRepository>('IBankDetailsRepository', { useClass: BankDetailsRepository });
+container.register<IClientBankService>('IClientBankService', { useClass: ClientBankService });
+
 //user category ,speciality,skills
 import { IUserCategoryServices } from '../services/userServices/interfaces/user-category-services.interface';
 import { userCategoryServices } from '../services/userServices/user-category-services';

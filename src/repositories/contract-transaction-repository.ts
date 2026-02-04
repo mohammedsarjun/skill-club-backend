@@ -40,6 +40,24 @@ export class ContractTransactionRepository
       .lean();
   }
 
+  async findWithdrawalsByClientIdWithPagination(
+    clientId: string,
+    page: number,
+    limit: number,
+  ): Promise<IContractTransaction[]> {
+    const skip = (page - 1) * limit;
+    return await this.model
+      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal' })
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+  }
+
+  async countWithdrawalsByClientId(clientId: string): Promise<number> {
+    return await this.model.countDocuments({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal' });
+  }
+
   async findSpentTransactionsByClientId(clientId: string): Promise<IContractTransaction[]> {
     return await this.model
       .find({
@@ -596,4 +614,47 @@ export class ContractTransactionRepository
       purpose: 'hold',
     });
   }
+
+  async getTotalFundedByClientId(clientId: string): Promise<number> {
+
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          clientId: new Types.ObjectId(clientId),
+          purpose: 'funding',
+        },
+      },
+      { $group: { _id: null, totalFunded: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].totalFunded : 0;
+  }
+
+  async findTotalRefundByClientId(clientId: string): Promise<number> {
+
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          clientId: new Types.ObjectId(clientId),
+          purpose: 'refund',
+        },
+      },
+      { $group: { _id: null, totalRefunded: { $sum: '$amount' } } },  
+    ]);
+    return result.length > 0 ? result[0].totalRefunded : 0;
+  }
+
+  async findTotalWithdrawalByClientId(clientId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          clientId: new Types.ObjectId(clientId),
+          purpose: 'withdrawal',
+        },
+      },
+      { $group: { _id: null, totalWithdrawn: { $sum: '$amount' } } },
+    ]);
+    return result.length > 0 ? result[0].totalWithdrawn : 0;
+  }
+
+
 }

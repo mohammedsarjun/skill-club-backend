@@ -65,4 +65,10 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
     freelancerReleaseAmount: number,
   ): Promise<void>;
   updateHoldTransactionStatusToReleased(transactionId: string): Promise<void>;
+  getTotalFundedByClientId(clientId: string): Promise<number>;
+  findTotalRefundByClientId(clientId: string): Promise<number>;
+  findTotalWithdrawalByClientId(clientId: string): Promise<number>;
+  findTotalWithdrawalByClientId(clientId: string): Promise<number>;
+  findWithdrawalsByClientIdWithPagination(clientId: string, page: number, limit: number): Promise<IContractTransaction[]>;
+  countWithdrawalsByClientId(clientId: string): Promise<number>;
 }

@@ -21,12 +21,14 @@ import { ClientReviewController } from '../controllers/client/client-review-cont
 import { ClientFreelancerReviewController } from '../controllers/client/client-freelancer-review-controller';
 import { ClientDashboardController } from '../controllers/client/client-dashboard-controller';
 import { ClientFinanceController } from '../controllers/client/client-finance-controller';
+import { ClientBankController } from '../controllers/client/client-bank-controller';
 import { ClientDisputeController } from '../controllers/client/client-dispute-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
 const clientDashboardController = container.resolve(ClientDashboardController);
 const clientFinanceController = container.resolve(ClientFinanceController);
+const clientBankController = container.resolve(ClientBankController);
 const clientJobController = container.resolve(ClientJobController);
 const clientCategoryController = container.resolve(ClientCategoryController);
 const clientSpecialityController = container.resolve(ClientSpecialityController);
@@ -64,6 +66,38 @@ clientRouter.get(
   roleGuard('client'),
   clientBlockMiddleware,
   clientFinanceController.getFinanceData.bind(clientFinanceController),
+);
+
+clientRouter.post(
+  '/finance/withdraw',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFinanceController.requestWithdrawal.bind(clientFinanceController),
+);
+
+clientRouter.get(
+  '/finance/withdrawals',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFinanceController.getWithdrawals.bind(clientFinanceController),
+);
+
+clientRouter.get(
+  '/bank-details',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientBankController.getBankDetails.bind(clientBankController),
+);
+
+clientRouter.post(
+  '/bank-details',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientBankController.saveBankDetails.bind(clientBankController),
 );
 
 clientRouter.patch(
