@@ -2,10 +2,9 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import type { IAdminUserServices } from '../../services/adminServices/interfaces/admin-user-services.interface';
-import { AdminUserStatsDto } from '../../dto/adminDTO/admin-users.dto';
 import { MESSAGES } from '../../contants/contants';
 import { IAdminWithdrawalController } from './interfaces/admin-withdrawal-controller.interface';
+import { IAdminWithdrawalServices } from '../../services/adminServices/interfaces/admin-withdrawal-controller.interface';
 
 @injectable()
 export class AdminWithdrawalController implements IAdminWithdrawalController {
@@ -14,11 +13,31 @@ export class AdminWithdrawalController implements IAdminWithdrawalController {
     this._adminWithdrawalService = adminWithdrawalService;
   }
 
-  async getWithdrawStats(req: Request, res: Response): Promise<void> {
-      
+  async getWithdrawStats(_req: Request, res: Response): Promise<void> {
+    const result = await this._adminWithdrawalService.getWithdrawStats();
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.WITHDRAW.FETCH_STATS_SUCCESS,
+      data: result,
+    });
   }
 
-  async getWithdrawals(req: Request, res: Response): Promise<void> {
-      
+  async getWithdrawals(_req: Request, res: Response): Promise<void> {
+    const page = Number(_req.query.page || 1);
+    const limit = Number(_req.query.limit || 10);
+    const role = typeof _req.query.role === 'string' ? _req.query.role : undefined;
+    const status = typeof _req.query.status === 'string' ? _req.query.status : undefined;
+
+    const result = await this._adminWithdrawalService.getWithdrawals(page, limit, role, status);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.WITHDRAW.FETCH_SUCCESS,
+      data: {
+        items: result.items,
+        total: result.total,
+        page,
+        limit,
+      },
+    });
   }
 }

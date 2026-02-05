@@ -566,7 +566,15 @@ container.register<IDeliverablesChangeQueryStrategy>('IDeliverablesChangeQuerySt
 
 // deliverable change strategy factory (repository-level)
 import { DeliverableChangeQueryStrategyFactory } from '../repositories/factories/interfaces/deliverable-change.strategy.interface';
+
 container.register("DeliverableChangeQueryStrategyFactory", {
   useClass: DeliverableChangeQueryStrategyFactory,
 });
 
+
+
+//withdrawal
+import { AdminWithdrawalServices } from '../services/adminServices/admin-withdrawal-service';
+container.register("IAdminWithdrawalServices",
+  {useClass:AdminWithdrawalServices}
+)

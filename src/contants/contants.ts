@@ -70,5 +70,9 @@ export const MESSAGES = {
   },
   CONTRACT: {
     FETCH_SUCCESS: 'Contract data fetched successfully',
+  },  
+  WITHDRAW: {
+    FETCH_SUCCESS: 'Withdraw data fetched successfully',
+    FETCH_STATS_SUCCESS: 'Withdraw Stats Fetched Successfully',
   },
 };

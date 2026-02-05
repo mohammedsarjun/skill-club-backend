@@ -1,6 +1,7 @@
 import BaseRepository from '../baseRepositories/base-repository';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { ClientSession } from 'mongoose';
+import { AdminWithdrawalStatsDTO } from 'src/dto/adminDTO/admin-withdrawal.dto';
 
 export interface IContractTransactionRepository extends BaseRepository<IContractTransaction> {
   createTransaction(
@@ -95,7 +96,15 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   ): Promise<IContractTransaction[]>;
 
   countWithdrawalsByFreelancerId(freelancerId: string, status?: string): Promise<number>;
+  findWithdrawalsForAdmin(
+    page: number,
+    limit: number,
+    role?: string,
+    status?: string,
+  ): Promise<IContractTransaction[]>;
   getFreelancerTotalEarnings(freelancerId: string): Promise<number>;
   getFreelancerAvailableBalance(freelancerId: string): Promise<number>;
   getPendingWithdraw(freelancerId: string): Promise<number>;
+  getWithdrawStatsForAdmin(): Promise<AdminWithdrawalStatsDTO> 
+  countWithdrawalsForAdmin(role?: string, status?: string): Promise<number>
 }

@@ -4,12 +4,12 @@ import { IContractTransaction } from '../models/interfaces/contract-transaction.
 import { ContractTransaction } from '../models/contract-transaction.model';
 import { IContractTransactionRepository } from './interfaces/contract-transaction-repository.interface';
 import { ClientSession, Types } from 'mongoose';
+import { AdminWithdrawalStatsDTO } from 'src/dto/adminDTO/admin-withdrawal.dto';
 
 @injectable()
 export class ContractTransactionRepository
   extends BaseRepository<IContractTransaction>
-  implements IContractTransactionRepository
-{
+  implements IContractTransactionRepository {
   constructor() {
     super(ContractTransaction);
   }
@@ -47,7 +47,7 @@ export class ContractTransactionRepository
   ): Promise<IContractTransaction[]> {
     const skip = (page - 1) * limit;
     return await this.model
-      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal',role:"client" })
+      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal', role: "client" })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -58,7 +58,7 @@ export class ContractTransactionRepository
     return await this.model.countDocuments({
       clientId: new Types.ObjectId(clientId),
       purpose: 'withdrawal',
-      role:'client'
+      role: 'client'
     });
   }
 
@@ -544,21 +544,21 @@ export class ContractTransactionRepository
     ]);
     return result.length > 0
       ? {
-          totalFunded: result[0].totalFunded,
-          totalPaidToFreelancer: result[0].totalPaidToFreelancer,
-          commissionPaid: result[0].commissionPaid,
-          totalHeld: result[0].totalHeld,
-          totalRefund: result[0].totalRefund,
-          availableContractBalance: result[0].availableContractBalance,
-        }
+        totalFunded: result[0].totalFunded,
+        totalPaidToFreelancer: result[0].totalPaidToFreelancer,
+        commissionPaid: result[0].commissionPaid,
+        totalHeld: result[0].totalHeld,
+        totalRefund: result[0].totalRefund,
+        availableContractBalance: result[0].availableContractBalance,
+      }
       : {
-          totalFunded: 0,
-          totalPaidToFreelancer: 0,
-          commissionPaid: 0,
-          totalHeld: 0,
-          totalRefund: 0,
-          availableContractBalance: 0,
-        };
+        totalFunded: 0,
+        totalPaidToFreelancer: 0,
+        commissionPaid: 0,
+        totalHeld: 0,
+        totalRefund: 0,
+        availableContractBalance: 0,
+      };
   }
 
   async updateHoldTransactionStatusToSplit(
@@ -651,7 +651,7 @@ export class ContractTransactionRepository
         $match: {
           clientId: new Types.ObjectId(clientId),
           purpose: 'withdrawal',
-          role:"client"
+          role: "client"
         },
       },
       { $group: { _id: null, totalWithdrawn: { $sum: '$amount' } } },
@@ -724,7 +724,7 @@ export class ContractTransactionRepository
     const filter: Record<string, unknown> = {
       freelancerId: new Types.ObjectId(freelancerId),
       purpose: 'withdrawal',
-      role:'freelancer'
+      role: 'freelancer'
     };
 
     if (status) {
@@ -738,7 +738,7 @@ export class ContractTransactionRepository
     const filter: Record<string, unknown> = {
       freelancerId: new Types.ObjectId(freelancerId),
       purpose: 'withdrawal',
-      role:'freelancer'
+      role: 'freelancer'
     };
     if (status) {
       (filter as any).status = status;
@@ -797,7 +797,7 @@ export class ContractTransactionRepository
         $match: {
           freelancerId: new Types.ObjectId(freelancerId),
           purpose: { $in: ['withdrawal'] },
-          status:"withdrawal_requested"
+          status: "withdrawal_requested"
         },
       },
       {
@@ -819,7 +819,50 @@ export class ContractTransactionRepository
     return result.length > 0 ? result[0].pendingWithdraw : 0;
   }
 
-  async
+  async getWithdrawStatsForAdmin(): Promise<AdminWithdrawalStatsDTO> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          purpose: "withdrawal"
+        }
+      },
+      {
+        $group: {
+          _id: null,
+          pendingRequests: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'withdrawal_requested'] }, 1, 0],
+            },
+          },
+          totalPendingAmount: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'withdrawal_requested'] }, '$amount', 0],
+            },
+          },
+          totalWithdrawn: {
+            $sum: {
+              $cond: [{ $eq: ['$status', 'withdrawal_approved'] }, '$amount', 0],
+            },
+          }
+        }
+      },
+      {
+        $project: {
+          pendingRequests: "$pendingRequests",
+          totalPendingAmount: "$totalPendingAmount",
+          totalWithdrawn: "$totalWithdrawn"
+        }
+      }
+    ])
+
+    const { pendingRequests, totalPendingAmount, totalWithdrawn } = result.length > 0 ? result[0]:{}
+
+    return {
+      pendingRequests:pendingRequests||0,
+      totalPendingAmount:totalPendingAmount||0,
+      totalWithdrawn:totalWithdrawn||0
+    }
+  }
 
 
 }

@@ -1,13 +1,6 @@
-
+import { AdminWithdrawalStatsDTO, AdminWithdrawDTO } from "../../../dto/adminDTO/admin-withdrawal.dto";
 
 export interface IAdminWithdrawalServices {
-  getUserStats(): Promise<AdminUserStatsDto>;
-  getUsers(dto: GetUserDto): Promise<{
-    data: AdminUserDto[];
-    total: number;
-    page: number;
-    limit: number;
-  }>;
-  getUserDetail(id: string): Promise<UserDetailDto>;
-  updateUserStatus(userData: updateUserStatusDto): Promise<void>;
+  getWithdrawStats(): Promise<AdminWithdrawalStatsDTO>
+  getWithdrawals(page: number, limit: number, role?: string, status?: string): Promise<{ items: AdminWithdrawDTO[]; total: number }>
 }
