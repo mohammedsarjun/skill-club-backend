@@ -47,7 +47,7 @@ export class ContractTransactionRepository
   ): Promise<IContractTransaction[]> {
     const skip = (page - 1) * limit;
     return await this.model
-      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal' })
+      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal',role:"client" })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -55,7 +55,11 @@ export class ContractTransactionRepository
   }
 
   async countWithdrawalsByClientId(clientId: string): Promise<number> {
-    return await this.model.countDocuments({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal' });
+    return await this.model.countDocuments({
+      clientId: new Types.ObjectId(clientId),
+      purpose: 'withdrawal',
+      role:'client'
+    });
   }
 
   async findSpentTransactionsByClientId(clientId: string): Promise<IContractTransaction[]> {
@@ -616,7 +620,6 @@ export class ContractTransactionRepository
   }
 
   async getTotalFundedByClientId(clientId: string): Promise<number> {
-
     const result = await this.model.aggregate([
       {
         $match: {
@@ -630,7 +633,6 @@ export class ContractTransactionRepository
   }
 
   async findTotalRefundByClientId(clientId: string): Promise<number> {
-
     const result = await this.model.aggregate([
       {
         $match: {
@@ -638,7 +640,7 @@ export class ContractTransactionRepository
           purpose: 'refund',
         },
       },
-      { $group: { _id: null, totalRefunded: { $sum: '$amount' } } },  
+      { $group: { _id: null, totalRefunded: { $sum: '$amount' } } },
     ]);
     return result.length > 0 ? result[0].totalRefunded : 0;
   }
@@ -649,12 +651,175 @@ export class ContractTransactionRepository
         $match: {
           clientId: new Types.ObjectId(clientId),
           purpose: 'withdrawal',
+          role:"client"
         },
       },
       { $group: { _id: null, totalWithdrawn: { $sum: '$amount' } } },
     ]);
     return result.length > 0 ? result[0].totalWithdrawn : 0;
   }
+
+  async getFreelancerTotalEarnings(freelancerId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(freelancerId),
+          purpose: { $in: ['release'] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalAvailable: { $sum: '$amount' },
+        },
+      },
+    ]);
+    return result.length > 0 ? result[0].totalAvailable : 0;
+  }
+
+  async getFreelancerAvailableBalance(freelancerId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(freelancerId),
+          purpose: { $in: ['release', 'withdrawal'] },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalReleased: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'release'] }, '$amount', 0],
+            },
+          },
+          totalWithdrawn: {
+            $sum: {
+              $cond: [{ $eq: ['$purpose', 'withdrawal'] }, '$amount', 0],
+            },
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          availableBalance: {
+            $subtract: ['$totalReleased', '$totalWithdrawn'],
+          },
+        },
+      },
+    ]);
+
+    return result.length > 0 ? result[0].availableBalance : 0;
+  }
+
+  async findWithdrawalsByFreelancerIdWithPagination(
+    freelancerId: string,
+    page: number,
+    limit: number,
+    status?: string,
+  ): Promise<IContractTransaction[]> {
+    console.log(status)
+    const skip = (page - 1) * limit;
+    const filter: Record<string, unknown> = {
+      freelancerId: new Types.ObjectId(freelancerId),
+      purpose: 'withdrawal',
+      role:'freelancer'
+    };
+
+    if (status) {
+      (filter as any).status = status;
+    }
+
+    return await this.model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+  }
+
+  async countWithdrawalsByFreelancerId(freelancerId: string, status?: string): Promise<number> {
+    const filter: Record<string, unknown> = {
+      freelancerId: new Types.ObjectId(freelancerId),
+      purpose: 'withdrawal',
+      role:'freelancer'
+    };
+    if (status) {
+      (filter as any).status = status;
+    }
+    return await this.model.countDocuments(filter);
+  }
+
+  async findWithdrawalsForAdmin(
+    page: number,
+    limit: number,
+    role?: string,
+    status?: string,
+  ): Promise<IContractTransaction[]> {
+    const skip = (page - 1) * limit;
+    const filter: Record<string, unknown> = {
+      purpose: 'withdrawal',
+    };
+
+    if (role) {
+      (filter as any).role = role;
+    }
+
+    if (status) {
+      (filter as any).status = status;
+    }
+
+    return await this.model
+      .find(filter)
+      .populate('clientId', 'firstName lastName')
+      .populate('freelancerId', 'firstName lastName')
+      .sort({ createdAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .lean();
+  }
+
+  async countWithdrawalsForAdmin(role?: string, status?: string): Promise<number> {
+    const filter: Record<string, unknown> = {
+      purpose: 'withdrawal',
+    };
+
+    if (role) {
+      (filter as any).role = role;
+    }
+
+    if (status) {
+      (filter as any).status = status;
+    }
+
+    return await this.model.countDocuments(filter);
+  }
+
+  async getPendingWithdraw(freelancerId: string): Promise<number> {
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          freelancerId: new Types.ObjectId(freelancerId),
+          purpose: { $in: ['withdrawal'] },
+          status:"withdrawal_requested"
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          pendingWithdraw: {
+            $sum: "$amount",
+          },
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          pendingWithdraw: "$pendingWithdraw",
+        },
+      },
+    ]);
+
+    return result.length > 0 ? result[0].pendingWithdraw : 0;
+  }
+
+  async
 
 
 }

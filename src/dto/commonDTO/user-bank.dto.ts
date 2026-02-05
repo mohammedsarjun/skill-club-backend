@@ -1,4 +1,4 @@
-export interface ClientBankDTO {
+export interface UserBankDTO {
   userId: string;
   accountHolderName: string;
   bankName: string;

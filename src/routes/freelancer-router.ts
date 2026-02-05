@@ -17,6 +17,7 @@ import { FreelancerMeetingController } from '../controllers/freelancer/freelance
 import { FreelancerReviewController } from '../controllers/freelancer/freelancer-review-controller';
 import { FreelancerDisputeController } from '../controllers/freelancer/freelancer-dispute-controller';
 import { FreelancerEarningsController } from '../controllers/freelancer/freelancer-earnings-controller';
+import { FreelancerFinanceController } from '../controllers/freelancer/freelancer-finance-controller';
 import { FreelancerDashboardController } from '../controllers/freelancer/freelancer-dashboard-controller';
 const freelancerRouter = express.Router();
 
@@ -34,6 +35,7 @@ const freelancerMeetingController = container.resolve(FreelancerMeetingControlle
 const freelancerReviewController = container.resolve(FreelancerReviewController);
 const freelancerDisputeController = container.resolve(FreelancerDisputeController);
 const freelancerEarningsController = container.resolve(FreelancerEarningsController);
+const freelancerFinanceController = container.resolve(FreelancerFinanceController);
 const freelancerDashboardController = container.resolve(FreelancerDashboardController);
 freelancerRouter.get(
   '/me',
@@ -605,6 +607,22 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerEarningsController.getTransactions.bind(freelancerEarningsController),
+);
+
+freelancerRouter.post(
+  '/finance/withdraw',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerFinanceController.requestWithdrawal.bind(freelancerFinanceController),
+);
+
+freelancerRouter.get(
+  '/finance/withdrawals',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerFinanceController.getWithdrawals.bind(freelancerFinanceController),
 );
 
 freelancerRouter.get(

@@ -8,14 +8,18 @@ const ContractTransactionSchema = new Schema<IContractTransaction>(
     paymentId: { type: Schema.Types.ObjectId, ref: 'Payment' },
     milestoneId: { type: Schema.Types.ObjectId },
     workLogId: { type: Schema.Types.ObjectId },
-    clientId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
-    freelancerId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
+    clientId: { type: Schema.Types.ObjectId,  ref: 'User', index: true },
+    freelancerId: { type: Schema.Types.ObjectId,  ref: 'User', index: true },
 
     amount: { type: Number, required: true },
     purpose: {
       type: String,
       enum: ['funding', 'release', 'commission', 'refund', 'hold', 'withdrawal'],
       required: true,
+    },
+    role:{
+      type:String,
+      enum:["client",'freelancer']
     },
     status: {
       type: String,

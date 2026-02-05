@@ -11,7 +11,7 @@ export interface IContractTransaction extends Document {
 
   clientId: Types.ObjectId;
   freelancerId: Types.ObjectId;
-
+role  :'client'|'freelancer'|null
   amount: number;
   purpose: ContractTransactionPurpose;
   status:

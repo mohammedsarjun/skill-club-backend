@@ -3,7 +3,10 @@ import { IContractTransaction } from '../../models/interfaces/contract-transacti
 import { ClientSession } from 'mongoose';
 
 export interface IContractTransactionRepository extends BaseRepository<IContractTransaction> {
-  createTransaction(data: Partial<IContractTransaction>, session?: ClientSession): Promise<IContractTransaction>;
+  createTransaction(
+    data: Partial<IContractTransaction>,
+    session?: ClientSession,
+  ): Promise<IContractTransaction>;
   findByContractId(contractId: string): Promise<IContractTransaction[]>;
   findByMilestoneId(contractId: string, milestoneId: string): Promise<IContractTransaction[]>;
   findByClientId(clientId: string): Promise<IContractTransaction[]>;
@@ -26,9 +29,18 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   ): Promise<{ date: Date; revenue: number }[]>;
   getMonthlyRevenue(year: number, month: number): Promise<number>;
   findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number>;
-  findHoldTransactionByContract(contractId: string, milestoneId?: string): Promise<IContractTransaction | null>;
-  findHoldTransactionByWorklog(contractId: string, worklogId: string): Promise<IContractTransaction | null>;
-  updateTransactionStatusForFixedContract(contractId: string, status: IContractTransaction['status']): Promise<void>;
+  findHoldTransactionByContract(
+    contractId: string,
+    milestoneId?: string,
+  ): Promise<IContractTransaction | null>;
+  findHoldTransactionByWorklog(
+    contractId: string,
+    worklogId: string,
+  ): Promise<IContractTransaction | null>;
+  updateTransactionStatusForFixedContract(
+    contractId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void>;
   updateTransactionStatusForMilestoneContract(
     contractId: string,
     milestoneId: string,
@@ -44,7 +56,7 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
     status: IContractTransaction['status'],
   ): Promise<void>;
   findActiveHoldTransactionsByWorklogIds(worklogIds: string[]): Promise<IContractTransaction[]>;
-  releaseHoldTransactionsToContract(worklogIds: string): Promise<IContractTransaction | null> ;
+  releaseHoldTransactionsToContract(worklogIds: string): Promise<IContractTransaction | null>;
   findHourlyContractRefundAmount(contractId: string): Promise<number>;
   findTotalFundedByContractId(contractId: string): Promise<number>;
   findTotalPaidToFreelancerByContractId(contractId: string): Promise<number>;
@@ -68,7 +80,22 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   getTotalFundedByClientId(clientId: string): Promise<number>;
   findTotalRefundByClientId(clientId: string): Promise<number>;
   findTotalWithdrawalByClientId(clientId: string): Promise<number>;
-  findTotalWithdrawalByClientId(clientId: string): Promise<number>;
-  findWithdrawalsByClientIdWithPagination(clientId: string, page: number, limit: number): Promise<IContractTransaction[]>;
+  
+  findWithdrawalsByClientIdWithPagination(
+    clientId: string,
+    page: number,
+    limit: number,
+  ): Promise<IContractTransaction[]>;
   countWithdrawalsByClientId(clientId: string): Promise<number>;
+  findWithdrawalsByFreelancerIdWithPagination(
+    freelancerId: string,
+    page: number,
+    limit: number,
+    status?: string,
+  ): Promise<IContractTransaction[]>;
+
+  countWithdrawalsByFreelancerId(freelancerId: string, status?: string): Promise<number>;
+  getFreelancerTotalEarnings(freelancerId: string): Promise<number>;
+  getFreelancerAvailableBalance(freelancerId: string): Promise<number>;
+  getPendingWithdraw(freelancerId: string): Promise<number>;
 }

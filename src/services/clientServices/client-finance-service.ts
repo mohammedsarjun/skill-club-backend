@@ -81,7 +81,7 @@ export class ClientFinanceService implements IClientFinanceService {
     const created = await this._contractTransactionRepository.createTransaction({
       contractId: new Types.ObjectId(),
       clientId: new Types.ObjectId(clientId),
-      freelancerId: new Types.ObjectId(clientId),
+      role:"client",
       amount,
       purpose: 'withdrawal',
       status: 'withdrawal_requested',

@@ -1,6 +1,6 @@
-import { ClientBankDTO } from '../../../dto/clientDTO/client-bank.dto';
+import { UserBankDTO } from '../../../dto/commonDTO/user-bank.dto';
 
 export interface IClientBankService {
-  getBankDetails(clientId: string): Promise<ClientBankDTO | null>;
-  saveBankDetails(clientId: string, data: Partial<ClientBankDTO>): Promise<ClientBankDTO>;
+  getBankDetails(clientId: string): Promise<UserBankDTO | null>;
+  saveBankDetails(clientId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO>;
 }

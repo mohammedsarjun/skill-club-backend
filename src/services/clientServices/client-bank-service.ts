@@ -3,7 +3,7 @@ import '../../config/container';
 import { IClientBankService } from './interfaces/client-bank-service.interface';
 import { IBankDetailsRepository } from '../../repositories/interfaces/bank-details-repository.interface';
 import { mapBankToDTO } from '../../mapper/clientMapper/client-bank.mapper';
-import { ClientBankDTO } from '../../dto/clientDTO/client-bank.dto';
+import { UserBankDTO } from '../../dto/commonDTO/user-bank.dto';
 import AppError from '../../utils/app-error';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 
@@ -15,13 +15,13 @@ export class ClientBankService implements IClientBankService {
     this._bankRepository = bankRepository;
   }
 
-  async getBankDetails(clientId: string): Promise<ClientBankDTO | null> {
+  async getBankDetails(clientId: string): Promise<UserBankDTO | null> {
     const bank = await this._bankRepository.findByUserId(clientId);
     if (!bank) return null;
     return mapBankToDTO(bank as any);
   }
 
-  async saveBankDetails(clientId: string, data: Partial<ClientBankDTO>): Promise<ClientBankDTO> {
+  async saveBankDetails(clientId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO> {
     if (!data.accountHolderName || !data.bankName || !data.accountNumber || !data.ifscCode) {
       throw new AppError(ERROR_MESSAGES.BANK.INVALID_DETAILS, 400);
     }

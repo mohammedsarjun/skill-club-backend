@@ -244,4 +244,9 @@ adminRouter.post(
   roleGuard('admin'),
   adminDisputeController.releaseHoldHourly.bind(adminDisputeController),
 );
+
+adminRouter.get('/withdrawals',
+  authMiddleware,roleGuard("admin"),
+  adminWit
+)
 export default adminRouter;

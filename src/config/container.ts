@@ -357,6 +357,14 @@ container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', {
   useClass: FreelancerSavedJobService,
 });
 
+// Freelancer finance (withdrawals)
+import { IFreelancerFinanceService } from '../services/freelancerServices/interfaces/freelancer-finance-service.interface';
+import { FreelancerFinanceService } from '../services/freelancerServices/freelancer-finance-service';
+
+container.register<IFreelancerFinanceService>('IFreelancerFinanceService', {
+  useClass: FreelancerFinanceService,
+});
+
 //client proposal Service
 import { IClientProposalService } from '../services/clientServices/interfaces/client-proposal-service.interface';
 import { ClientProposalService } from '../services/clientServices/client-proposal-service';

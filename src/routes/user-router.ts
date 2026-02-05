@@ -41,4 +41,18 @@ userRouter.get(
   userSkillController.getSuggestedSkills.bind(userSkillController),
 );
 
+userRouter.get(
+  '/bank-details',
+  authMiddleware,
+
+  userController.getBankDetails.bind(userController),
+);
+
+userRouter.post(
+  '/bank-details',
+  authMiddleware,
+ 
+  userController.saveBankDetails.bind(userController),
+);
+
 export default userRouter;
