@@ -124,6 +124,8 @@ export const mapUserModelToClientFreelancerResponseDto = (
 
 export const mapFreelancerToFetchClientFreelancerDTO = (
   user: IFreelancerDetailData,
+  averageRating: number,
+  totalReviews: number,
 ): FetchClientFreelancerDTO => {
   console.log(user);
   return {
@@ -141,6 +143,10 @@ export const mapFreelancerToFetchClientFreelancerDTO = (
     bio: user?.bio || '',
     hourlyRate: user?.hourlyRate || 0,
     portfolio: null,
+    jobSuccessRate: user?.jobSuccessRate || 0,
+    totalEarnedAmount: user?.totalEarnedAmount || 0,
+    averageRating: averageRating || 0,
+    totalReviews: totalReviews || 0,
   };
 };
 

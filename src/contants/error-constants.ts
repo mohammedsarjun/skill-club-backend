@@ -61,6 +61,7 @@ export const ERROR_MESSAGES = {
   JOB: {
     NOT_FOUND: 'Job not found',
     INVALID_STATUS: 'Job status is not valid for this operation',
+    ALREADY_REPORTED: 'You have already reported this job',
   },
   PROPOSAL: {
     ALREADY_EXIST: 'Proposal already sent',
@@ -132,5 +133,8 @@ export const ERROR_MESSAGES = {
   BANK: {
     INVALID_DETAILS: 'Invalid bank details provided',
     NOT_FOUND: 'Bank details not found',
+  },
+  REPORT: {
+    NOT_FOUND: 'No reports found',
   },
 };

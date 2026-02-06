@@ -66,7 +66,7 @@ export class ContractTransactionRepository
     return await this.model
       .find({
         clientId,
-        purpose: { $in: ['funding', 'commission'] },
+        purpose: { $in: ['funding'] },
       })
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })

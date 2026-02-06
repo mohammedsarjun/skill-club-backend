@@ -293,7 +293,7 @@ export class ClientWorklogService implements IClientWorklogService {
           paymentId: fundingTransaction.paymentId,
           clientId: contract.clientId,
           freelancerId: contract.freelancerId,
-          amount: paymentAmount,
+           amount: paymentAmount - (paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE),
           purpose: 'release',
           description: `Payment for approved worklog - ${worklog.worklogId}`,
         }, session);

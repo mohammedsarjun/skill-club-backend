@@ -69,5 +69,6 @@ export interface FreelancerJobResponseDto {
     companyName: string;
     country: string;
     rating: number;
+    totalMoneySpent: number;
   };
 }

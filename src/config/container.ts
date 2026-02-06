@@ -357,6 +357,25 @@ container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', {
   useClass: FreelancerSavedJobService,
 });
 
+import { IReportedJobRepository } from '../repositories/interfaces/reported-job-repository.interface';
+import { ReportedJobRepository } from '../repositories/reported-job-repository';
+import { IFreelancerReportedJobService } from '../services/freelancerServices/interfaces/freelancer-reported-job-service.interface';
+import { FreelancerReportedJobService } from '../services/freelancerServices/freelancer-reported-job-service';
+
+container.register<IReportedJobRepository>('IReportedJobRepository', {
+  useClass: ReportedJobRepository,
+});
+container.register<IFreelancerReportedJobService>('IFreelancerReportedJobService', {
+  useClass: FreelancerReportedJobService,
+});
+
+import { IAdminReportedJobService } from '../services/adminServices/interfaces/admin-reported-job-service.interface';
+import { AdminReportedJobService } from '../services/adminServices/admin-reported-job-service';
+
+container.register<IAdminReportedJobService>('IAdminReportedJobService', {
+  useClass: AdminReportedJobService,
+});
+
 // Freelancer finance (withdrawals)
 import { IFreelancerFinanceService } from '../services/freelancerServices/interfaces/freelancer-finance-service.interface';
 import { FreelancerFinanceService } from '../services/freelancerServices/freelancer-finance-service';

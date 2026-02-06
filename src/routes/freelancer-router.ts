@@ -10,6 +10,7 @@ import { FreelancerJobController } from '../controllers/freelancer/freelancer-jo
 import { FreelancerProposalController } from '../controllers/freelancer/freelancer-proposal-controller';
 import { FreelancerOfferController } from '../controllers/freelancer/freelancer-offer-controller';
 import { FreelancerSavedJobController } from '../controllers/freelancer/freelancer-saved-job-controller';
+import { FreelancerReportedJobController } from '../controllers/freelancer/freelancer-reported-job-controller';
 import { FreelancerContractController } from '../controllers/freelancer/freelancer-contract-controller';
 import { FreelancerChatController } from '../controllers/freelancer/freelancer-chat-controller';
 import { FreelancerWorklogController } from '../controllers/freelancer/freelancer-worklog-controller';
@@ -28,6 +29,7 @@ const freelancerJobController = container.resolve(FreelancerJobController);
 const freelancerProposalController = container.resolve(FreelancerProposalController);
 const freelancerOfferController = container.resolve(FreelancerOfferController);
 const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
+const freelancerReportedJobController = container.resolve(FreelancerReportedJobController);
 const freelancerContractController = container.resolve(FreelancerContractController);
 const freelancerChatController = container.resolve(FreelancerChatController);
 const freelancerWorklogController = container.resolve(FreelancerWorklogController);
@@ -253,6 +255,22 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerSavedJobController.getSavedJobs.bind(freelancerSavedJobController),
+);
+
+freelancerRouter.post(
+  '/jobs/:jobId/report',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerReportedJobController.reportJob.bind(freelancerReportedJobController),
+);
+
+freelancerRouter.get(
+  '/jobs/:jobId/reported',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerReportedJobController.isJobReported.bind(freelancerReportedJobController),
 );
 
 freelancerRouter.get(

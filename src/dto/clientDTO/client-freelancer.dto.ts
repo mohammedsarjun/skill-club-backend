@@ -39,7 +39,7 @@ export interface ClientFreelancerResponseDto {
 export interface FetchClientFreelancerDTO {
   name: string;
   address: { country: string };
-  logo?: string; // optional, as it can be undefined
+  logo?: string;
   workCategory?: Types.ObjectId;
   specialties: { id: string; name: string }[];
   skills: { id: string; name: string }[];
@@ -50,6 +50,10 @@ export interface FetchClientFreelancerDTO {
   bio: string;
   hourlyRate: number;
   portfolio: null;
+  jobSuccessRate: number;
+  totalEarnedAmount: number;
+  averageRating: number;
+  totalReviews: number;
 }
 
 // Experience DTO

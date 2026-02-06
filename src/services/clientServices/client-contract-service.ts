@@ -381,7 +381,8 @@ export class ClientContractService implements IClientContractService {
       paymentId: fundingTransaction.paymentId,
       clientId: contract.clientId,
       freelancerId: contract.freelancerId,
-      amount: paymentAmount,
+      amount: paymentAmount - (paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE)
+,
       purpose: 'release',
       description: `Payment release for approved deliverable - ${contract.title}`,
     });
@@ -720,7 +721,7 @@ export class ClientContractService implements IClientContractService {
       milestoneId: new Types.ObjectId(data.milestoneId),
       clientId: contract.clientId,
       freelancerId: contract.freelancerId,
-      amount: paymentAmount,
+      amount:   paymentAmount - (paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE),
       purpose: 'release',
       description: `Payment release for approved milestone - ${milestone.title}`,
     });

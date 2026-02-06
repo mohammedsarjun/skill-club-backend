@@ -78,7 +78,8 @@ export class FreelancerJobService implements IFreelancerJobService {
     const totalJobsPosted = await this._jobRepository.countAllJobsByClientId(clientId._id);
     const clientMinimalData = mapuserModelToFreelancerClientMinimalDTO(userData!, totalJobsPosted);
     const isProposalAlreadySent=await this._proposalRepository.findProposalByFreelancerAndJobId(freelancerUserId,jobId)
-    const jobDetailData = mapJobModelToFreelancerJobDetailResponseDTO(jobData, clientMinimalData,isProposalAlreadySent?true:false);
+    const proposalCount = await this._proposalRepository.countProposalsByJobId(jobId);
+    const jobDetailData = mapJobModelToFreelancerJobDetailResponseDTO(jobData, clientMinimalData,isProposalAlreadySent?true:false, proposalCount);
 
     return jobDetailData;
   }

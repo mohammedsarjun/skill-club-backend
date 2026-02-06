@@ -29,6 +29,9 @@ const adminDashboardController = container.resolve(AdminDashboardController);
 const adminDisputeController = container.resolve(AdminDisputeController);
 const adminWithdrawalController=container.resolve(AdminWithdrawalController)
 const adminRevenueController = container.resolve(AdminRevenueController);
+
+import { AdminReportedJobController } from '../controllers/admin/admin-reported-job-controller';
+const adminReportedJobController = container.resolve(AdminReportedJobController);
 //auth
 adminRouter.post('/login', adminAuthController.login.bind(adminAuthController));
 adminRouter.get(
@@ -156,6 +159,20 @@ adminRouter.patch(
   authMiddleware,
   roleGuard('admin'),
   adminJobController.suspendJob.bind(adminJobController),
+);
+
+adminRouter.get(
+  '/reports',
+  authMiddleware,
+  roleGuard('admin'),
+  adminReportedJobController.getAllReportedJobs.bind(adminReportedJobController),
+);
+
+adminRouter.get(
+  '/jobs/:jobId/reports',
+  authMiddleware,
+  roleGuard('admin'),
+  adminReportedJobController.getReportsByJobId.bind(adminReportedJobController),
 );
 
 adminRouter.get(

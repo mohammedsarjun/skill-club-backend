@@ -132,4 +132,6 @@ export interface IFreelancerDetailData {
   hourlyRateCurrency?: string;
   hourlyRateConversionRate?: number;
   hourlyRateBaseUSD?: number;
+  jobSuccessRate: number;
+  totalEarnedAmount: number;
 }

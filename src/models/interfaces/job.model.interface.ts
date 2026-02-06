@@ -65,5 +65,8 @@ export interface IJobResponse
     companyName: string;
     logo: string;
     country?: string;
+    rating?: number;
+    totalMoneySpent?: number;
   };
+  proposalCount?: number;
 }
