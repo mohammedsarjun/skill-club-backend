@@ -26,6 +26,7 @@ cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',ca
   countForAdmin(query: AdminContractQueryParamsDTO): Promise<number>;
   findDetailByIdForAdmin(contractId: string): Promise<IContract | null>;
   getRecentContracts(limit: number): Promise<IContract[]>;
+  getRecentActiveContractsByClientId(clientId: string, limit: number): Promise<IContract[]>;
   countByFreelancerAndStatus(
     freelancerId: string,
     status: IContract['status'] | IContract['status'][],

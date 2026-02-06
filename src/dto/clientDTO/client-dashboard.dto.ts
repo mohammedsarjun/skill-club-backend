@@ -29,8 +29,40 @@ export interface RecentMessageDTO {
   avatar: string;
 }
 
+export interface RecentActiveContractDTO {
+  _id: string;
+  title: string;
+  freelancer: {
+    _id: string;
+    name: string;
+    logo?: string;
+    country?: string;
+  };
+  status: string;
+  contractType: string;
+  startDate: string;
+  budget: number;
+  currency?: string;
+}
+
+export interface SavedFreelancerDTO {
+  _id: string;
+  freelancer: {
+    _id: string;
+    name: string;
+    logo?: string;
+    professionalRole?: string;
+    country?: string;
+    hourlyRate?: number;
+    skills: string[];
+  };
+  savedAt: string;
+}
+
 export interface ClientDashboardDTO {
   stats: ClientDashboardStatsDTO;
   recentJobs: RecentJobDTO[];
   recentMessages: RecentMessageDTO[];
+  recentActiveContracts: RecentActiveContractDTO[];
+  savedFreelancers: SavedFreelancerDTO[];
 }

@@ -637,6 +637,19 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       .lean();
   }
 
+  async getRecentActiveContractsByClientId(clientId: string, limit: number): Promise<IContract[]> {
+    return await this.model
+      .find({ 
+        clientId, 
+        status: { $in: ['active', 'held'] as ContractStatus[] }
+      })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate('freelancerId', 'firstName lastName logo country')
+      .populate('jobId', 'title')
+      .lean();
+  }
+
   async countByFreelancerAndStatus(
     freelancerId: string,
     status: IContract['status'] | IContract['status'][],
