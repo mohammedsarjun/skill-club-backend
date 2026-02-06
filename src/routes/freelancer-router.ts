@@ -626,6 +626,14 @@ freelancerRouter.get(
 );
 
 freelancerRouter.get(
+  '/finance/withdrawals/:withdrawalId',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerFinanceController.getWithdrawalDetail.bind(freelancerFinanceController),
+);
+
+freelancerRouter.get(
   '/dashboard/contract-stats',
   authMiddleware,
   roleGuard('freelancer'),

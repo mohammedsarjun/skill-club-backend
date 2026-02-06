@@ -7,7 +7,10 @@ import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { Types } from 'mongoose';
 import { IBankDetailsRepository } from '../../repositories/interfaces/bank-details-repository.interface';
 import { mapContractTransactionToFreelancerTransactionItemDTO } from '../../mapper/freelancerMapper/freelancer-earnings.mapper';
+import { mapContractTransactionToFreelancerWithdrawalListItemDTO, mapContractTransactionToFreelancerWithdrawalDetailDTO } from '../../mapper/freelancerMapper/freelancer-withdrawal.mapper';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
+import { HttpStatus } from '../../enums/http-status.enum';
+import { FreelancerWithdrawalDetailDTO } from '../../dto/freelancerDTO/freelancer-withdrawal.dto';
 
 @injectable()
 export class FreelancerFinanceService implements IFreelancerFinanceService {
@@ -59,7 +62,7 @@ export class FreelancerFinanceService implements IFreelancerFinanceService {
     page: number,
     limit: number,
     status?: string,
-  ): Promise<{ items: any[]; total: number }> {
+  ): Promise<{ items: unknown[]; total: number; pages: number }> {
     const items =
       await this._contractTransactionRepository.findWithdrawalsByFreelancerIdWithPagination(
         freelancerId,
@@ -72,9 +75,27 @@ export class FreelancerFinanceService implements IFreelancerFinanceService {
       status,
     );
     const dtos = items.map((t: IContractTransaction) =>
-      mapContractTransactionToFreelancerTransactionItemDTO(t),
+      mapContractTransactionToFreelancerWithdrawalListItemDTO(t),
     );
-    return { items: dtos, total };
+    const pages = Math.ceil(total / limit);
+    return { items: dtos, total, pages };
+  }
+
+  async getWithdrawalDetail(freelancerId: string, withdrawalId: string): Promise<FreelancerWithdrawalDetailDTO> {
+    const transaction = await this._contractTransactionRepository.findById(withdrawalId);
+
+    if (!transaction) {
+      throw new AppError(ERROR_MESSAGES.GENERAL.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const txFreelancerId = (transaction.freelancerId as unknown as { toString(): string }).toString();
+    if (txFreelancerId !== freelancerId) {
+      throw new AppError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, HttpStatus.FORBIDDEN);
+    }
+
+    const bankDetails = await this._bankRepository.findByUserId(freelancerId);
+
+    return mapContractTransactionToFreelancerWithdrawalDetailDTO(transaction, bankDetails);
   }
 }
 

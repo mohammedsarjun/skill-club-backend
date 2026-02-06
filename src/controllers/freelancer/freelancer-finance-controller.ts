@@ -32,10 +32,24 @@ export class FreelancerFinanceController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Withdrawal history fetched',
-      data: result.items,
-      total: result.total,
-      page,
-      limit,
+      data: {
+        items: result.items,
+        total: result.total,
+        page,
+        limit,
+        pages: result.pages,
+      },
+    });
+  }
+
+  async getWithdrawalDetail(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { withdrawalId } = req.params;
+    const result = await this._freelancerFinanceService.getWithdrawalDetail(freelancerId, withdrawalId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Withdrawal detail fetched',
+      data: result,
     });
   }
 }

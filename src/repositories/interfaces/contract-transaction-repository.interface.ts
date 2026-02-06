@@ -105,6 +105,8 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   getFreelancerTotalEarnings(freelancerId: string): Promise<number>;
   getFreelancerAvailableBalance(freelancerId: string): Promise<number>;
   getPendingWithdraw(freelancerId: string): Promise<number>;
-  getWithdrawStatsForAdmin(): Promise<AdminWithdrawalStatsDTO> 
-  countWithdrawalsForAdmin(role?: string, status?: string): Promise<number>
+  getWithdrawStatsForAdmin(): Promise<AdminWithdrawalStatsDTO>;
+  countWithdrawalsForAdmin(role?: string, status?: string): Promise<number>;
+  findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null>;
+  updateWithdrawalStatus(withdrawalId: string, status: string): Promise<IContractTransaction | null>;
 }

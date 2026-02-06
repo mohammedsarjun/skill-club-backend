@@ -40,4 +40,34 @@ export class AdminWithdrawalController implements IAdminWithdrawalController {
       },
     });
   }
+
+  async getWithdrawalDetail(_req: Request, res: Response): Promise<void> {
+    const { withdrawalId } = _req.params;
+    const result = await this._adminWithdrawalService.getWithdrawalDetail(withdrawalId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.WITHDRAW.FETCH_SUCCESS,
+      data: result,
+    });
+  }
+
+  async approveWithdrawal(_req: Request, res: Response): Promise<void> {
+    const { withdrawalId } = _req.params;
+    await this._adminWithdrawalService.approveWithdrawal(withdrawalId);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Withdrawal approved successfully',
+    });
+  }
+
+  async rejectWithdrawal(_req: Request, res: Response): Promise<void> {
+    const { withdrawalId } = _req.params;
+    const { reason } = _req.body;
+    
+    await this._adminWithdrawalService.rejectWithdrawal(withdrawalId, reason);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Withdrawal rejected successfully',
+    });
+  }
 }

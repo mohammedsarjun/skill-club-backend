@@ -1,18 +1,20 @@
 
 export interface AdminWithdrawalStatsDTO {
-pendingRequests:number
-totalPendingAmount:number
-totalWithdrawn:number
+  pendingRequests: number;
+  totalPendingAmount: number;
+  totalWithdrawn: number;
 }
 
 export interface AdminWithdrawDTO {
+  id: string;
+  role: string;
   transaction: {
     transactionId: string;
-    purpose: 'withdrawal';
-    status: 'withdrawal_requested';
+    purpose: string;
+    status: string;
     amount: number;
     description: string;
-    createdAt: string; // ISO date string
+    createdAt: string;
   };
 
   user: {
@@ -23,7 +25,6 @@ export interface AdminWithdrawDTO {
     phone: string;
     isVerified: boolean;
     isBlocked: boolean;
-    role: string;
 
     profile: {
       professionalRole: string;
@@ -37,7 +38,7 @@ export interface AdminWithdrawDTO {
     bankName: string;
     accountNumberMasked: string;
     ifscCode: string;
-    accountType: 'savings' | 'current';
+    accountType: string;
     verified: boolean;
   };
 }

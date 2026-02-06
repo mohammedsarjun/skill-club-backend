@@ -864,5 +864,23 @@ export class ContractTransactionRepository
     }
   }
 
+  async findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null> {
+    return await this.model
+      .findById(withdrawalId)
+      .populate('clientId', 'firstName lastName email avatar phone isVerified isClientBlocked')
+      .populate('freelancerId', 'firstName lastName email avatar phone isVerified isFreelancerBlocked freelancerProfile')
+      .lean();
+  }
+
+  async updateWithdrawalStatus(withdrawalId: string, status: string): Promise<IContractTransaction | null> {
+    return await this.model
+      .findByIdAndUpdate(
+        withdrawalId,
+        { status },
+        { new: true }
+      )
+      .lean();
+  }
+
 
 }

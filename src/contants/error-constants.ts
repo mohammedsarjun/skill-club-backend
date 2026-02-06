@@ -22,6 +22,7 @@ export const ERROR_MESSAGES = {
   GENERAL: {
     SERVER_ERROR: 'Something went wrong, please try again later',
     BAD_REQUEST: 'Invalid request',
+    NOT_FOUND: 'Resource not found',
   },
   TOKEN: {
     INVALID_TOKEN: 'Invalid or Expired Token',

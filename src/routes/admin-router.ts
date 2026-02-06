@@ -253,7 +253,23 @@ adminRouter.get('/withdraws/stats',
 )
 
 adminRouter.get('/withdraws',
-  // authMiddleware,roleGuard("admin"),
+  authMiddleware,roleGuard("admin"),
   adminWithdrawalController.getWithdrawals.bind(adminWithdrawalController)
 )
+
+adminRouter.get('/withdraws/:withdrawalId',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.getWithdrawalDetail.bind(adminWithdrawalController)
+)
+
+adminRouter.post('/withdraws/:withdrawalId/approve',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.approveWithdrawal.bind(adminWithdrawalController)
+)
+
+adminRouter.post('/withdraws/:withdrawalId/reject',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.rejectWithdrawal.bind(adminWithdrawalController)
+)
+
 export default adminRouter;

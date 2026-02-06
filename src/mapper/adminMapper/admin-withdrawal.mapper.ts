@@ -22,11 +22,25 @@ export function mapContractTransactionToAdminWithdrawDTO(
   const profile = (freelancerObj && (freelancerObj.freelancerProfile as IFreelancerProfile | undefined)) || undefined;
 
   const workCategory = profile?.workCategory
-    ? // if populated object with name
-      (profile.workCategory as any).name || profile.workCategory.toString()
+    ? (profile.workCategory as any).name || profile.workCategory.toString()
     : '';
 
+  const userId = (() => {
+    const txFid = (transaction.freelancerId as any) || null;
+    if (freelancerObj?._id) return freelancerObj._id.toString();
+    if (!txFid) return '';
+    if (typeof txFid === 'string') return txFid;
+    if (txFid._id) return txFid._id.toString();
+    if (typeof txFid.toString === 'function') {
+      const s = txFid.toString();
+      return /^[a-fA-F0-9]{24}$/.test(s) ? s : '';
+    }
+    return '';
+  })();
+
   return {
+    id: transaction._id?.toString() || '',
+    role: transaction.role || '',
     transaction: {
       transactionId: transaction.transactionId,
       purpose: transaction.purpose,
@@ -35,19 +49,8 @@ export function mapContractTransactionToAdminWithdrawDTO(
       description: transaction.description,
       createdAt: transaction.createdAt ? transaction.createdAt.toISOString() : new Date().toISOString(),
     },
-    freelancer: {
-      id: (() => {
-        const txFid = (transaction.freelancerId as any) || null;
-        if (freelancerObj?._id) return freelancerObj._id.toString();
-        if (!txFid) return '';
-        if (typeof txFid === 'string') return txFid;
-        if (txFid._id) return txFid._id.toString();
-        if (typeof txFid.toString === 'function') {
-          const s = txFid.toString();
-          return /^[a-fA-F0-9]{24}$/.test(s) ? s : '';
-        }
-        return '';
-      })(),
+    user: {
+      id: userId,
       name,
       email: freelancerObj?.email || '',
       avatar: freelancerObj?.avatar || '',
@@ -65,8 +68,8 @@ export function mapContractTransactionToAdminWithdrawDTO(
       bankName: bankDetails?.bankName || '',
       accountNumberMasked: maskAccountNumber(bankDetails?.accountNumber),
       ifscCode: bankDetails?.ifscCode || '',
-      accountType: (bankDetails?.accountType as 'savings' | 'current') || 'savings',
+      accountType: bankDetails?.accountType || 'savings',
       verified: Boolean(bankDetails?.verified),
     },
-  } as AdminWithdrawDTO;
+  };
 }
