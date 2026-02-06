@@ -1,0 +1,6 @@
+﻿import { IAdminRevenueService } from '../services/adminServices/interfaces/admin-revenue-service.interface';
+import { AdminRevenueService } from '../services/adminServices/admin-revenue-service';
+
+container.register&lt;IAdminRevenueService&gt;('IAdminRevenueService', {
+  useClass: AdminRevenueService,
+});

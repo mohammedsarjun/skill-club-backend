@@ -109,4 +109,18 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   countWithdrawalsForAdmin(role?: string, status?: string): Promise<number>;
   findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null>;
   updateWithdrawalStatus(withdrawalId: string, status: string): Promise<IContractTransaction | null>;
+  
+  findCommissionTransactionsWithPagination(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<IContractTransaction[]>;
+  getRevenueStats(startDate?: Date, endDate?: Date): Promise<{
+    totalRevenue: number;
+    totalCommissions: number;
+    totalTransactions: number;
+    averageCommission: number;
+  }>;
+  getRevenueChartData(): Promise<{ month: string; revenue: number; transactions: number }[]>;
+  getRevenueCategoryData(startDate?: Date, endDate?: Date): Promise<{ category: string; revenue: number }[]>;
+  getPreviousPeriodRevenue(startDate: Date, endDate: Date): Promise<number>;
 }

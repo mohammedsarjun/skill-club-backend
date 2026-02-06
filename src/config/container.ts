@@ -578,3 +578,10 @@ import { AdminWithdrawalServices } from '../services/adminServices/admin-withdra
 container.register("IAdminWithdrawalServices",
   {useClass:AdminWithdrawalServices}
 )
+
+import { IAdminRevenueService } from '../services/adminServices/interfaces/admin-revenue-service.interface';
+import { AdminRevenueService } from '../services/adminServices/admin-revenue-service';
+
+container.register<IAdminRevenueService>('IAdminRevenueService', {
+  useClass: AdminRevenueService,
+});

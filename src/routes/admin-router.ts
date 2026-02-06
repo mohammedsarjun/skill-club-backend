@@ -16,6 +16,7 @@ import { AdminReviewController } from '../controllers/admin/admin-review-control
 import { AdminDashboardController } from '../controllers/admin/admin-dashboard-controller';
 import { AdminDisputeController } from '../controllers/admin/admin-dispute-controller';
 import { AdminWithdrawalController } from '../controllers/admin/admin-withdrawal-controller';
+import { AdminRevenueController } from '../controllers/admin/admin-revenue-controller';
 
 const adminRouter = express.Router();
 
@@ -27,6 +28,7 @@ const adminReviewController = container.resolve(AdminReviewController);
 const adminDashboardController = container.resolve(AdminDashboardController);
 const adminDisputeController = container.resolve(AdminDisputeController);
 const adminWithdrawalController=container.resolve(AdminWithdrawalController)
+const adminRevenueController = container.resolve(AdminRevenueController);
 //auth
 adminRouter.post('/login', adminAuthController.login.bind(adminAuthController));
 adminRouter.get(
@@ -271,5 +273,11 @@ adminRouter.post('/withdraws/:withdrawalId/reject',
   authMiddleware,roleGuard("admin"),
   adminWithdrawalController.rejectWithdrawal.bind(adminWithdrawalController)
 )
+
+adminRouter.get('/revenue',
+  authMiddleware,
+  roleGuard('admin'),
+  adminRevenueController.getRevenueData.bind(adminRevenueController)
+);
 
 export default adminRouter;

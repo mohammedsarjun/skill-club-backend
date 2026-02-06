@@ -882,5 +882,192 @@ export class ContractTransactionRepository
       .lean();
   }
 
+  async findCommissionTransactionsWithPagination(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<IContractTransaction[]> {
+    const filter: Record<string, unknown> = { purpose: 'commission' };
+
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) {
+        (filter.createdAt as Record<string, unknown>).$gte = startDate;
+      }
+      if (endDate) {
+        (filter.createdAt as Record<string, unknown>).$lte = endDate;
+      }
+    }
+
+    return await this.model
+      .find(filter)
+      .populate('clientId', 'firstName lastName email')
+      .populate('freelancerId', 'firstName lastName email')
+      .sort({ createdAt: -1 })
+      .lean();
+  }
+
+  async getRevenueStats(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
+    totalRevenue: number;
+    totalCommissions: number;
+    totalTransactions: number;
+    averageCommission: number;
+  }> {
+    const filter: Record<string, unknown> = { purpose: 'commission' };
+
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) {
+        (filter.createdAt as Record<string, unknown>).$gte = startDate;
+      }
+      if (endDate) {
+        (filter.createdAt as Record<string, unknown>).$lte = endDate;
+      }
+    }
+
+    const result = await this.model.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$amount' },
+          totalCommissions: { $sum: 1 },
+        },
+      },
+    ]);
+
+    const totalTransactions = await this.model.countDocuments({
+      createdAt: filter.createdAt || { $exists: true },
+    });
+
+    if (result.length === 0) {
+      return {
+        totalRevenue: 0,
+        totalCommissions: 0,
+        totalTransactions,
+        averageCommission: 0,
+      };
+    }
+
+    const { totalRevenue, totalCommissions } = result[0];
+
+    return {
+      totalRevenue,
+      totalCommissions,
+      totalTransactions,
+      averageCommission: totalCommissions > 0 ? totalRevenue / totalCommissions : 0,
+    };
+  }
+
+  async getRevenueChartData(): Promise<
+    { month: string; revenue: number; transactions: number }[]
+  > {
+    const currentDate = new Date();
+    const sixMonthsAgo = new Date();
+    sixMonthsAgo.setMonth(currentDate.getMonth() - 5);
+    sixMonthsAgo.setDate(1);
+    sixMonthsAgo.setHours(0, 0, 0, 0);
+
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          purpose: 'commission',
+          createdAt: { $gte: sixMonthsAgo },
+        },
+      },
+      {
+        $group: {
+          _id: {
+            year: { $year: '$createdAt' },
+            month: { $month: '$createdAt' },
+          },
+          revenue: { $sum: '$amount' },
+          transactions: { $sum: 1 },
+        },
+      },
+      { $sort: { '_id.year': 1, '_id.month': 1 } },
+    ]);
+
+    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const chartData: { month: string; revenue: number; transactions: number }[] = [];
+
+    for (let i = 0; i < 6; i++) {
+      const date = new Date(sixMonthsAgo);
+      date.setMonth(sixMonthsAgo.getMonth() + i);
+
+      const monthData = result.find(
+        (r) => r._id.year === date.getFullYear() && r._id.month === date.getMonth() + 1,
+      );
+
+      chartData.push({
+        month: monthNames[date.getMonth()],
+        revenue: monthData ? monthData.revenue : 0,
+        transactions: monthData ? monthData.transactions : 0,
+      });
+    }
+
+    return chartData;
+  }
+
+  async getRevenueCategoryData(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{ category: string; revenue: number }[]> {
+    const filter: Record<string, unknown> = {
+      purpose: 'commission',
+      'metadata.category': { $exists: true },
+    };
+
+    if (startDate || endDate) {
+      filter.createdAt = {};
+      if (startDate) {
+        (filter.createdAt as Record<string, unknown>).$gte = startDate;
+      }
+      if (endDate) {
+        (filter.createdAt as Record<string, unknown>).$lte = endDate;
+      }
+    }
+
+    const result = await this.model.aggregate([
+      { $match: filter },
+      {
+        $group: {
+          _id: '$metadata.category',
+          revenue: { $sum: '$amount' },
+        },
+      },
+      { $sort: { revenue: -1 } },
+    ]);
+
+    return result.map((item) => ({
+      category: item._id || 'Other',
+      revenue: item.revenue,
+    }));
+  }
+
+  async getPreviousPeriodRevenue(startDate: Date, endDate: Date): Promise<number> {
+    const periodDuration = endDate.getTime() - startDate.getTime();
+    const previousStartDate = new Date(startDate.getTime() - periodDuration);
+    const previousEndDate = new Date(startDate.getTime());
+
+    const result = await this.model.aggregate([
+      {
+        $match: {
+          purpose: 'commission',
+          createdAt: { $gte: previousStartDate, $lt: previousEndDate },
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          totalRevenue: { $sum: '$amount' },
+        },
+      },
+    ]);
+
+    return result.length > 0 ? result[0].totalRevenue : 0;
+  }
 
 }
