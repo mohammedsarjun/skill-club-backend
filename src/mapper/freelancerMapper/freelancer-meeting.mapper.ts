@@ -37,10 +37,53 @@ export function mapMeetingToFreelancerListItemDTO(
     meetingId: meeting._id?.toString() || '',
     contractId: contract._id?.toString() || '',
     contractTitle: contract.title,
-
     scheduledAt: meeting.scheduledAt,
     durationMinutes: meeting.durationMinutes,
     agenda: meeting.agenda,
+    meetingType: meeting.meetingType,
+    status: meeting.status,
+    client: clientData,
+    agora: meeting.agora ? {
+      channelName: meeting.agora.channelName as string,
+      createdAt: meeting.agora.createdAt,
+    } : undefined,
+    attendance: meeting.attendance ? {
+      clientJoined: meeting.attendance.clientJoined,
+      clientLeftAt: meeting.attendance.clientLeftAt || undefined,
+      freelancerJoined: meeting.attendance.freelancerJoined,
+      freelancerLeftAt: meeting.attendance.freelancerLeftAt || undefined,
+    } : undefined,
+    notes: meeting.notes,
+    rescheduleRequestedBy: meeting.rescheduleRequestedBy || undefined,
+    rescheduleProposedTime: meeting.rescheduleProposedTime || undefined,
+    isProposedByFreelancer: meeting.requestedBy === 'freelancer',
+    createdAt: meeting.createdAt || new Date(),
+  };
+}
+
+export function mapPreContractMeetingToFreelancerListItemDTO(
+  meeting: IMeeting,
+  clientUser: IUser | null,
+): FreelancerMeetingListItemDTO {
+
+  const clientData = clientUser
+    ? {
+        clientId: clientUser._id?.toString() || '',
+        firstName: clientUser.firstName,
+        lastName: clientUser.lastName,
+        companyName: clientUser.clientProfile?.companyName,
+        logo: clientUser.clientProfile?.logo,
+      }
+    : undefined;
+
+  return {
+    meetingId: meeting._id?.toString() || '',
+    contractId: undefined,
+    contractTitle: undefined,
+    scheduledAt: meeting.scheduledAt,
+    durationMinutes: meeting.durationMinutes,
+    agenda: meeting.agenda,
+    meetingType: meeting.meetingType,
     status: meeting.status,
     client: clientData,
     agora: meeting.agora ? {
@@ -114,7 +157,7 @@ export const mapMeetingToFreelancerMeetingProposalResponseDTO = (meeting: IMeeti
 
   return {
     meetingId: rawId,
-    contractId: meeting.contractId.toString(),
+    contractId: meeting.contractId?.toString() || '',
     scheduledAt: meeting.scheduledAt,
     durationMinutes: meeting.durationMinutes,
     agenda: meeting.agenda,

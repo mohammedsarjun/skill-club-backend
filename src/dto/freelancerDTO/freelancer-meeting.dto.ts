@@ -1,10 +1,11 @@
 export interface FreelancerMeetingListItemDTO {
   meetingId: string;
-  contractId: string;
-  contractTitle: string;
+  contractId?: string;
+  contractTitle?: string;
   scheduledAt: Date;
   durationMinutes: number;
   agenda: string;
+  meetingType: 'pre-contract' | 'post-contract';
   status: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested';
   client?: {
     clientId: string;
@@ -46,6 +47,10 @@ export interface FreelancerMeetingQueryParamsDTO {
   page?: number;
   limit?: number;
   status?: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested';
+  meetingType?: 'pre-contract' | 'post-contract';
+  requestedBy?: 'client' | 'freelancer';
+  rescheduleRequestedBy?: 'client' | 'freelancer';
+  isExpired?: boolean;
 }
 
 export interface FreelancerMeetingDetailDTO {

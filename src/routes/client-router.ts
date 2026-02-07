@@ -532,6 +532,14 @@ clientRouter.get(
 );
 
 clientRouter.post(
+  '/freelancers/:freelancerId/meetings',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientMeetingController.proposePreContractMeeting.bind(clientMeetingController),
+);
+
+clientRouter.post(
   '/contracts/:contractId/meetings',
   authMiddleware,
   roleGuard('client'),
@@ -545,6 +553,14 @@ clientRouter.get(
   roleGuard('client'),
   clientBlockMiddleware,
   clientMeetingController.getContractMeetings.bind(clientMeetingController),
+);
+
+clientRouter.get(
+  '/meetings',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientMeetingController.getAllMeetings.bind(clientMeetingController),
 );
 
 clientRouter.post(
