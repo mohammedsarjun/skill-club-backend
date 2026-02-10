@@ -1,6 +1,6 @@
 import { IContract, ContractDeliverable } from '../../models/interfaces/contract.model.interface';
 import { ClientDeliverableMapper } from './client-deliverable.mapper';
-import { ClientContractDetailDTO } from '../../dto/clientDTO/client-contract.dto';
+import { ClientContractDetailDTO, EndHourlyContractResponseDTO } from '../../dto/clientDTO/client-contract.dto';
 
 function docIdToString(id: unknown): string | undefined {
   if (!id) return undefined;
@@ -18,7 +18,16 @@ function docIdToString(id: unknown): string | undefined {
 
 export const mapContractModelToClientContractDetailDTO = (
   contract: IContract,
+  financialSummary: {
+    totalFunded: number;
+    totalPaidToFreelancer: number;
+    commissionPaid: number;
+    totalHeld: number;
+    totalRefund: number;
+    availableContractBalance: number;
+  },
 ): ClientContractDetailDTO => {
+  console.log(financialSummary)
   const rawObj = contract as unknown as Record<string, unknown>;
 
   const freelancerPopulated = rawObj.freelancerId as unknown as {
@@ -68,6 +77,9 @@ export const mapContractModelToClientContractDetailDTO = (
       submittedAt: m.submittedAt,
       approvedAt: m.approvedAt,
       revisionsAllowed: (m as any).revisionsAllowed,
+      disputeEligible: m.disputeEligible || false,
+      disputeWindowEndsAt: m.disputeWindowEndsAt,
+      isFunded:m.isFunded,
       deliverables: (m.deliverables || []).map((d: any, index: number) => ({
         id: docIdToString(d._id) || `deliverable-${index}`,
         submittedBy: docIdToString(d.submittedBy) || '',
@@ -154,16 +166,6 @@ export const mapContractModelToClientContractDetailDTO = (
         }
       : undefined,
 
-    communication: contract.communication
-      ? {
-          preferredMethod: contract.communication.preferredMethod,
-          meetingFrequency: contract.communication.meetingFrequency,
-          meetingDayOfWeek: contract.communication.meetingDayOfWeek,
-          meetingDayOfMonth: contract.communication.meetingDayOfMonth,
-          meetingTimeUtc: contract.communication.meetingTimeUtc,
-        }
-      : undefined,
-
     reporting: contract.reporting
       ? {
           frequency: contract.reporting.frequency,
@@ -175,11 +177,46 @@ export const mapContractModelToClientContractDetailDTO = (
       : undefined,
 
     status: contract.status,
-    fundedAmount: contract.fundedAmount,
-    totalPaid: contract.totalPaid,
-    balance: contract.balance,
-
+    totalFunded: financialSummary.totalFunded,
+    totalPaidToFreelancer: financialSummary.totalPaidToFreelancer,
+    totalCommissionPaid: financialSummary.commissionPaid,
+    totalAmountHeld: financialSummary.totalHeld,
+    totalRefund: financialSummary.totalRefund,
+    availableContractBalance: financialSummary.availableContractBalance,
+    isFunded: contract.isFunded,
+    cancelledBy: contract.cancelledBy,
+    hasActiveCancellationDisputeWindow: hasActiveCancellationDisputeWindow(contract),
     createdAt: contract.createdAt,
     updatedAt: contract.updatedAt,
+  };
+};
+
+
+const hasActiveCancellationDisputeWindow = (contract: IContract): boolean => {
+//fixed
+  let isContractCancelled=contract.status==='cancelled';
+  if(!isContractCancelled){
+    return false;
+  }
+  let isContractFunded=contract.isFunded;
+  if(!isContractFunded){
+    return false;
+  }
+
+  let hasAnyDeliverablesSubmitted=contract.deliverables && contract.deliverables.length>0;
+  if(!hasAnyDeliverablesSubmitted){
+    return false;
+  }
+  let isWithinDisputeWindow= contract.cancelledAt? ( (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) ) <=5 : false;
+  if(!isWithinDisputeWindow){
+    return false;
+  }
+  return true;
+}
+
+export const mapToEndHourlyContractResponseDTO = (): EndHourlyContractResponseDTO => {
+  return {
+    ended: true,
+    message: 'Contract ended successfully',
   };
 };

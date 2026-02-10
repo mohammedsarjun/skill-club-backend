@@ -23,11 +23,15 @@ import './schedulers/auto-approve-contract-deliverables.cron';
 import './schedulers/auto-pay-work-lok.cron';
 import './schedulers/process-contract-refunds.cron';
 import './schedulers/meeting-status-change.cron';
+import './schedulers/midnight-jobs';
 const PORT = process.env.PORT;
 
 connectDB();
 const app = express();
 const httpServer = createServer(app);
+
+
+
 initializeSocket(httpServer);
 
 // HTTP request logging

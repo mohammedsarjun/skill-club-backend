@@ -1,8 +1,23 @@
 import { Document, Types } from 'mongoose';
 
-export type ContractStatus = 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
+export type ContractStatus =
+  | 'pending_funding'
+  | 'held'
+  | 'active'
+  | 'completed'
+  | 'cancelled'
+  | 'refunded'
+  | 'disputed'
+  | 'cancellation_requested';
 
-export type MilestoneStatus = 'pending_funding' | 'funded'|'changes_requested' | 'submitted' | 'approved' | 'paid';
+export type MilestoneStatus =
+  | 'pending_funding'
+  | 'funded'
+  | 'changes_requested'
+  | 'submitted'
+  | 'approved'
+  | 'paid'
+  | 'cancelled';
 
 export interface MilestoneDeliverable {
   _id?: Types.ObjectId;
@@ -36,6 +51,9 @@ export interface ContractMilestone {
   submittedAt?: Date;
   approvedAt?: Date;
   revisionsAllowed?: number;
+  isFunded: boolean;
+  disputeEligible: boolean;
+  disputeWindowEndsAt?: Date;
   deliverables?: MilestoneDeliverable[];
   extensionRequest?: MilestoneExtensionRequest;
 }
@@ -155,9 +173,9 @@ export interface IContract extends Document {
   description: string;
   expectedStartDate: Date;
   expectedEndDate: Date;
+  categoryId: Types.ObjectId;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  communication: ContractCommunication;
   reporting: ContractReporting;
 
   // Contract lifecycle
@@ -165,6 +183,10 @@ export interface IContract extends Document {
   fundedAmount: number;
   totalPaid: number;
   balance: number;
+  cancelledBy?: 'client' | 'freelancer';
+  cancelledAt?: Date;
+  cancellingReason?: string;
+  isFunded?: boolean;
 
   createdAt?: Date;
   updatedAt?: Date;

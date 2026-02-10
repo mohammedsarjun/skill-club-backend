@@ -1,3 +1,4 @@
+import { UserBankDTO } from 'src/dto/commonDTO/user-bank.dto';
 import {
   AddressDTO,
   ClientProfileDetailDTO,
@@ -27,4 +28,6 @@ export interface IUserServices {
     actionData: Record<string, unknown>,
   ): Promise<void>;
   updateUserProfile(userId: string, profileData: UserProfileDto): Promise<UserProfileDto>;
+    getBankDetails(userId: string): Promise<UserBankDTO | null>;
+    saveBankDetails(userId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO>;
 }

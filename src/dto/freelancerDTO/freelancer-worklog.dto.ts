@@ -28,6 +28,7 @@ export interface WorklogListItemDTO {
   filesCount: number;
   status: 'submitted' | 'approved' | 'rejected' | 'paid';
   submittedAt: Date;
+  disputeWindowEndsAt?: Date;
 }
 
 export interface WorklogDetailDTO {
@@ -44,6 +45,8 @@ export interface WorklogDetailDTO {
   submittedAt: Date;
   reviewedAt?: Date;
   reviewMessage?: string;
+  disputeWindowEndsAt?: Date;
+  disputeRaisedBy?: string;
 }
 
 export interface WorklogListResponseDTO {

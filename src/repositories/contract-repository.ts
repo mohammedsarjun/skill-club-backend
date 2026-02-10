@@ -55,6 +55,15 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return await this.updateById(contractId, { status }, session);
   }
 
+  async cancelContractByUser(
+    contractId: string,
+    cancelledBy: 'client' | 'freelancer',
+    cancelContractReason: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
+    return await this.updateById(contractId, { status: 'cancelled', cancelledBy, cancellingReason:cancelContractReason, cancelledAt: new Date() }, session);
+  }
+
   async findAllForClient(
     clientId: string,
     query: ClientContractQueryParamsDTO,
@@ -628,6 +637,19 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       .lean();
   }
 
+  async getRecentActiveContractsByClientId(clientId: string, limit: number): Promise<IContract[]> {
+    return await this.model
+      .find({ 
+        clientId, 
+        status: { $in: ['active', 'held'] as ContractStatus[] }
+      })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .populate('freelancerId', 'firstName lastName logo country')
+      .populate('jobId', 'title')
+      .lean();
+  }
+
   async countByFreelancerAndStatus(
     freelancerId: string,
     status: IContract['status'] | IContract['status'][],
@@ -637,5 +659,94 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       freelancerId,
       status: { $in: statusArray },
     });
+  }
+
+  async approveDeliverableChangeRequest(
+    contractId: string,
+    deliverableId: string,
+  ): Promise<IContract | null> {
+    return (await this.model
+      .findByIdAndUpdate(
+        contractId,
+        {
+          $set: {
+            'deliverables.$[elem].status': 'change_request_approved',
+          },
+        },
+        {
+          new: true,
+          arrayFilters: [{ 'elem._id': deliverableId }],
+        },
+
+      )
+    ) as IContract | null;
+  }
+
+ async updateMilestoneFundedAmount(
+    contractId: string,
+    milestoneId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[milestone].isFunded': true } },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+
+    if (session) {
+      query.session(session);
+    }
+
+    return (await query.exec()) as IContract | null;
+  }
+
+  async markAllMilestonesAsCancelled(contractId: string, session?: ClientSession): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[].status': 'cancelled' } },
+      { new: true }
+    );
+
+    if (session) {
+      query.session(session);
+    }
+
+    return (await query.exec()) as IContract | null;
+  }
+
+  async markMilestoneAsCancelled(contractId: string, milestoneId: string, session?: ClientSession): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[milestone].status': 'cancelled' } },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+    if (session) {
+      query.session(session);
+    }
+    return (await query.exec()) as IContract | null;
+  }
+
+  async markMilestoneAsDisputeEligible(contractId: string, milestoneId: string,disputeWindowEndsAt:Date, session?: ClientSession): Promise<IContract | null> {
+    const query = this.model.findByIdAndUpdate(
+      contractId,
+      { $set: { 'milestones.$[milestone].disputeEligible': true, 'milestones.$[milestone].disputeWindowEndsAt': disputeWindowEndsAt } },
+      {
+        new: true,
+        arrayFilters: [{ 'milestone._id': milestoneId }],
+      },
+    );
+    if (session) {
+      query.session(session);
+    } 
+    return (await query.exec()) as IContract | null;
+  }
+  async endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null> {
+    return await this.updateById(contractId, { status: 'completed' }, session);
   }
 }

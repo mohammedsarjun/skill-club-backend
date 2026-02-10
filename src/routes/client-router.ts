@@ -22,11 +22,13 @@ import { ClientFreelancerReviewController } from '../controllers/client/client-f
 import { ClientDashboardController } from '../controllers/client/client-dashboard-controller';
 import { ClientFinanceController } from '../controllers/client/client-finance-controller';
 import { ClientDisputeController } from '../controllers/client/client-dispute-controller';
+import { ClientNotificationController } from '../controllers/client/client-notification-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
 const clientDashboardController = container.resolve(ClientDashboardController);
 const clientFinanceController = container.resolve(ClientFinanceController);
+
 const clientJobController = container.resolve(ClientJobController);
 const clientCategoryController = container.resolve(ClientCategoryController);
 const clientSpecialityController = container.resolve(ClientSpecialityController);
@@ -42,6 +44,7 @@ const clientMeetingController = container.resolve(ClientMeetingController);
 const clientReviewController = container.resolve(ClientReviewController);
 const clientFreelancerReviewController = container.resolve(ClientFreelancerReviewController);
 const clientDisputeController = container.resolve(ClientDisputeController);
+const clientNotificationController = container.resolve(ClientNotificationController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -65,6 +68,24 @@ clientRouter.get(
   clientBlockMiddleware,
   clientFinanceController.getFinanceData.bind(clientFinanceController),
 );
+
+clientRouter.post(
+  '/finance/withdraw',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFinanceController.requestWithdrawal.bind(clientFinanceController),
+);
+
+clientRouter.get(
+  '/finance/withdrawals',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientFinanceController.getWithdrawals.bind(clientFinanceController),
+);
+
+
 
 clientRouter.patch(
   '/update',
@@ -285,6 +306,38 @@ clientRouter.post(
 );
 
 clientRouter.post(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.createCancellationRequest.bind(clientContractController),
+);
+
+clientRouter.get(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getCancellationRequest.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/cancellation-request/accept',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.acceptCancellationRequest.bind(clientContractController),
+);
+
+clientRouter.post(
+  '/contracts/:contractId/cancellation-request/dispute',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.raiseCancellationDispute.bind(clientContractController),
+);
+
+clientRouter.post(
   '/contracts/:contractId/cancel-with-dispute',
   authMiddleware,
   roleGuard('client'),
@@ -388,6 +441,13 @@ clientRouter.post(
   clientContractController.activateHourlyContract.bind(clientContractController),
 );
 
+clientRouter.post('/contracts/:contractId/end',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.endHourlyContract.bind(clientContractController),
+);
+
 clientRouter.get(
   '/contracts/:contractId/worklogs',
   authMiddleware,
@@ -474,6 +534,14 @@ clientRouter.get(
 );
 
 clientRouter.post(
+  '/freelancers/:freelancerId/meetings',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientMeetingController.proposePreContractMeeting.bind(clientMeetingController),
+);
+
+clientRouter.post(
   '/contracts/:contractId/meetings',
   authMiddleware,
   roleGuard('client'),
@@ -487,6 +555,14 @@ clientRouter.get(
   roleGuard('client'),
   clientBlockMiddleware,
   clientMeetingController.getContractMeetings.bind(clientMeetingController),
+);
+
+clientRouter.get(
+  '/meetings',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientMeetingController.getAllMeetings.bind(clientMeetingController),
 );
 
 clientRouter.post(
@@ -553,5 +629,28 @@ clientRouter.get(
   clientReviewController.getReviewStatus.bind(clientReviewController),
 );
 
+clientRouter.get(
+  '/notifications',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientNotificationController.getNotifications.bind(clientNotificationController),
+);
+
+clientRouter.patch(
+  '/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientNotificationController.markNotificationAsRead.bind(clientNotificationController),
+);
+
+clientRouter.patch(
+  '/notifications/read-all',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientNotificationController.markAllNotificationsAsRead.bind(clientNotificationController),
+);
 
 export default clientRouter;

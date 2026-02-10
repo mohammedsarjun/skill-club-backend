@@ -15,7 +15,7 @@ async function runAutoPayWorklog() {
     console.error('Auto-pay worklog cron failed:', err);
   }
 }
-
+   runAutoPayWorklog();
 cron.schedule('0 0 * * 0', async () => {
   await runAutoPayWorklog();
 });

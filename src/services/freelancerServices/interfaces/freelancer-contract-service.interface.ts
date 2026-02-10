@@ -17,8 +17,14 @@ import {
   RequestContractExtensionDTO,
   ContractExtensionResponseDTO,
 } from '../../../dto/freelancerDTO/freelancer-contract-extension.dto';
+import { FreelancerCancellationRequestDTO, AcceptCancellationRequestDTO } from '../../../dto/freelancerDTO/freelancer-cancellation-request.dto';
+import { CreateFreelancerCancellationRequestDTO, FreelancerCancellationRequestResponseDTO } from '../../../dto/freelancerDTO/freelancer-create-cancellation-request.dto';
 
 export interface IFreelancerContractService {
+  getCancellationRequest(freelancerId: string, contractId: string): Promise<FreelancerCancellationRequestDTO | null>;
+  acceptCancellationRequest(freelancerId: string, contractId: string, data: AcceptCancellationRequestDTO): Promise<{ success: boolean; message: string }>;
+  raiseCancellationDispute(freelancerId: string, contractId: string, notes: string): Promise<{ success: boolean; message: string }>;
+  createCancellationRequest(freelancerId: string, contractId: string, data: CreateFreelancerCancellationRequestDTO): Promise<FreelancerCancellationRequestResponseDTO>;
   getAllContracts(
     freelancerId: string,
     query: FreelancerContractQueryParamsDTO,
@@ -44,5 +50,11 @@ export interface IFreelancerContractService {
     contractId: string,
     data: RequestContractExtensionDTO,
   ): Promise<ContractExtensionResponseDTO>;
-  cancelContract(freelancerId: string, contractId: string): Promise<{ cancelled: boolean; requiresDispute: boolean }>;
+  cancelContract(freelancerId: string, contractId: string, cancelContractReason: string): Promise<{ cancelled: boolean; requiresDispute: boolean }>;
+  approveChangeRequest(
+    freelancerId: string,
+    contractId: string,
+    deliverableId: string,
+  ): Promise<DeliverableResponseDTO>;
+  endHourlyContract(freelancerId: string, contractId: string): Promise<{ ended: boolean; message: string }>;
 }

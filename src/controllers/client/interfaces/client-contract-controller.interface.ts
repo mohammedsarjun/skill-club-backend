@@ -13,4 +13,9 @@ export interface IClientContractController {
   getMilestoneDetail(req: Request, res: Response): Promise<void>;
   downloadDeliverableFiles(req: Request, res: Response): Promise<void>;
   activateHourlyContract(req: Request, res: Response): Promise<void>;
+  createCancellationRequest(req: Request, res: Response): Promise<void>;
+  getCancellationRequest(req: Request, res: Response): Promise<void>;
+  acceptCancellationRequest(req: Request, res: Response): Promise<void>;
+  raiseCancellationDispute(req: Request, res: Response): Promise<void>;
 }
+

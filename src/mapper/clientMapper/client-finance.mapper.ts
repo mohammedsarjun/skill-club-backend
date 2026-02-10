@@ -13,7 +13,7 @@ const formatTimeAgo = (date: Date): string => {
   return `${Math.floor(seconds / 2592000)} months ago`;
 };
 
-export const mapTransactionToDTO = (
+export const  mapTransactionToDTO = (
   transaction: IContractTransaction,
   freelancerName: string
 ): ClientTransactionDTO => {
@@ -21,6 +21,7 @@ export const mapTransactionToDTO = (
     transactionId: transaction.transactionId,
     amount: transaction.amount,
     purpose: transaction.purpose,
+    status: transaction.status,
     description: transaction.description,
     createdAt: formatTimeAgo(new Date(transaction.createdAt!)),
     freelancerName,

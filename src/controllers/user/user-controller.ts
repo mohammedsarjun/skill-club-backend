@@ -164,4 +164,17 @@ export class UserController implements IUserController {
       data: user,
     });
   }
+
+    async getBankDetails(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const data = await this._userService.getBankDetails(userId!);
+    res.status(HttpStatus.OK).json({ success: true, message: 'Bank details fetched', data });
+  }
+
+  async saveBankDetails(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const payload = req.body;
+    const data = await this._userService.saveBankDetails(userId!, payload);
+    res.status(HttpStatus.OK).json({ success: true, message: 'Bank details saved', data });
+  }
 }

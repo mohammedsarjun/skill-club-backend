@@ -50,6 +50,10 @@ export const mapOfferModelToFreelancerOfferDetailDTO = (
     toString?: () => string;
   }>;
   const jobPop = offer.jobId as unknown as Partial<{ title?: string; toString?: () => string }>;
+  const categoryPop = offer.categoryId as unknown as Partial<{
+    _id?: { toString(): string };
+    name?: string;
+  }>;
   return {
     ...base,
     jobId: offer.jobId?.toString(),
@@ -64,13 +68,13 @@ export const mapOfferModelToFreelancerOfferDetailDTO = (
     })),
     expectedStartDate: offer.expectedStartDate,
     expectedEndDate: offer.expectedEndDate,
-    communication: {
-      preferredMethod: offer.communication.preferredMethod,
-      meetingFrequency: offer.communication.meetingFrequency,
-      meetingDayOfWeek: offer.communication.meetingDayOfWeek,
-      meetingDayOfMonth: offer.communication.meetingDayOfMonth,
-      meetingTimeUtc: offer.communication.meetingTimeUtc,
-    },
+    category:
+      typeof offer.categoryId === 'object' && offer.categoryId !== null
+        ? {
+            categoryId: categoryPop?._id?.toString() || '',
+            categoryName: categoryPop?.name || '',
+          }
+        : undefined,
     reporting: {
       frequency: offer.reporting.frequency,
       dueTimeUtc: offer.reporting.dueTimeUtc,

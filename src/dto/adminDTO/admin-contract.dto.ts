@@ -77,7 +77,7 @@ export interface AdminContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested' | 'cancelled';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -106,14 +106,6 @@ export interface AdminContractDetailDTO {
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
 
-  communication?: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: string;
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
-  };
-
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;
@@ -122,7 +114,7 @@ export interface AdminContractDetailDTO {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
+  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
   fundedAmount: number;
   totalPaid: number;
   balance: number;

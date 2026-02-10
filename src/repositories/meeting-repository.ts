@@ -4,6 +4,7 @@ import { IMeeting } from '../models/interfaces/meeting.model.interface';
 import { IMeetingRepository } from './interfaces/meeting-repository.interface';
 import { ClientSession, Types } from 'mongoose';
 import { FreelancerMeetingQueryParamsDTO } from '../dto/freelancerDTO/freelancer-meeting.dto';
+import { ClientMeetingQueryParamsDTO } from '../dto/clientDTO/client-meeting.dto';
 
 export class MeetingRepository extends BaseRepository<IMeeting> implements IMeetingRepository {
   constructor() {
@@ -13,6 +14,16 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
   async createMeeting(data: Partial<IMeeting>, session?: ClientSession): Promise<IMeeting> {
     const meeting = session ? await this.create(data, session) : await this.create(data);
     return meeting;
+  }
+
+  async createPreContractMeeting(clientId: string, freelancerId: string, meetingData: Record<string, unknown>): Promise<IMeeting> {
+    const preContractMeetingData = {
+      ...meetingData,
+      clientId: new Types.ObjectId(clientId),
+      freelancerId: new Types.ObjectId(freelancerId),
+      meetingType: 'pre-contract' as const,
+    };
+    return await this.create(preContractMeetingData);
   }
 
   async findConflictingMeetings(contractId: string, scheduledAt: Date, durationMinutes: number): Promise<IMeeting[]> {
@@ -86,6 +97,71 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
 
     if (query.status) {
       filter.status = query.status;
+    }
+
+    return await this.model.countDocuments(filter);
+  }
+
+  async findAllForClient(
+    clientContractIds: string[],
+    query: ClientMeetingQueryParamsDTO,
+  ): Promise<IMeeting[]> {
+    const filter: Record<string, unknown> = {
+      contractId: { $in: clientContractIds.map((id) => new Types.ObjectId(id)) },
+    };
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    if (query.meetingType) {
+      filter.meetingType = query.meetingType;
+    }
+
+    if (query.requestedBy) {
+      filter.requestedBy = query.requestedBy;
+    }
+
+    if (query.rescheduleRequestedBy) {
+      filter.rescheduleRequestedBy = query.rescheduleRequestedBy;
+    }
+
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 10;
+    const skip = (page - 1) * limit;
+
+    const meetings = await this.model
+      .find(filter)
+      .sort({ scheduledAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    return meetings;
+  }
+
+  async countForClient(
+    clientContractIds: string[],
+    query: ClientMeetingQueryParamsDTO,
+  ): Promise<number> {
+    const filter: Record<string, unknown> = {
+      contractId: { $in: clientContractIds.map((id) => new Types.ObjectId(id)) },
+    };
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    if (query.meetingType) {
+      filter.meetingType = query.meetingType;
+    }
+
+    if (query.requestedBy) {
+      filter.requestedBy = query.requestedBy;
+    }
+
+    if (query.rescheduleRequestedBy) {
+      filter.rescheduleRequestedBy = query.rescheduleRequestedBy;
     }
 
     return await this.model.countDocuments(filter);
@@ -382,5 +458,109 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       .sort({ status: -1, scheduledAt: 1 })
       .populate('contractId', 'title')
       .lean();
+  }
+
+  async findPreContractMeetingsForClient(clientId: string, query: ClientMeetingQueryParamsDTO): Promise<IMeeting[]> {
+    const filter: Record<string, unknown> = {
+      clientId: new Types.ObjectId(clientId),
+      meetingType: 'pre-contract',
+    };
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    if (query.requestedBy) {
+      filter.requestedBy = query.requestedBy;
+    }
+
+    if (query.rescheduleRequestedBy) {
+      filter.rescheduleRequestedBy = query.rescheduleRequestedBy;
+    }
+
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 10;
+    const skip = (page - 1) * limit;
+
+    const meetings = await this.model
+      .find(filter)
+      .sort({ scheduledAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    return meetings;
+  }
+
+  async countPreContractMeetingsForClient(clientId: string, query: ClientMeetingQueryParamsDTO): Promise<number> {
+    const filter: Record<string, unknown> = {
+      clientId: new Types.ObjectId(clientId),
+      meetingType: 'pre-contract',
+    };
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    if (query.requestedBy) {
+      filter.requestedBy = query.requestedBy;
+    }
+
+    if (query.rescheduleRequestedBy) {
+      filter.rescheduleRequestedBy = query.rescheduleRequestedBy;
+    }
+
+    return await this.model.countDocuments(filter);
+  }
+
+  async findPreContractMeetingsForFreelancer(freelancerId: string, query: FreelancerMeetingQueryParamsDTO): Promise<IMeeting[]> {
+    const filter: Record<string, unknown> = {
+      freelancerId: new Types.ObjectId(freelancerId),
+      meetingType: 'pre-contract',
+    };
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    const page = query.page && query.page > 0 ? query.page : 1;
+    const limit = query.limit && query.limit > 0 ? query.limit : 10;
+    const skip = (page - 1) * limit;
+
+    const meetings = await this.model
+      .find(filter)
+      .sort({ scheduledAt: -1 })
+      .skip(skip)
+      .limit(limit)
+      .exec();
+
+    return meetings;
+  }
+
+  async countPreContractMeetingsForFreelancer(freelancerId: string, query: FreelancerMeetingQueryParamsDTO): Promise<number> {
+    const filter: Record<string, unknown> = {
+      freelancerId: new Types.ObjectId(freelancerId),
+      meetingType: 'pre-contract',
+    };
+
+    if (query.status) {
+      filter.status = query.status;
+    }
+
+    return await this.model.countDocuments(filter);
+  }
+
+  async findMeetingsStartingSoon(startTime: Date, endTime: Date): Promise<IMeeting[]> {
+    return await this.model.find({
+      status: 'accepted',
+      scheduledAt: { $gte: startTime, $lte: endTime },
+    }).exec();
+  }
+
+  async findAcceptedMeetingsStartingAt(currentTime: Date): Promise<IMeeting[]> {
+    return await this.model.find({
+      status: 'accepted',
+      scheduledAt: { $lte: currentTime },
+    }).exec();
   }
 }

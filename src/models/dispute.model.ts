@@ -19,6 +19,7 @@ const DisputeResolutionSchema = new Schema({
 
 const DisputeSchema = new Schema<IDispute>(
   {
+    disputeId: { type: String, required: true, unique: true, index: true },
     contractId: { type: Schema.Types.ObjectId, required: true, ref: 'Contract', index: true },
     raisedBy: {
       type: String,
@@ -51,5 +52,24 @@ const DisputeSchema = new Schema<IDispute>(
 
 DisputeSchema.index({ contractId: 1, status: 1 });
 DisputeSchema.index({ createdAt: -1 });
+
+const CounterSchema = new Schema({ _id: String, seq: { type: Number, default: 0 } });
+const Counter = mongoose.models.Counter || mongoose.model('Counter', CounterSchema);
+
+DisputeSchema.pre<IDispute>('validate', async function (next) {
+  if (!this.isNew) return next();
+  try {
+    const counter = await Counter.findOneAndUpdate(
+      { _id: 'disputeId' },
+      { $inc: { seq: 1 } },
+      { new: true, upsert: true }
+    ).exec();
+    const seq = (counter && (counter as any).seq) || 1;
+    this.disputeId = `dspt-${String(seq).padStart(3, '0')}`;
+    next();
+  } catch (err) {
+    next(err as any);
+  }
+});
 
 export const Dispute = mongoose.model<IDispute>('Dispute', DisputeSchema);

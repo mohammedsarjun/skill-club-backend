@@ -10,4 +10,6 @@ export interface IUserController {
   updateAddress(req: Request, res: Response): Promise<void>;
   createActionVerification(req: Request, res: Response): Promise<void>;
   updateProfile(req: Request, res: Response): Promise<void>;
+  getBankDetails(req: Request, res: Response): Promise<void>;
+  saveBankDetails(req: Request, res: Response): Promise<void>
 }

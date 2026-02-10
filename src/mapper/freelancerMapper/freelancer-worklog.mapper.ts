@@ -26,10 +26,11 @@ export function mapWorklogToListItemDTO(worklog: IWorklog): WorklogListItemDTO {
     filesCount: worklog.files.length,
     status: worklog.status,
     submittedAt: worklog.createdAt || new Date(),
+    disputeWindowEndsAt: worklog.disputeWindowEndDate,
   };
 }
 
-export function mapWorklogToDetailDTO(worklog: IWorklog): WorklogDetailDTO {
+export function mapWorklogToDetailDTO(worklog: IWorklog, disputeRaisedBy?: string): WorklogDetailDTO {
   return {
     worklogId: worklog.worklogId,
     contractId: worklog.contractId.toString(),
@@ -44,5 +45,7 @@ export function mapWorklogToDetailDTO(worklog: IWorklog): WorklogDetailDTO {
     submittedAt: worklog.createdAt || new Date(),
     reviewedAt: worklog.reviewedAt,
     reviewMessage: worklog.reviewMessage,
+    disputeWindowEndsAt: worklog.disputeWindowEndDate,
+    disputeRaisedBy,
   };
 }

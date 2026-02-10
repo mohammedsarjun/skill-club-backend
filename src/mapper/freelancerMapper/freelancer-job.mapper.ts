@@ -9,7 +9,8 @@ import { IJobDetail, IJobResponse } from '../../models/interfaces/job.model.inte
 export function mapJobModelToFreelancerJobDetailResponseDTO(
   jobDetailDto: IJobDetail,
   clientData: FreelancerClientMinimalDTO,
-  isProposalAlreadySent:boolean
+  isProposalAlreadySent:boolean,
+  proposalCount: number
 ): FreelancerJobDetailResponseDto {
   return {
     jobId: jobDetailDto?._id?.toString() as string,
@@ -37,7 +38,7 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
         : null,
 
     postedAt: jobDetailDto.createdAt.toString(),
-    proposalReceived: 0,
+    proposalReceived: proposalCount,
     client: {
       companyName: clientData.companyName,
       country: clientData?.country,
@@ -175,11 +176,12 @@ export function mapJobModelToFreelancerJobResponseDTO(
           }
         : null,
     postedAt: jobDetailDto.createdAt.toString(),
-    totalProposalReceived: 0,
+    totalProposalReceived: jobDetailDto.proposalCount || 0,
     client: {
       companyName: jobDetailDto?.client?.companyName,
       country: jobDetailDto?.client?.country as string,
-      rating: 0,
+      rating: jobDetailDto?.client?.rating || 0,
+      totalMoneySpent: jobDetailDto?.client?.totalMoneySpent || 0,
     },
   };
 }

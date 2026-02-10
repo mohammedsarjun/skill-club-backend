@@ -143,7 +143,6 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
     const skip = (page - 1) * limit;
 
     const pipeline = [
-      // Convert possible string IDs in profile fields to ObjectId so $match filters work correctly
       {
         $addFields: {
           'freelancerProfile.skills': {
@@ -184,13 +183,73 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
       { $match: mongoQuery },
       { $skip: skip },
       { $limit: limit },
-      // Lookup skills documents now that skill ids are ObjectIds
       {
         $lookup: {
           from: 'skills',
           localField: 'freelancerProfile.skills',
           foreignField: '_id',
           as: 'freelancerProfile.skills',
+        },
+      },
+      {
+        $lookup: {
+          from: 'contracts',
+          localField: '_id',
+          foreignField: 'freelancerId',
+          as: 'contracts',
+        },
+      },
+      {
+        $lookup: {
+          from: 'contracttransactions',
+          let: { freelancerId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$freelancerId', '$$freelancerId'] },
+                    { $eq: ['$purpose', 'release'] },
+                    { $eq: ['$status', 'completed'] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'releasedTransactions',
+        },
+      },
+      {
+        $addFields: {
+          totalContracts: { $size: '$contracts' },
+          completedContracts: {
+            $size: {
+              $filter: {
+                input: '$contracts',
+                as: 'contract',
+                cond: { $eq: ['$$contract.status', 'completed'] },
+              },
+            },
+          },
+          totalEarnedAmount: {
+            $sum: '$releasedTransactions.amount',
+          },
+        },
+      },
+      {
+        $addFields: {
+          jobSuccessRate: {
+            $cond: {
+              if: { $eq: ['$totalContracts', 0] },
+              then: 0,
+              else: {
+                $multiply: [
+                  { $divide: ['$completedContracts', '$totalContracts'] },
+                  100,
+                ],
+              },
+            },
+          },
         },
       },
       {
@@ -202,8 +261,8 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
           professionalRole: '$freelancerProfile.professionalRole',
           country: '$address.country',
           hourlyRate: '$freelancerProfile.hourlyRate',
-          jobSuccessRate: { $ifNull: ['$freelancerProfile.jobSuccessRate', 0] },
-          totalEarnedAmount: { $ifNull: ['$freelancerProfile.totalEarnedAmount', 0] },
+          jobSuccessRate: { $round: ['$jobSuccessRate', 0] },
+          totalEarnedAmount: '$totalEarnedAmount',
           hourlyRateCurrency: '$freelancerProfile.hourlyRateCurrency',
           categoryId: {
             $cond: {
@@ -249,7 +308,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
       { $match: { _id: new Types.ObjectId(freelancerId) } },
       {
         $lookup: {
-          from: 'specialities', // Make sure this matches your actual collection name
+          from: 'specialities',
           localField: 'freelancerProfile.specialties',
           foreignField: '_id',
           as: 'specialtiesData',
@@ -257,10 +316,71 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
       },
       {
         $lookup: {
-          from: 'skills', // Make sure this matches your actual collection name
+          from: 'skills',
           localField: 'freelancerProfile.skills',
           foreignField: '_id',
           as: 'skillsData',
+        },
+      },
+      {
+        $lookup: {
+          from: 'contracts',
+          localField: '_id',
+          foreignField: 'freelancerId',
+          as: 'contracts',
+        },
+      },
+      {
+        $lookup: {
+          from: 'contracttransactions',
+          let: { freelancerId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$freelancerId', '$$freelancerId'] },
+                    { $eq: ['$purpose', 'release'] },
+                    { $eq: ['$status', 'completed'] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'releasedTransactions',
+        },
+      },
+      {
+        $addFields: {
+          totalContracts: { $size: '$contracts' },
+          completedContracts: {
+            $size: {
+              $filter: {
+                input: '$contracts',
+                as: 'contract',
+                cond: { $eq: ['$$contract.status', 'completed'] },
+              },
+            },
+          },
+          totalEarnedAmount: {
+            $sum: '$releasedTransactions.amount',
+          },
+        },
+      },
+      {
+        $addFields: {
+          jobSuccessRate: {
+            $cond: {
+              if: { $eq: ['$totalContracts', 0] },
+              then: 0,
+              else: {
+                $multiply: [
+                  { $divide: ['$completedContracts', '$totalContracts'] },
+                  100,
+                ],
+              },
+            },
+          },
         },
       },
       {
@@ -291,6 +411,8 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
           languages: '$freelancerProfile.languages',
           bio: '$freelancerProfile.bio',
           hourlyRate: '$freelancerProfile.hourlyRate',
+          jobSuccessRate: { $round: ['$jobSuccessRate', 0] },
+          totalEarnedAmount: '$totalEarnedAmount',
         },
       },
     ]);

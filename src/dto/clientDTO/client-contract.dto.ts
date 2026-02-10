@@ -61,7 +61,7 @@ export interface ClientContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested';
+    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested' | 'cancelled';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -84,6 +84,7 @@ export interface ClientContractDetailDTO {
     revisionsAllowed?: number;
       revisionsLeft?: number;
       isMeetingProposalSent?: boolean;
+      isFunded?: boolean;
   }[];
 
   title: string;
@@ -103,14 +104,6 @@ export interface ClientContractDetailDTO {
     responseMessage?: string;
   };
 
-  communication?: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: string;
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
-  };
-
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;
@@ -119,11 +112,21 @@ export interface ClientContractDetailDTO {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed';
-  fundedAmount: number;
-  totalPaid: number;
-  balance: number;
-
+  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  totalFunded: number;
+  totalPaidToFreelancer: number;
+  totalCommissionPaid: number;
+  totalAmountHeld: number;
+  totalRefund: number;
+  availableContractBalance: number;
+  isFunded?: boolean;
+  cancelledBy?: 'client' | 'freelancer';
+  hasActiveCancellationDisputeWindow?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
+}
+
+export interface EndHourlyContractResponseDTO {
+  ended: boolean;
+  message: string;
 }

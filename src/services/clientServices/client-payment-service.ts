@@ -8,9 +8,7 @@ import {
   PaymentVerificationDTO,
 } from '../../dto/clientDTO/client-payment.dto';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
-import {
-  IPaymentRepository,
-} from '../../repositories/interfaces/payment-repository.interface';
+import { IPaymentRepository } from '../../repositories/interfaces/payment-repository.interface';
 import { IContractTransactionRepository } from '../../repositories/interfaces/contract-transaction-repository.interface';
 import { IClientWalletRepository } from '../../repositories/interfaces/client-wallet-repository.interface';
 import { PayUService } from '../../utils/payu.service';
@@ -23,7 +21,8 @@ export class ClientPaymentService implements IClientPaymentService {
   constructor(
     @inject('IContractRepository') private contractRepository: IContractRepository,
     @inject('IPaymentRepository') private paymentRepository: IPaymentRepository,
-    @inject('IContractTransactionRepository') private contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    private contractTransactionRepository: IContractTransactionRepository,
     @inject('IClientWalletRepository') private clientWalletRepository: IClientWalletRepository,
     @inject('PaymentAmountStrategyFactory')
     private paymentAmountStrategyFactory: PaymentAmountStrategyFactory,
@@ -237,26 +236,35 @@ export class ClientPaymentService implements IClientPaymentService {
         }
 
         // Update funded amount
+        const updateData: Partial<{ fundedAmount: number; balance: number; isFunded: boolean }> = {
+          fundedAmount: (contract.fundedAmount || 0) + payment.amount,
+          balance: (contract.balance || 0) + payment.amount,
+        };
+
+        if (contract.paymentType === 'fixed') {
+          updateData.isFunded = true;
+        }
+
         const updateContract = await this.contractRepository.updateById(
           payment.contractId.toString(),
-          {
-            fundedAmount: (contract.fundedAmount || 0) + payment.amount,
-            balance: (contract.balance || 0) + payment.amount,
-          },
+          updateData,
           session,
         );
 
         if (updateContract?.paymentType === 'hourly') {
+          console.log(updateContract.estimatedHoursPerWeek, updateContract.hourlyRate, updateContract.balance);
           if (
-            updateContract.estimatedHoursPerWeek! * (updateContract.hourlyRate || 0) >=
+            updateContract.estimatedHoursPerWeek! * (updateContract.hourlyRate || 0) >
             (updateContract.balance || 0)
           ) {
+      
             await this.contractRepository.updateStatusById(
               payment.contractId.toString(),
               'held',
               session,
             );
           } else {
+       
             // Activate contract
             await this.contractRepository.updateStatusById(
               payment.contractId.toString(),
@@ -281,21 +289,16 @@ export class ClientPaymentService implements IClientPaymentService {
             'funded',
             session,
           );
+
+          await this.contractRepository.updateMilestoneFundedAmount(
+            payment.contractId.toString(),
+            payment.milestoneId.toString(),
+            session,
+        
+          );
         }
 
-        // // Fixed contract → fund all milestones
-        // if (contract.paymentType === 'fixed_with_milestones') {
-        //   for (const m of contract.milestones || []) {
-        //     if (m?._id) {
-        //       await this.contractRepository.updateMilestoneStatus(
-        //         payment.contractId.toString(),
-        //         m._id.toString(),
-        //         'funded',
-        //         session,
-        //       );
-        //     }
-        //   }
-        // }
+
 
         // -------------------------------
         // 7. Contract transaction creation (replaces escrow + transaction)
@@ -333,10 +336,7 @@ export class ClientPaymentService implements IClientPaymentService {
             session,
           );
         } else {
-          await this.clientWalletRepository.createWallet(
-            payment.clientId.toString(),
-            session,
-          );
+          await this.clientWalletRepository.createWallet(payment.clientId.toString(), session);
           await this.clientWalletRepository.updateBalance(
             payment.clientId.toString(),
             payment.amount,

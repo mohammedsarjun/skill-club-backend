@@ -49,6 +49,8 @@ import { IFileDownloadService } from '../services/commonServices/interfaces/file
 import { FileDownloadService } from '../services/commonServices/file-download-service';
 import { IMeetingStatusService } from '../services/commonServices/interfaces/meeting-status-service.interface';
 import { MeetingStatusService } from '../services/commonServices/meeting-status-service';
+import { IWorklogTransactionService } from '../services/commonServices/interfaces/worklog-transaction-service.interface';
+import { WorklogTransactionService } from '../services/commonServices/worklog-transaction-service';
 container.register<ICategoryRepository>('ICategoryRepository', { useClass: CategoryRepository });
 container.register<ISpecialityRepository>('ISpecialityRepository', {
   useClass: SpecialityRepository,
@@ -66,6 +68,9 @@ container.register<IContractRepository>('IContractRepository', { useClass: Contr
 import { IDisputeRepository } from '../repositories/interfaces/dispute-repository.interface';
 import { DisputeRepository } from '../repositories/dispute-repository';
 container.register<IDisputeRepository>('IDisputeRepository', { useClass: DisputeRepository });
+import { ICancellationRequestRepository } from '../repositories/interfaces/cancellation-request-repository.interface';
+import { CancellationRequestRepository } from '../repositories/cancellation-request-repository';
+container.register<ICancellationRequestRepository>('ICancellationRequestRepository', { useClass: CancellationRequestRepository });
 container.register<IPaymentRepository>('IPaymentRepository', { useClass: PaymentRepository });
 container.register<ITransactionRepository>('ITransactionRepository', {
   useClass: TransactionRepository,
@@ -90,6 +95,7 @@ container.register<IFileUploadService>('IFileUploadService', { useClass: FileUpl
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 container.register<IFileDownloadService>('IFileDownloadService', { useClass: FileDownloadService });
 container.register<IMeetingStatusService>('IMeetingStatusService', { useClass: MeetingStatusService });
+container.register<IWorklogTransactionService>('IWorklogTransactionService', { useClass: WorklogTransactionService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
@@ -211,6 +217,14 @@ container.register<IClientFinanceService>('IClientFinanceService', {
   useClass: ClientFinanceService,
 });
 
+import { IBankDetailsRepository } from '../repositories/interfaces/bank-details-repository.interface';
+import { BankDetailsRepository } from '../repositories/bank-details-repository';
+import { IClientBankService } from '../services/clientServices/interfaces/client-bank-service.interface';
+import { ClientBankService } from '../services/clientServices/client-bank-service';
+
+container.register<IBankDetailsRepository>('IBankDetailsRepository', { useClass: BankDetailsRepository });
+container.register<IClientBankService>('IClientBankService', { useClass: ClientBankService });
+
 //user category ,speciality,skills
 import { IUserCategoryServices } from '../services/userServices/interfaces/user-category-services.interface';
 import { userCategoryServices } from '../services/userServices/user-category-services';
@@ -244,6 +258,13 @@ import { AdminContractService } from '../services/adminServices/admin-contract-s
 
 container.register<IAdminContractService>('IAdminContractService', {
   useClass: AdminContractService,
+});
+
+import { IAdminDisputeService } from '../services/adminServices/interfaces/admin-dispute-service.interface';
+import { AdminDisputeService } from '../services/adminServices/admin-dispute-service';
+
+container.register<IAdminDisputeService>('IAdminDisputeService', {
+  useClass: AdminDisputeService,
 });
 
 import { IAdminReviewService } from '../services/interfaces/admin-review-service.interface';
@@ -334,6 +355,33 @@ import { FreelancerSavedJobService } from '../services/freelancerServices/freela
 container.register<ISavedJobRepository>('ISavedJobRepository', { useClass: SavedJobRepository });
 container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', {
   useClass: FreelancerSavedJobService,
+});
+
+import { IReportedJobRepository } from '../repositories/interfaces/reported-job-repository.interface';
+import { ReportedJobRepository } from '../repositories/reported-job-repository';
+import { IFreelancerReportedJobService } from '../services/freelancerServices/interfaces/freelancer-reported-job-service.interface';
+import { FreelancerReportedJobService } from '../services/freelancerServices/freelancer-reported-job-service';
+
+container.register<IReportedJobRepository>('IReportedJobRepository', {
+  useClass: ReportedJobRepository,
+});
+container.register<IFreelancerReportedJobService>('IFreelancerReportedJobService', {
+  useClass: FreelancerReportedJobService,
+});
+
+import { IAdminReportedJobService } from '../services/adminServices/interfaces/admin-reported-job-service.interface';
+import { AdminReportedJobService } from '../services/adminServices/admin-reported-job-service';
+
+container.register<IAdminReportedJobService>('IAdminReportedJobService', {
+  useClass: AdminReportedJobService,
+});
+
+// Freelancer finance (withdrawals)
+import { IFreelancerFinanceService } from '../services/freelancerServices/interfaces/freelancer-finance-service.interface';
+import { FreelancerFinanceService } from '../services/freelancerServices/freelancer-finance-service';
+
+container.register<IFreelancerFinanceService>('IFreelancerFinanceService', {
+  useClass: FreelancerFinanceService,
 });
 
 //client proposal Service
@@ -488,6 +536,25 @@ container.register("DeliverableChangeStrategyFactory", {
   useClass: DeliverableChangeStrategyFactory,
 });
 
+import { IContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/IContractCancellationStrategy';
+import { FixedContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/fixedContractCancellationStrategy';
+import { HourlyContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/hourlyContractCancellationStrategy';
+import { MilestoneContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/milestoneContractCancellationStrategy';
+container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+  useClass: FixedContractCancellationStrategy,
+});
+container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+  useClass: HourlyContractCancellationStrategy,
+});
+container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+  useClass: MilestoneContractCancellationStrategy,
+});
+
+import { ContractCancellationStrategyFactory } from '../services/clientServices/factories/cancellationFactories/ContractCancellationStrategyFactory';
+container.register("ContractCancellationStrategyFactory", {
+  useClass: ContractCancellationStrategyFactory,
+});
+
 
 //meeting service
 import { IClientMeetingService } from '../services/clientServices/interfaces/client-meeting-service.interface';
@@ -518,7 +585,55 @@ container.register<IDeliverablesChangeQueryStrategy>('IDeliverablesChangeQuerySt
 
 // deliverable change strategy factory (repository-level)
 import { DeliverableChangeQueryStrategyFactory } from '../repositories/factories/interfaces/deliverable-change.strategy.interface';
+
 container.register("DeliverableChangeQueryStrategyFactory", {
   useClass: DeliverableChangeQueryStrategyFactory,
 });
 
+
+
+//withdrawal
+import { AdminWithdrawalServices } from '../services/adminServices/admin-withdrawal-service';
+container.register("IAdminWithdrawalServices",
+  {useClass:AdminWithdrawalServices}
+)
+
+import { IAdminRevenueService } from '../services/adminServices/interfaces/admin-revenue-service.interface';
+import { AdminRevenueService } from '../services/adminServices/admin-revenue-service';
+
+container.register<IAdminRevenueService>('IAdminRevenueService', {
+  useClass: AdminRevenueService,
+});
+
+
+//notification
+
+import { INotificationService } from '../services/commonServices/interfaces/notification-service.interface';
+import { NotificationService } from '../services/commonServices/notification-service';
+container.register<INotificationService>('INotificationService', {
+  useClass: NotificationService,
+});
+
+import { INotificationRepository } from '../repositories/interfaces/notification-repository.interface';
+import { NotificationRepository } from '../repositories/notification-repository';
+container.register<INotificationRepository>('INotificationRepository', {
+  useClass: NotificationRepository,
+});
+
+import { IClientNotificationService } from '../services/clientServices/interfaces/client-notification-service.interface';
+import { ClientNotificationService } from '../services/clientServices/client-notification-service';
+container.register<IClientNotificationService>('IClientNotificationService', {
+  useClass: ClientNotificationService,
+});
+
+import { IFreelancerNotificationService } from '../services/freelancerServices/interfaces/freelancer-notification-service.interface';
+import { FreelancerNotificationService } from '../services/freelancerServices/freelancer-notification-service';
+container.register<IFreelancerNotificationService>('IFreelancerNotificationService', {
+  useClass: FreelancerNotificationService,
+});
+
+import { IAdminNotificationService } from '../services/adminServices/interfaces/admin-notification-service.interface';
+import { AdminNotificationService } from '../services/adminServices/admin-notification-service';
+container.register<IAdminNotificationService>('IAdminNotificationService', {
+  useClass: AdminNotificationService,
+});

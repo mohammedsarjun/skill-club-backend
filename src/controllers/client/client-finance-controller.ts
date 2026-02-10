@@ -22,4 +22,30 @@ export class ClientFinanceController implements IClientFinanceController {
       data: result,
     });
   }
+
+  async requestWithdrawal(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId;
+    const { amount, note } = req.body as { amount: number; note?: string };
+    const result = await this._clientFinanceService.requestWithdrawal(clientId!, amount, note);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Withdrawal request created',
+      data: result,
+    });
+  }
+
+  async getWithdrawals(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId;
+    const page = Number(req.query.page || 1);
+    const limit = Number(req.query.limit || 10);
+    const result = await this._clientFinanceService.getWithdrawalHistory(clientId!, page, limit);
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Withdrawal history fetched',
+      data: result.items,
+      total: result.total,
+      page,
+      limit,
+    });
+  }
 }

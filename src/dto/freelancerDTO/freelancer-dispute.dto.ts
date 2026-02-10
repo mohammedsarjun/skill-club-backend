@@ -6,6 +6,11 @@ export interface CreateDisputeRequestDTO {
   scopeId?: string;
 }
 
+export interface RaiseDisputeForCancelledContractDTO {
+  notes: string;
+  milestoneId?: string;
+}
+
 export interface DisputeResponseDTO {
   disputeId: string;
   contractId: string;

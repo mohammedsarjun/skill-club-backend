@@ -34,6 +34,9 @@ const WorklogSchema = new Schema<IWorklog>(
       type: Number,
       required: true,
     },
+    disputeWindowEndDate: {
+      type: Date,
+    },
     files: [
       {
         fileName: { type: String, required: true },

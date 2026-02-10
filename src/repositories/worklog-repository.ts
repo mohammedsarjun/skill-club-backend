@@ -32,6 +32,10 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     return this.findOne({ worklogId });
   }
 
+  async getWorklogsByObjectId(worklogObjectId: mongoose.Types.ObjectId): Promise<IWorklog | null> {
+    return this.findOne({ _id: worklogObjectId });
+  }
+
   async getWorklogsByContractWithPagination(
     contractId: string,
     page: number,
@@ -87,4 +91,28 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     return totalMilliseconds / (1000 * 60 * 60);
   }
 
+  async updateDisputeWindowEndDate(worklogId: string, newEndDate: Date, session?: mongoose.ClientSession): Promise<IWorklog | null> {
+    return this.model.findOneAndUpdate(
+      { worklogId },
+      { disputeWindowEndDate: newEndDate },
+      { new: true, session }
+    ).exec();
+  }
+
+  async findWorklogsWithExpiredDisputeWindow(): Promise<IWorklog[]> {
+    return this.model.find({
+      status: 'rejected',
+      disputeWindowEndDate: { $lt: new Date() },
+    }).exec();
+  }
+
+  async hasPendingWorklogs(contractId: string): Promise<boolean> {
+    const count = await this.model.countDocuments({
+      contractId,
+      status: 'submitted'
+    }).exec();
+    return count > 0;
+  }
+
 }
+

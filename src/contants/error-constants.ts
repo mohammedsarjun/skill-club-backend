@@ -22,6 +22,7 @@ export const ERROR_MESSAGES = {
   GENERAL: {
     SERVER_ERROR: 'Something went wrong, please try again later',
     BAD_REQUEST: 'Invalid request',
+    NOT_FOUND: 'Resource not found',
   },
   TOKEN: {
     INVALID_TOKEN: 'Invalid or Expired Token',
@@ -60,6 +61,7 @@ export const ERROR_MESSAGES = {
   JOB: {
     NOT_FOUND: 'Job not found',
     INVALID_STATUS: 'Job status is not valid for this operation',
+    ALREADY_REPORTED: 'You have already reported this job',
   },
   PROPOSAL: {
     ALREADY_EXIST: 'Proposal already sent',
@@ -81,6 +83,12 @@ export const ERROR_MESSAGES = {
     INVALID_PAYMENT_TYPE: 'This operation is only valid for fixed payment contracts',
     PENDING_DELIVERABLES: 'Please approve or reject all pending deliverables before cancelling the contract',
     CANCELLATION_IN_PROGRESS: 'Contract cancellation is already in progress',
+    INVALID_END_STATUS: 'Contract must be active to be ended',
+    PENDING_WORKLOGS: 'Please approve or reject all pending worklogs before ending the contract',
+    CANCELLATION_REQUEST_EXISTS: 'A cancellation request already exists for this contract',
+    INVALID_SPLIT_PERCENTAGE: 'Split percentages must add up to 100',
+    NOT_FUNDED: 'Contract must be funded to create cancellation request',
+    NO_DELIVERABLES: 'Cannot create cancellation request without deliverables',
   },
   REVIEW: {
     ALREADY_SUBMITTED: 'You have already submitted a review for this contract',
@@ -97,6 +105,19 @@ export const ERROR_MESSAGES = {
     ALREADY_RESOLVED: 'This dispute has already been resolved',
     CANNOT_RAISE_DISPUTE: 'Cannot raise dispute for this contract in current state',
     INVALID_STATUS: 'Invalid dispute status',
+    WORKLOG_NOT_REJECTED: 'Worklog must be rejected to raise a dispute',
+    DISPUTE_WINDOW_EXPIRED: 'The dispute window for this worklog has expired',
+    WORKLOG_DISPUTE_EXISTS: 'A dispute already exists for this worklog',
+    NO_HOLD_TRANSACTION: 'No hold transaction found for this dispute',
+    INVALID_SPLIT_PERCENTAGE: 'Client and freelancer percentages must total 100',
+    NOT_HOURLY_DISPUTE: 'This operation is only valid for hourly worklog disputes',
+  },
+  CANCELLATION_REQUEST: {
+    NOT_FOUND: 'Cancellation request not found',
+    NOT_PENDING: 'Cancellation request is not in pending status',
+    ALREADY_RESPONDED: 'You have already responded to this cancellation request',
+    UNAUTHORIZED_ACCESS: 'You are not authorized to respond to this cancellation request',
+    DISPUTE_ALREADY_RAISED: 'A dispute has already been raised for this cancellation',
   },
   MEETING: {
     NOT_FOUND: 'Meeting not found',
@@ -104,5 +125,20 @@ export const ERROR_MESSAGES = {
     INVALID_STATUS: 'Invalid meeting status for this action',
     REJECT_FAILED: 'Failed to reject meeting',
     UPDATE_FAILED: 'Failed to update meeting',
+  },
+  FINANCE: {
+    INSUFFICIENT_BALANCE: 'Insufficient balance for withdrawal',
+    INVALID_AMOUNT: 'Invalid withdrawal amount',
+  },
+  BANK: {
+    INVALID_DETAILS: 'Invalid bank details provided',
+    NOT_FOUND: 'Bank details not found',
+  },
+  REPORT: {
+    NOT_FOUND: 'No reports found',
+  },
+  NOTIFICATION: {
+    NOT_FOUND: 'Notification not found',
+    UNAUTHORIZED: 'You are not authorized to access this notification',
   },
 };

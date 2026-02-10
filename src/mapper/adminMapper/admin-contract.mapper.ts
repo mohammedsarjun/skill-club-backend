@@ -93,6 +93,7 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
       title: milestone.title,
       amount: milestone.amount,
       expectedDelivery: milestone.expectedDelivery,
+    
       status: milestone.status,
       submittedAt: milestone.submittedAt,
       approvedAt: milestone.approvedAt,
@@ -121,16 +122,6 @@ export function mapContractToAdminDetailDTO(contract: IContract): AdminContractD
     expectedEndDate: contract.expectedEndDate,
     referenceFiles: contract.referenceFiles,
     referenceLinks: contract.referenceLinks,
-
-    communication: contract.communication
-      ? {
-          preferredMethod: contract.communication.preferredMethod,
-          meetingFrequency: contract.communication.meetingFrequency,
-          meetingDayOfWeek: contract.communication.meetingDayOfWeek,
-          meetingDayOfMonth: contract.communication.meetingDayOfMonth,
-          meetingTimeUtc: contract.communication.meetingTimeUtc,
-        }
-      : undefined,
 
     reporting: contract.reporting
       ? {

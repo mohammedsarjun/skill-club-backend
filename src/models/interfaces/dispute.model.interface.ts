@@ -17,6 +17,7 @@ export interface IDispute extends Document {
     decidedBy: 'admin' | 'system';
     decidedAt?: Date;
   };
+  disputeId: string;
   createdAt: Date;
   updatedAt: Date;
 }

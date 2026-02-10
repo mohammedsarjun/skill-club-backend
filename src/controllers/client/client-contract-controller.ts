@@ -63,8 +63,9 @@ export class ClientContractController implements IClientContractController {
   async cancelContract(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const { contractId } = req.params;
+    const { cancelContractReason } = req.body;
 
-    const result = await this._clientContractService.cancelContract(clientId, contractId);
+    const result = await this._clientContractService.cancelContract(clientId, contractId, cancelContractReason);
 
     res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
   }
@@ -232,6 +233,72 @@ export class ClientContractController implements IClientContractController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Hourly contract activated successfully',
+      data: result,
+    });
+  }
+  async endHourlyContract(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const result = await this._clientContractService.endHourlyContract(clientId, contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  }
+
+  async createCancellationRequest(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data = req.body;
+
+    const result = await this._clientContractService.createCancellationRequest(clientId, contractId, data);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Cancellation request created successfully',
+      data: result,
+    });
+  }
+
+  async getCancellationRequest(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._clientContractService.getCancellationRequest(clientId, contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Cancellation request fetched successfully',
+      data: result,
+    });
+  }
+
+  async acceptCancellationRequest(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data = req.body;
+
+    const result = await this._clientContractService.acceptCancellationRequest(clientId, contractId, data);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
+      data: result,
+    });
+  }
+
+  async raiseCancellationDispute(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const { notes } = req.body;
+
+    const result = await this._clientContractService.raiseCancellationDispute(clientId, contractId, notes);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: result.message,
       data: result,
     });
   }

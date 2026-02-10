@@ -10,6 +10,7 @@ import { FreelancerJobController } from '../controllers/freelancer/freelancer-jo
 import { FreelancerProposalController } from '../controllers/freelancer/freelancer-proposal-controller';
 import { FreelancerOfferController } from '../controllers/freelancer/freelancer-offer-controller';
 import { FreelancerSavedJobController } from '../controllers/freelancer/freelancer-saved-job-controller';
+import { FreelancerReportedJobController } from '../controllers/freelancer/freelancer-reported-job-controller';
 import { FreelancerContractController } from '../controllers/freelancer/freelancer-contract-controller';
 import { FreelancerChatController } from '../controllers/freelancer/freelancer-chat-controller';
 import { FreelancerWorklogController } from '../controllers/freelancer/freelancer-worklog-controller';
@@ -17,7 +18,9 @@ import { FreelancerMeetingController } from '../controllers/freelancer/freelance
 import { FreelancerReviewController } from '../controllers/freelancer/freelancer-review-controller';
 import { FreelancerDisputeController } from '../controllers/freelancer/freelancer-dispute-controller';
 import { FreelancerEarningsController } from '../controllers/freelancer/freelancer-earnings-controller';
+import { FreelancerFinanceController } from '../controllers/freelancer/freelancer-finance-controller';
 import { FreelancerDashboardController } from '../controllers/freelancer/freelancer-dashboard-controller';
+import { FreelancerNotificationController } from '../controllers/freelancer/freelancer-notification-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -27,6 +30,7 @@ const freelancerJobController = container.resolve(FreelancerJobController);
 const freelancerProposalController = container.resolve(FreelancerProposalController);
 const freelancerOfferController = container.resolve(FreelancerOfferController);
 const freelancerSavedJobController = container.resolve(FreelancerSavedJobController);
+const freelancerReportedJobController = container.resolve(FreelancerReportedJobController);
 const freelancerContractController = container.resolve(FreelancerContractController);
 const freelancerChatController = container.resolve(FreelancerChatController);
 const freelancerWorklogController = container.resolve(FreelancerWorklogController);
@@ -34,7 +38,9 @@ const freelancerMeetingController = container.resolve(FreelancerMeetingControlle
 const freelancerReviewController = container.resolve(FreelancerReviewController);
 const freelancerDisputeController = container.resolve(FreelancerDisputeController);
 const freelancerEarningsController = container.resolve(FreelancerEarningsController);
+const freelancerFinanceController = container.resolve(FreelancerFinanceController);
 const freelancerDashboardController = container.resolve(FreelancerDashboardController);
+const freelancerNotificationController = container.resolve(FreelancerNotificationController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -253,6 +259,22 @@ freelancerRouter.get(
   freelancerSavedJobController.getSavedJobs.bind(freelancerSavedJobController),
 );
 
+freelancerRouter.post(
+  '/jobs/:jobId/report',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerReportedJobController.reportJob.bind(freelancerReportedJobController),
+);
+
+freelancerRouter.get(
+  '/jobs/:jobId/reported',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerReportedJobController.isJobReported.bind(freelancerReportedJobController),
+);
+
 freelancerRouter.get(
   '/contracts',
   authMiddleware,
@@ -276,6 +298,16 @@ freelancerRouter.post(
   freelancerBlockMiddleware,
   freelancerContractController.submitDeliverable.bind(freelancerContractController),
 );
+
+freelancerRouter.post(
+  '/contracts/:contractId/deliverables/:deliverableId/approve-change',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.approveChangeRequest.bind(freelancerContractController),
+);
+
+
 
 freelancerRouter.post(
   '/contracts/:contractId/milestones/deliverables',
@@ -309,6 +341,46 @@ freelancerRouter.post(
   freelancerContractController.cancelContract.bind(freelancerContractController),
 );
 
+freelancerRouter.get(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.getCancellationRequest.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/cancellation-request/accept',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.acceptCancellationRequest.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/cancellation-request/raise-dispute',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.raiseCancellationDispute.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/cancellation-request',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.createCancellationRequest.bind(freelancerContractController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/end',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.endHourlyContract.bind(freelancerContractController),
+);
+
 freelancerRouter.post(
   '/contracts/:contractId/cancel-with-dispute',
   authMiddleware,
@@ -339,6 +411,14 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerDisputeController.getDisputesByContract.bind(freelancerDisputeController),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/raise-dispute',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerDisputeController.raiseDisputeForCancelledContract.bind(freelancerDisputeController),
 );
 
 freelancerRouter.post(
@@ -502,6 +582,14 @@ freelancerRouter.get(
 );
 
 freelancerRouter.post(
+  '/contracts/:contractId/worklogs/raise-dispute',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerWorklogController.raiseWorklogDispute.bind(freelancerWorklogController),
+);
+
+freelancerRouter.post(
   '/contracts/:contractId/review',
   authMiddleware,
   roleGuard('freelancer'),
@@ -541,6 +629,30 @@ freelancerRouter.get(
   freelancerEarningsController.getTransactions.bind(freelancerEarningsController),
 );
 
+freelancerRouter.post(
+  '/finance/withdraw',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerFinanceController.requestWithdrawal.bind(freelancerFinanceController),
+);
+
+freelancerRouter.get(
+  '/finance/withdrawals',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerFinanceController.getWithdrawals.bind(freelancerFinanceController),
+);
+
+freelancerRouter.get(
+  '/finance/withdrawals/:withdrawalId',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerFinanceController.getWithdrawalDetail.bind(freelancerFinanceController),
+);
+
 freelancerRouter.get(
   '/dashboard/contract-stats',
   authMiddleware,
@@ -571,6 +683,30 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerDashboardController.getReviewStats.bind(freelancerDashboardController),
+);
+
+freelancerRouter.get(
+  '/notifications',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerNotificationController.getNotifications.bind(freelancerNotificationController),
+);
+
+freelancerRouter.patch(
+  '/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerNotificationController.markNotificationAsRead.bind(freelancerNotificationController),
+);
+
+freelancerRouter.patch(
+  '/notifications/read-all',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerNotificationController.markAllNotificationsAsRead.bind(freelancerNotificationController),
 );
 
 export default freelancerRouter;

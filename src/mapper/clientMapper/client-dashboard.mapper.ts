@@ -1,6 +1,7 @@
 import { IJob } from '../../models/interfaces/job.model.interface';
 import { IMessage } from '../../models/message.model';
-import { RecentJobDTO, RecentMessageDTO, ClientDashboardStatsDTO } from '../../dto/clientDTO/client-dashboard.dto';
+import { IContract } from '../../models/interfaces/contract.model.interface';
+import { RecentJobDTO, RecentMessageDTO, ClientDashboardStatsDTO, RecentActiveContractDTO, SavedFreelancerDTO } from '../../dto/clientDTO/client-dashboard.dto';
 import { Types } from 'mongoose';
 
 const formatTimeAgo = (date: Date): string => {
@@ -72,5 +73,63 @@ export const mapToDashboardStatsDTO = (
     postedJobs,
     totalSpend,
     pendingProposals,
+  };
+};
+
+export const mapContractToRecentActiveContractDTO = (contract: IContract): RecentActiveContractDTO => {
+  const freelancer = contract.freelancerId as any;
+  const job = contract.jobId as any;
+  
+  const freelancerName = freelancer?.firstName && freelancer?.lastName 
+    ? `${freelancer.firstName} ${freelancer.lastName}` 
+    : 'Unknown';
+  
+  return {
+    _id: (contract._id as Types.ObjectId).toString(),
+    title: job?.title || contract.title || 'Untitled Contract',
+    freelancer: {
+      _id: freelancer?._id?.toString() || '',
+      name: freelancerName,
+      logo: freelancer?.logo,
+      country: freelancer?.country,
+    },
+    status: contract.status,
+    contractType: contract.paymentType,
+    startDate: contract.expectedStartDate ? new Date(contract.expectedStartDate).toLocaleDateString() : 'N/A',
+    budget: contract.budget || 0,
+    currency: contract.currency || 'INR',
+  };
+};
+
+export const mapToSavedFreelancerDTO = (savedFreelancerData: {
+  _id: string;
+  savedAt: Date;
+  freelancer: {
+    _id: string;
+    firstName?: string;
+    lastName?: string;
+    logo?: string;
+    professionalRole?: string;
+    country?: string;
+    hourlyRate?: number;
+    skills: string[];
+  } | null;
+}): SavedFreelancerDTO => {
+  const freelancerName = savedFreelancerData.freelancer?.firstName && savedFreelancerData.freelancer?.lastName
+    ? `${savedFreelancerData.freelancer.firstName} ${savedFreelancerData.freelancer.lastName}`
+    : 'Unknown';
+  
+  return {
+    _id: savedFreelancerData._id,
+    freelancer: {
+      _id: savedFreelancerData.freelancer?._id || '',
+      name: freelancerName,
+      logo: savedFreelancerData.freelancer?.logo,
+      professionalRole: savedFreelancerData.freelancer?.professionalRole,
+      country: savedFreelancerData.freelancer?.country,
+      hourlyRate: savedFreelancerData.freelancer?.hourlyRate,
+      skills: savedFreelancerData.freelancer?.skills || [],
+    },
+    savedAt: formatTimeAgo(new Date(savedFreelancerData.savedAt)),
   };
 };

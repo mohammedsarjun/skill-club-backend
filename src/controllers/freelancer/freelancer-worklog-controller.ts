@@ -4,6 +4,7 @@ import { IFreelancerWorklogController } from './interfaces/freelancer-worklog-co
 import { IFreelancerWorklogService } from '../../services/freelancerServices/interfaces/freelancer-worklog-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { SubmitWorklogDTO } from '../../dto/freelancerDTO/freelancer-worklog.dto';
+import { RaiseWorklogDisputeDTO } from '../../dto/freelancerDTO/freelancer-worklog-dispute.dto';
 
 @injectable()
 export class FreelancerWorklogController implements IFreelancerWorklogController {
@@ -85,6 +86,20 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Worklog validation checked successfully',
+      data: result,
+    });
+  }
+
+  async raiseWorklogDispute(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const data: RaiseWorklogDisputeDTO = req.body;
+
+    const result = await this._freelancerWorklogService.raiseWorklogDispute(freelancerId, contractId, data);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      message: 'Worklog dispute raised successfully',
       data: result,
     });
   }

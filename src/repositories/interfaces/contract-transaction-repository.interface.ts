@@ -1,9 +1,13 @@
 import BaseRepository from '../baseRepositories/base-repository';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { ClientSession } from 'mongoose';
+import { AdminWithdrawalStatsDTO } from 'src/dto/adminDTO/admin-withdrawal.dto';
 
 export interface IContractTransactionRepository extends BaseRepository<IContractTransaction> {
-  createTransaction(data: Partial<IContractTransaction>, session?: ClientSession): Promise<IContractTransaction>;
+  createTransaction(
+    data: Partial<IContractTransaction>,
+    session?: ClientSession,
+  ): Promise<IContractTransaction>;
   findByContractId(contractId: string): Promise<IContractTransaction[]>;
   findByMilestoneId(contractId: string, milestoneId: string): Promise<IContractTransaction[]>;
   findByClientId(clientId: string): Promise<IContractTransaction[]>;
@@ -25,4 +29,98 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
     groupBy: 'day' | 'month' | 'year',
   ): Promise<{ date: Date; revenue: number }[]>;
   getMonthlyRevenue(year: number, month: number): Promise<number>;
+  findTotalFundedAmountForMilestone(contractId: string, milestoneId: string): Promise<number>;
+  findHoldTransactionByContract(
+    contractId: string,
+    milestoneId?: string,
+  ): Promise<IContractTransaction | null>;
+  findHoldTransactionByWorklog(
+    contractId: string,
+    worklogId: string,
+  ): Promise<IContractTransaction | null>;
+  updateTransactionStatusForFixedContract(
+    contractId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void>;
+  updateTransactionStatusForMilestoneContract(
+    contractId: string,
+    milestoneId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void>;
+  updateTransactionStatusForWorklog(
+    workLogId: string,
+    status: IContractTransaction['status'],
+    session?: ClientSession,
+  ): Promise<void>;
+  updateTransactionStatusByWorklogId(
+    workLogId: string,
+    status: IContractTransaction['status'],
+  ): Promise<void>;
+  findActiveHoldTransactionsByWorklogIds(worklogIds: string[]): Promise<IContractTransaction[]>;
+  releaseHoldTransactionsToContract(worklogIds: string): Promise<IContractTransaction | null>;
+  findHourlyContractRefundAmount(contractId: string): Promise<number>;
+  findTotalFundedByContractId(contractId: string): Promise<number>;
+  findTotalPaidToFreelancerByContractId(contractId: string): Promise<number>;
+  findTotalCommissionByContractId(contractId: string): Promise<number>;
+  findTotalHeldByContractId(contractId: string): Promise<number>;
+  findTotalRefundByContractId(contractId: string): Promise<number>;
+  findFinancialSummaryByContractId(contractId: string): Promise<{
+    totalFunded: number;
+    totalPaidToFreelancer: number;
+    commissionPaid: number;
+    totalHeld: number;
+    totalRefund: number;
+    availableContractBalance: number;
+  }>;
+  updateHoldTransactionStatusToSplit(
+    transactionId: string,
+    clientRefundAmount: number,
+    freelancerReleaseAmount: number,
+  ): Promise<void>;
+  updateHoldTransactionStatusToReleased(transactionId: string): Promise<void>;
+  getTotalFundedByClientId(clientId: string): Promise<number>;
+  findTotalRefundByClientId(clientId: string): Promise<number>;
+  findTotalWithdrawalByClientId(clientId: string): Promise<number>;
+  
+  findWithdrawalsByClientIdWithPagination(
+    clientId: string,
+    page: number,
+    limit: number,
+  ): Promise<IContractTransaction[]>;
+  countWithdrawalsByClientId(clientId: string): Promise<number>;
+  findWithdrawalsByFreelancerIdWithPagination(
+    freelancerId: string,
+    page: number,
+    limit: number,
+    status?: string,
+  ): Promise<IContractTransaction[]>;
+
+  countWithdrawalsByFreelancerId(freelancerId: string, status?: string): Promise<number>;
+  findWithdrawalsForAdmin(
+    page: number,
+    limit: number,
+    role?: string,
+    status?: string,
+  ): Promise<IContractTransaction[]>;
+  getFreelancerTotalEarnings(freelancerId: string): Promise<number>;
+  getFreelancerAvailableBalance(freelancerId: string): Promise<number>;
+  getPendingWithdraw(freelancerId: string): Promise<number>;
+  getWithdrawStatsForAdmin(): Promise<AdminWithdrawalStatsDTO>;
+  countWithdrawalsForAdmin(role?: string, status?: string): Promise<number>;
+  findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null>;
+  updateWithdrawalStatus(withdrawalId: string, status: string): Promise<IContractTransaction | null>;
+  
+  findCommissionTransactionsWithPagination(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<IContractTransaction[]>;
+  getRevenueStats(startDate?: Date, endDate?: Date): Promise<{
+    totalRevenue: number;
+    totalCommissions: number;
+    totalTransactions: number;
+    averageCommission: number;
+  }>;
+  getRevenueChartData(): Promise<{ month: string; revenue: number; transactions: number }[]>;
+  getRevenueCategoryData(startDate?: Date, endDate?: Date): Promise<{ category: string; revenue: number }[]>;
+  getPreviousPeriodRevenue(startDate: Date, endDate: Date): Promise<number>;
 }
