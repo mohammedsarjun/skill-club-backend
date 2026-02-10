@@ -15,4 +15,5 @@ export interface IContractActivityService {
   ): Promise<void>;
 
   getContractTimeline(contractId: string, userId: string, role: 'client' | 'freelancer'): Promise<ContractTimelineDTO>;
+  getAdminContractTimeline(contractId: string): Promise<ContractTimelineDTO>;
 }

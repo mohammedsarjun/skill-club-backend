@@ -78,4 +78,22 @@ export class ContractActivityService implements IContractActivityService {
       total: activities.length,
     };
   }
+
+  async getAdminContractTimeline(contractId: string): Promise<ContractTimelineDTO> {
+    if (!Types.ObjectId.isValid(contractId)) {
+      throw new AppError('Invalid contract ID', HttpStatus.BAD_REQUEST);
+    }
+
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const activities = await this._contractActivityRepository.getContractActivities(contractId);
+
+    return {
+      activities: activities.map(mapContractActivityToDTO),
+      total: activities.length,
+    };
+  }
 }
