@@ -22,18 +22,7 @@ export const offerValidationSchema = z
     estimated_hours_per_week: z.number().int().positive().optional(),
     milestones: z.array(milestoneSchema).optional(),
     expected_end_date: z.string().optional(),
-    communication: z.object({
-      preferred_method: z.enum(['chat', 'video_call', 'email', 'mixed']),
-      meeting_frequency: z.enum(['daily', 'weekly', 'monthly']).optional(),
-      meeting_day_of_week: z
-        .enum(['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'])
-        .optional(),
-      meeting_day_of_month: z.number().int().min(1).max(31).optional(),
-      meeting_time_utc: z
-        .string()
-        .regex(/^([01]\d|2[0-3]):[0-5]\d$/)
-        .optional(),
-    }),
+    categoryId: z.string().min(1, 'Category is required'),
     reporting: z.object({
       frequency: z.enum(['daily', 'weekly', 'monthly']),
       due_time_utc: z.string().regex(/^([01]\d|2[0-3]):[0-5]\d$/),
@@ -88,43 +77,6 @@ export const offerValidationSchema = z
         path: ['milestones'],
         message: 'At least one milestone required',
       });
-    }
-    // Validate meeting fields when video call is selected
-    if (data.communication.preferred_method === 'video_call') {
-      if (!data.communication.meeting_frequency) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['communication.meeting_frequency'],
-          message: 'Meeting frequency required',
-        });
-      }
-      if (!data.communication.meeting_time_utc) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['communication.meeting_time_utc'],
-          message: 'Meeting time (UTC) required',
-        });
-      }
-      if (
-        data.communication.meeting_frequency === 'weekly' &&
-        !data.communication.meeting_day_of_week
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['communication.meeting_day_of_week'],
-          message: 'Meeting day of week required',
-        });
-      }
-      if (
-        data.communication.meeting_frequency === 'monthly' &&
-        !data.communication.meeting_day_of_month
-      ) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ['communication.meeting_day_of_month'],
-          message: 'Meeting day of month required',
-        });
-      }
     }
 
     if (data.reporting.frequency === 'weekly' && !data.reporting.due_day_of_week) {

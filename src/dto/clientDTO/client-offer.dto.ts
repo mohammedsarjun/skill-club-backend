@@ -16,20 +16,7 @@ export interface ClientOfferRequestDTO {
     revisions?: number;
   }[];
   expected_end_date?: string;
-  communication: {
-    preferred_method: 'chat' | 'video_call' | 'email' | 'mixed';
-    meeting_frequency?: 'daily' | 'weekly' | 'monthly';
-    meeting_day_of_week?:
-      | 'monday'
-      | 'tuesday'
-      | 'wednesday'
-      | 'thursday'
-      | 'friday'
-      | 'saturday'
-      | 'sunday';
-    meeting_day_of_month?: number;
-    meeting_time_utc?: string; // HH:mm
-  };
+  categoryId: string;
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';
     due_time_utc: string; // HH:mm
@@ -129,12 +116,9 @@ export interface ClientOfferDetailDTO extends ClientOfferListItemDTO {
   }[];
   expectedStartDate?: Date;
   expectedEndDate?: Date;
-  communication?: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: string;
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
+  category?: {
+    categoryId: string;
+    categoryName: string;
   };
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';

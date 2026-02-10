@@ -59,15 +59,13 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     })),
     expectedStartDate: offer.expectedStartDate,
     expectedEndDate: offer.expectedEndDate,
-    communication: offer.communication
-      ? {
-          preferredMethod: offer.communication.preferredMethod,
-          meetingFrequency: offer.communication.meetingFrequency,
-          meetingDayOfWeek: offer.communication.meetingDayOfWeek,
-          meetingDayOfMonth: offer.communication.meetingDayOfMonth,
-          meetingTimeUtc: offer.communication.meetingTimeUtc,
-        }
-      : undefined,
+    category:
+      typeof offer.categoryId === 'object' && offer.categoryId !== null
+        ? {
+            categoryId: (offer.categoryId as unknown as { _id?: Types.ObjectId; name?: string })?._id?.toString() || '',
+            categoryName: (offer.categoryId as unknown as { _id?: Types.ObjectId; name?: string })?.name || '',
+          }
+        : undefined,
     reporting: offer.reporting
       ? {
           frequency: offer.reporting.frequency,

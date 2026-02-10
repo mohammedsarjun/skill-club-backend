@@ -22,6 +22,7 @@ import { ClientFreelancerReviewController } from '../controllers/client/client-f
 import { ClientDashboardController } from '../controllers/client/client-dashboard-controller';
 import { ClientFinanceController } from '../controllers/client/client-finance-controller';
 import { ClientDisputeController } from '../controllers/client/client-dispute-controller';
+import { ClientNotificationController } from '../controllers/client/client-notification-controller';
 const clientRouter = express.Router();
 
 const clientController = container.resolve(ClientController);
@@ -43,6 +44,7 @@ const clientMeetingController = container.resolve(ClientMeetingController);
 const clientReviewController = container.resolve(ClientReviewController);
 const clientFreelancerReviewController = container.resolve(ClientFreelancerReviewController);
 const clientDisputeController = container.resolve(ClientDisputeController);
+const clientNotificationController = container.resolve(ClientNotificationController);
 clientRouter.get(
   '/me',
   authMiddleware,
@@ -627,5 +629,28 @@ clientRouter.get(
   clientReviewController.getReviewStatus.bind(clientReviewController),
 );
 
+clientRouter.get(
+  '/notifications',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientNotificationController.getNotifications.bind(clientNotificationController),
+);
+
+clientRouter.patch(
+  '/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientNotificationController.markNotificationAsRead.bind(clientNotificationController),
+);
+
+clientRouter.patch(
+  '/notifications/read-all',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientNotificationController.markAllNotificationsAsRead.bind(clientNotificationController),
+);
 
 export default clientRouter;

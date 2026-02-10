@@ -108,6 +108,7 @@ export class OfferRepository extends BaseRepository<IOffer> implements IOfferRep
           },
           { path: 'jobId', select: '_id title' },
           { path: 'proposalId', select: '_id' },
+          { path: 'categoryId', select: '_id name' },
         ],
       },
     );
@@ -125,6 +126,7 @@ export class OfferRepository extends BaseRepository<IOffer> implements IOfferRep
           },
           { path: 'jobId', select: '_id title' },
           { path: 'proposalId', select: '_id' },
+          { path: 'categoryId', select: '_id name' },
         ],
       },
     );

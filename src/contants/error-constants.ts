@@ -137,4 +137,8 @@ export const ERROR_MESSAGES = {
   REPORT: {
     NOT_FOUND: 'No reports found',
   },
+  NOTIFICATION: {
+    NOT_FOUND: 'Notification not found',
+    UNAUTHORIZED: 'You are not authorized to access this notification',
+  },
 };

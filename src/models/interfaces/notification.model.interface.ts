@@ -1,6 +1,6 @@
-import { Types } from "mongoose";
+import { Document, Types } from "mongoose";
 
-export interface INotification {
+export interface INotification extends Document  {
   _id: string;
 
   userId: Types.ObjectId;

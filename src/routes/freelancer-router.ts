@@ -20,6 +20,7 @@ import { FreelancerDisputeController } from '../controllers/freelancer/freelance
 import { FreelancerEarningsController } from '../controllers/freelancer/freelancer-earnings-controller';
 import { FreelancerFinanceController } from '../controllers/freelancer/freelancer-finance-controller';
 import { FreelancerDashboardController } from '../controllers/freelancer/freelancer-dashboard-controller';
+import { FreelancerNotificationController } from '../controllers/freelancer/freelancer-notification-controller';
 const freelancerRouter = express.Router();
 
 const freelancerController = container.resolve(FreelancerController);
@@ -39,6 +40,7 @@ const freelancerDisputeController = container.resolve(FreelancerDisputeControlle
 const freelancerEarningsController = container.resolve(FreelancerEarningsController);
 const freelancerFinanceController = container.resolve(FreelancerFinanceController);
 const freelancerDashboardController = container.resolve(FreelancerDashboardController);
+const freelancerNotificationController = container.resolve(FreelancerNotificationController);
 freelancerRouter.get(
   '/me',
   authMiddleware,
@@ -681,6 +683,30 @@ freelancerRouter.get(
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
   freelancerDashboardController.getReviewStats.bind(freelancerDashboardController),
+);
+
+freelancerRouter.get(
+  '/notifications',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerNotificationController.getNotifications.bind(freelancerNotificationController),
+);
+
+freelancerRouter.patch(
+  '/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerNotificationController.markNotificationAsRead.bind(freelancerNotificationController),
+);
+
+freelancerRouter.patch(
+  '/notifications/read-all',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerNotificationController.markAllNotificationsAsRead.bind(freelancerNotificationController),
 );
 
 export default freelancerRouter;

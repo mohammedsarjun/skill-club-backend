@@ -122,16 +122,6 @@ export function mapContractToFreelancerDetailDTO(
         }
       : undefined,
 
-    communication: contract.communication
-      ? {
-          preferredMethod: contract.communication.preferredMethod,
-          meetingFrequency: contract.communication.meetingFrequency,
-          meetingDayOfWeek: contract.communication.meetingDayOfWeek,
-          meetingDayOfMonth: contract.communication.meetingDayOfMonth,
-          meetingTimeUtc: contract.communication.meetingTimeUtc,
-        }
-      : undefined,
-
     reporting: contract.reporting
       ? {
           frequency: contract.reporting.frequency,

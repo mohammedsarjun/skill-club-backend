@@ -25,21 +25,26 @@ import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { Types } from 'mongoose';
 import { generateAgoraToken } from '../../utils/agora';
 import { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
+import { buildMeetingNotification } from '../../utils/meeting-notification.helper';
 
 @injectable()
 export class FreelancerMeetingService implements IFreelancerMeetingService {
   private _contractRepository: IContractRepository;
   private _meetingRepository: IMeetingRepository;
   private _userRepository: IUserRepository;
+  private _notificationService: INotificationService;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
     @inject('IMeetingRepository') meetingRepository: IMeetingRepository,
     @inject('IUserRepository') userRepository: IUserRepository,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._contractRepository = contractRepository;
     this._meetingRepository = meetingRepository;
     this._userRepository = userRepository;
+    this._notificationService = notificationService;
   }
 
   async getAllMeetings(
@@ -262,6 +267,20 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
     if (!updatedMeeting) {
       throw new AppError('Failed to accept meeting', HttpStatus.INTERNAL_SERVER_ERROR);
     }
+
+    const clientId = meeting.clientId || (meeting.contractId
+      ? (await this._contractRepository.findById(meeting.contractId.toString()))?.clientId
+      : null);
+    if (clientId) {
+      const notification = buildMeetingNotification(
+        clientId,
+        'client',
+        'Meeting Accepted',
+        `Your meeting "${meeting.agenda}" has been accepted by the freelancer`,
+        data.meetingId,
+      );
+      await this._notificationService.createAndEmitNotification(clientId.toString(), notification);
+    }
   }
 
   async requestReschedule(freelancerId: string, data: RequestRescheduleDTO): Promise<void> {
@@ -295,6 +314,20 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
 
     if (!updatedMeeting) {
       throw new AppError('Failed to request reschedule', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (meeting.contractId) {
+      const contract = await this._contractRepository.findById(meeting.contractId.toString());
+      if (contract?.clientId) {
+        const notification = buildMeetingNotification(
+          contract.clientId,
+          'client',
+          'Meeting Reschedule Requested',
+          `The freelancer has requested to reschedule the meeting "${meeting.agenda}"`,
+          data.meetingId,
+        );
+        await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+      }
     }
   }
 
@@ -336,6 +369,20 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
 
     if (!updated) {
       throw new AppError(ERROR_MESSAGES.MEETING.REJECT_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    const clientId = meeting.clientId || (meeting.contractId
+      ? (await this._contractRepository.findById(meeting.contractId.toString()))?.clientId
+      : null);
+    if (clientId) {
+      const notification = buildMeetingNotification(
+        clientId,
+        'client',
+        'Meeting Rejected',
+        `Your meeting "${meeting.agenda}" has been rejected by the freelancer`,
+        data.meetingId,
+      );
+      await this._notificationService.createAndEmitNotification(clientId.toString(), notification);
     }
   }
 
@@ -429,6 +476,18 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
     };
 
     const meeting = await this._meetingRepository.createMeeting(meetingPayload);
+
+    if (contract.clientId) {
+      const notification = buildMeetingNotification(
+        contract.clientId,
+        'client',
+        'New Meeting Request',
+        `A freelancer has proposed a meeting: "${meetingData.agenda}"`,
+        meeting.id,
+      );
+      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+    }
+
     return mapMeetingToFreelancerMeetingProposalResponseDTO(meeting);
   }
 
@@ -474,6 +533,17 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
 
     if (!updated) {
       throw new AppError(ERROR_MESSAGES.MEETING.UPDATE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (contract.clientId) {
+      const notification = buildMeetingNotification(
+        contract.clientId,
+        'client',
+        'Reschedule Approved',
+        `Your reschedule request for "${meeting.agenda}" has been approved by the freelancer`,
+        data.meetingId,
+      );
+      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
     }
   }
 
@@ -527,6 +597,17 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
 
     if (!updated) {
       throw new AppError(ERROR_MESSAGES.MEETING.UPDATE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (contract.clientId) {
+      const notification = buildMeetingNotification(
+        contract.clientId,
+        'client',
+        'Reschedule Declined',
+        `Your reschedule request for "${meeting.agenda}" has been declined by the freelancer`,
+        data.meetingId,
+      );
+      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
     }
   }
 
@@ -585,6 +666,17 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
 
     if (!updated) {
       throw new AppError(ERROR_MESSAGES.MEETING.UPDATE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    if (contract.clientId) {
+      const notification = buildMeetingNotification(
+        contract.clientId,
+        'client',
+        'Counter Reschedule Proposed',
+        `The freelancer has proposed a new time for the meeting "${meeting.agenda}"`,
+        data.meetingId,
+      );
+      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
     }
   }
 

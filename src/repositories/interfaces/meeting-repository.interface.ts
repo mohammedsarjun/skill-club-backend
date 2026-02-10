@@ -49,5 +49,7 @@ export interface IMeetingRepository extends BaseRepository<IMeeting> {
   countPreContractMeetingsForFreelancer(freelancerId: string, query: FreelancerMeetingQueryParamsDTO): Promise<number>;
   startScheduledMeetings(currentTime: Date): Promise<number>;
   completeOngoingMeetings(currentTime: Date): Promise<number>;
+  findMeetingsStartingSoon(startTime: Date, endTime: Date): Promise<IMeeting[]>;
+  findAcceptedMeetingsStartingAt(currentTime: Date): Promise<IMeeting[]>;
   findById(id: string, session?: ClientSession): Promise<IMeeting | null>;
 }

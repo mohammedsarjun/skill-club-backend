@@ -17,6 +17,7 @@ import { AdminDashboardController } from '../controllers/admin/admin-dashboard-c
 import { AdminDisputeController } from '../controllers/admin/admin-dispute-controller';
 import { AdminWithdrawalController } from '../controllers/admin/admin-withdrawal-controller';
 import { AdminRevenueController } from '../controllers/admin/admin-revenue-controller';
+import { AdminNotificationController } from '../controllers/admin/admin-notification-controller';
 
 const adminRouter = express.Router();
 
@@ -29,6 +30,7 @@ const adminDashboardController = container.resolve(AdminDashboardController);
 const adminDisputeController = container.resolve(AdminDisputeController);
 const adminWithdrawalController=container.resolve(AdminWithdrawalController)
 const adminRevenueController = container.resolve(AdminRevenueController);
+const adminNotificationController = container.resolve(AdminNotificationController);
 
 import { AdminReportedJobController } from '../controllers/admin/admin-reported-job-controller';
 const adminReportedJobController = container.resolve(AdminReportedJobController);
@@ -295,6 +297,24 @@ adminRouter.get('/revenue',
   authMiddleware,
   roleGuard('admin'),
   adminRevenueController.getRevenueData.bind(adminRevenueController)
+);
+
+adminRouter.get('/notifications',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.getNotifications.bind(adminNotificationController)
+);
+
+adminRouter.patch('/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.markNotificationAsRead.bind(adminNotificationController)
+);
+
+adminRouter.patch('/notifications/read-all',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.markAllNotificationsAsRead.bind(adminNotificationController)
 );
 
 export default adminRouter;

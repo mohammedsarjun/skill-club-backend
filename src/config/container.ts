@@ -604,3 +604,36 @@ import { AdminRevenueService } from '../services/adminServices/admin-revenue-ser
 container.register<IAdminRevenueService>('IAdminRevenueService', {
   useClass: AdminRevenueService,
 });
+
+
+//notification
+
+import { INotificationService } from '../services/commonServices/interfaces/notification-service.interface';
+import { NotificationService } from '../services/commonServices/notification-service';
+container.register<INotificationService>('INotificationService', {
+  useClass: NotificationService,
+});
+
+import { INotificationRepository } from '../repositories/interfaces/notification-repository.interface';
+import { NotificationRepository } from '../repositories/notification-repository';
+container.register<INotificationRepository>('INotificationRepository', {
+  useClass: NotificationRepository,
+});
+
+import { IClientNotificationService } from '../services/clientServices/interfaces/client-notification-service.interface';
+import { ClientNotificationService } from '../services/clientServices/client-notification-service';
+container.register<IClientNotificationService>('IClientNotificationService', {
+  useClass: ClientNotificationService,
+});
+
+import { IFreelancerNotificationService } from '../services/freelancerServices/interfaces/freelancer-notification-service.interface';
+import { FreelancerNotificationService } from '../services/freelancerServices/freelancer-notification-service';
+container.register<IFreelancerNotificationService>('IFreelancerNotificationService', {
+  useClass: FreelancerNotificationService,
+});
+
+import { IAdminNotificationService } from '../services/adminServices/interfaces/admin-notification-service.interface';
+import { AdminNotificationService } from '../services/adminServices/admin-notification-service';
+container.register<IAdminNotificationService>('IAdminNotificationService', {
+  useClass: AdminNotificationService,
+});

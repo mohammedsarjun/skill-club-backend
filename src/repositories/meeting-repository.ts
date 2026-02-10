@@ -549,4 +549,18 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
 
     return await this.model.countDocuments(filter);
   }
+
+  async findMeetingsStartingSoon(startTime: Date, endTime: Date): Promise<IMeeting[]> {
+    return await this.model.find({
+      status: 'accepted',
+      scheduledAt: { $gte: startTime, $lte: endTime },
+    }).exec();
+  }
+
+  async findAcceptedMeetingsStartingAt(currentTime: Date): Promise<IMeeting[]> {
+    return await this.model.find({
+      status: 'accepted',
+      scheduledAt: { $lte: currentTime },
+    }).exec();
+  }
 }
