@@ -289,6 +289,14 @@ clientRouter.get(
 );
 
 clientRouter.get(
+  '/contracts/:contractId/timeline',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getContractTimeline.bind(clientContractController),
+);
+
+clientRouter.get(
   '/contracts/:contractId/milestones/:milestoneId',
   authMiddleware,
   roleGuard('client'),

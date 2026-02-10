@@ -32,6 +32,7 @@ import { Types } from 'mongoose';
 import { IContractTransactionRepository } from '../../repositories/interfaces/contract-transaction-repository.interface';
 import { ICancellationRequestRepository } from '../../repositories/interfaces/cancellation-request-repository.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
@@ -46,17 +47,20 @@ export class FreelancerContractService implements IFreelancerContractService {
   private _contractTransactionRepository: IContractTransactionRepository;
   private _cancellationRequestRepository: ICancellationRequestRepository;
   private _disputeRepository: IDisputeRepository;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
     @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
     @inject('ICancellationRequestRepository') cancellationRequestRepository: ICancellationRequestRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
     this._cancellationRequestRepository = cancellationRequestRepository;
     this._disputeRepository = disputeRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async getAllContracts(
@@ -195,6 +199,16 @@ export class FreelancerContractService implements IFreelancerContractService {
 
     const latestDeliverable = updatedContract.deliverables[updatedContract.deliverables.length - 1];
 
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'deliverable_submitted',
+      'freelancer',
+      new Types.ObjectId(freelancerId),
+      'Deliverable Submitted',
+      `Freelancer submitted deliverable (Version ${latestDeliverable.version}) with ${data.files.length} file(s)`,
+      { deliverableId: latestDeliverable._id?.toString(), version: latestDeliverable.version, filesCount: data.files.length },
+    );
+
     return FreelancerDeliverableMapper.toDeliverableResponseDTO(latestDeliverable, updatedContract);
   }
 
@@ -323,6 +337,16 @@ export class FreelancerContractService implements IFreelancerContractService {
 
     const latestDeliverable =
       updatedMilestone.deliverables[updatedMilestone.deliverables.length - 1];
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'deliverable_submitted',
+      'freelancer',
+      new Types.ObjectId(freelancerId),
+      'Milestone Deliverable Submitted',
+      `Freelancer submitted deliverable for milestone "${milestone.title}" (Version ${latestDeliverable.version}) with ${data.files.length} file(s)`,
+      { milestoneId: data.milestoneId, deliverableId: latestDeliverable._id?.toString(), version: latestDeliverable.version, filesCount: data.files.length },
+    );
 
     return FreelancerMilestoneMapper.toMilestoneDeliverableResponseDTO(
       latestDeliverable,

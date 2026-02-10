@@ -54,6 +54,7 @@ import { IWorklogRepository } from '../../repositories/interfaces/worklog-reposi
 import { IContractTransaction } from 'src/models/interfaces/contract-transaction.model.interface';
 import { ICancellationRequestRepository } from '../../repositories/interfaces/cancellation-request-repository.interface';
 import { IDisputeRepository } from 'src/repositories/interfaces/dispute-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 
 @injectable()
 export class ClientContractService implements IClientContractService {
@@ -69,6 +70,7 @@ export class ClientContractService implements IClientContractService {
   private _cancellationStrategyFactory: ContractCancellationStrategyFactory;
   private _cancellationRequestRepository: ICancellationRequestRepository;
   private _disputeRepository: IDisputeRepository;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -86,6 +88,7 @@ export class ClientContractService implements IClientContractService {
     cancellationStrategyFactory: ContractCancellationStrategyFactory,
     @inject('ICancellationRequestRepository') cancellationRequestRepository: ICancellationRequestRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -99,6 +102,7 @@ export class ClientContractService implements IClientContractService {
     this._cancellationStrategyFactory = cancellationStrategyFactory;
     this._cancellationRequestRepository = cancellationRequestRepository;
     this._disputeRepository = disputeRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO> {
@@ -484,6 +488,26 @@ export class ClientContractService implements IClientContractService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
 
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contract._id?.toString() || ''),
+      'deliverable_approved',
+      'client',
+      contract.clientId,
+      'Deliverable Approved',
+      `Client approved deliverable (Version ${approvedDeliverable.version}). Payment of ₹${paymentAmount.toLocaleString()} released to freelancer`,
+      { deliverableId: approvedDeliverable._id?.toString(), version: approvedDeliverable.version, amount: paymentAmount, freelancerAmount },
+    );
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contract._id?.toString() || ''),
+      'payment_released',
+      'system',
+      undefined,
+      'Payment Released',
+      `Payment of ₹${freelancerAmount.toLocaleString()} released to freelancer after deliverable approval. Platform commission: ₹${commission.toLocaleString()}`,
+      { amount: freelancerAmount, commission, totalAmount: paymentAmount },
+    );
+
     return {
       id: approvedDeliverable._id?.toString() || '',
       submittedBy: approvedDeliverable.submittedBy.toString(),
@@ -640,6 +664,16 @@ export class ClientContractService implements IClientContractService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'revision_requested',
+      'client',
+      new Types.ObjectId(clientId),
+      'Revision Requested',
+      `Client requested changes for deliverable (Version ${changedDeliverable.version}). Revision ${changedDeliverable.revisionsRequested}/${allowedRevisions}`,
+      { deliverableId: data.deliverableId, version: changedDeliverable.version, revisionsRequested: changedDeliverable.revisionsRequested, allowedRevisions },
+    );
 
     return ClientDeliverableMapper.toDeliverableResponseDTO(changedDeliverable, updatedContract);
   }
@@ -847,6 +881,36 @@ export class ClientContractService implements IClientContractService {
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'deliverable_approved',
+      'client',
+      new Types.ObjectId(clientId),
+      'Milestone Deliverable Approved',
+      `Client approved deliverable for milestone "${milestone.title}" (Version ${approvedDeliverable.version})`,
+      { milestoneId: data.milestoneId, deliverableId: data.deliverableId, version: approvedDeliverable.version },
+    );
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'milestone_completed',
+      'system',
+      undefined,
+      'Milestone Completed',
+      `Milestone "${milestone.title}" completed and marked as paid`,
+      { milestoneId: data.milestoneId, milestoneTitle: milestone.title },
+    );
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'payment_released',
+      'system',
+      undefined,
+      'Payment Released',
+      `Payment of ₹${freelancerAmount.toLocaleString()} released to freelancer for milestone "${milestone.title}". Platform commission: ₹${commission.toLocaleString()}`,
+      { milestoneId: data.milestoneId, amount: freelancerAmount, commission, totalAmount: paymentAmount },
+    );
 
     return ClientMilestoneMapper.toMilestoneDeliverableResponseDTO(
       approvedDeliverable,

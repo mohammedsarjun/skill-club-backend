@@ -14,20 +14,24 @@ import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { DISPUTE_REASONS } from '../../contants/dispute.constants';
 import { Types } from 'mongoose';
 import { IContractTransactionRepository } from 'src/repositories/interfaces/contract-transaction-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 
 @injectable()
 export class FreelancerDisputeService implements IFreelancerDisputeService {
   private _disputeRepository: IDisputeRepository;
   private _contractRepository: IContractRepository;
   private _contractTransactionRepository: IContractTransactionRepository;
+  private _contractActivityService: IContractActivityService;
   constructor(
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
     @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
     this._contractTransactionRepository= contractTransactionRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async createDispute(
@@ -91,6 +95,16 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
         'frozen_dispute',
       );
     }
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(data.contractId),
+      'dispute_raised',
+      'freelancer',
+      new Types.ObjectId(freelancerId),
+      'Dispute Raised',
+      `Freelancer raised a dispute. Reason: ${data.reasonCode}. Scope: ${data.scope || 'contract'}`,
+      { disputeId: dispute._id?.toString(), reasonCode: data.reasonCode, scope: data.scope || 'contract', scopeId: data.scopeId },
+    );
 
     return mapDisputeToResponseDTO(dispute);
   }

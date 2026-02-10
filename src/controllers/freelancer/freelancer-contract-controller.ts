@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IFreelancerContractController } from './interfaces/freelancer-contract-controller.interface';
 import { IFreelancerContractService } from '../../services/freelancerServices/interfaces/freelancer-contract-service.interface';
+import { IContractActivityService } from '../../services/commonServices/interfaces/contract-activity-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { FreelancerContractQueryParamsDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 import { SubmitDeliverableDTO } from '../../dto/freelancerDTO/freelancer-deliverable.dto';
@@ -17,11 +18,14 @@ import { CreateFreelancerCancellationRequestDTO } from '../../dto/freelancerDTO/
 @injectable()
 export class FreelancerContractController implements IFreelancerContractController {
   private _freelancerContractService: IFreelancerContractService;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IFreelancerContractService') freelancerContractService: IFreelancerContractService,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService
   ) {
     this._freelancerContractService = freelancerContractService;
+    this._contractActivityService = contractActivityService;
   }
 
   async getContracts(req: Request, res: Response): Promise<void> {
@@ -219,6 +223,19 @@ export class FreelancerContractController implements IFreelancerContractControll
     res.status(HttpStatus.OK).json({
       success: true,
       message: result.message,
+      data: result,
+    });
+  }
+
+  async getContractTimeline(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._contractActivityService.getContractTimeline(contractId, freelancerId, 'freelancer');
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Contract timeline fetched successfully',
       data: result,
     });
   }

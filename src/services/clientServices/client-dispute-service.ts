@@ -2,6 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import { IClientDisputeService } from './interfaces/client-dispute-service.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { CreateDisputeRequestDTO, DisputeResponseDTO } from '../../dto/clientDTO/client-dispute.dto';
 import { mapDisputeToResponseDTO } from '../../mapper/clientMapper/client-dispute.mapper';
 import AppError from '../../utils/app-error';
@@ -14,13 +15,16 @@ import { Types } from 'mongoose';
 export class ClientDisputeService implements IClientDisputeService {
   private _disputeRepository: IDisputeRepository;
   private _contractRepository: IContractRepository;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async createDispute(clientId: string, data: CreateDisputeRequestDTO): Promise<DisputeResponseDTO> {
@@ -67,6 +71,16 @@ export class ClientDisputeService implements IClientDisputeService {
       description: data.description,
       status: 'open',
     });
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(data.contractId),
+      'dispute_raised',
+      'client',
+      new Types.ObjectId(clientId),
+      'Dispute Raised',
+      `Client raised a dispute. Reason: ${data.reasonCode}. Scope: ${data.scope || 'contract'}`,
+      { disputeId: dispute._id?.toString(), reasonCode: data.reasonCode, scope: data.scope || 'contract', scopeId: data.scopeId },
+    );
 
     return mapDisputeToResponseDTO(dispute);
   }

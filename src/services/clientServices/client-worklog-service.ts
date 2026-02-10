@@ -21,6 +21,7 @@ import { IClientWalletRepository } from '../../repositories/interfaces/client-wa
 import { IFreelancerWalletRepository } from '../../repositories/interfaces/freelancer-wallet-repository.interface';
 import { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { COMMISSION_CONFIG } from '../../config/commission.config';
 
 @injectable()
@@ -33,6 +34,7 @@ export class ClientWorklogService implements IClientWorklogService {
     @inject('IFreelancerWalletRepository') private _freelancerWalletRepository: IFreelancerWalletRepository,
     @inject('IUserRepository') private _userRepository: IUserRepository,
     @inject('IDisputeRepository') private _disputeRepository: IDisputeRepository,
+    @inject('IContractActivityService') private _contractActivityService: IContractActivityService,
   ) {}
 
   async getWorklogsByContract(
@@ -180,6 +182,16 @@ export class ClientWorklogService implements IClientWorklogService {
       ? `${(updatedWorklog.freelancerId as unknown as { firstName?: string }).firstName} ${(updatedWorklog.freelancerId as unknown as { lastName?: string }).lastName || ''}`
       : '';
 
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'work_log_approved',
+      'client',
+      new Types.ObjectId(clientId),
+      'Work Log Approved',
+      `Client approved work log for ${(updatedWorklog.duration / 3600000).toFixed(2)} hours`,
+      { worklogId: data.worklogId, duration: updatedWorklog.duration, startTime: updatedWorklog.startTime },
+    );
+
     return mapWorklogToDetailDTO({ ...updatedWorklog.toObject(), freelancerName });
   }
 
@@ -244,6 +256,16 @@ export class ClientWorklogService implements IClientWorklogService {
     )?.firstName
       ? `${(updatedWorklog.freelancerId as unknown as { firstName?: string }).firstName} ${(updatedWorklog.freelancerId as unknown as { lastName?: string }).lastName || ''}`
       : '';
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'work_log_rejected',
+      'client',
+      new Types.ObjectId(clientId),
+      'Work Log Rejected',
+      `Client rejected work log for ${(updatedWorklog.duration / 3600000).toFixed(2)} hours. Reason: ${data.message}`,
+      { worklogId: data.worklogId, duration: updatedWorklog.duration, startTime: updatedWorklog.startTime },
+    );
 
     return mapWorklogToDetailDTO({ ...updatedWorklog.toObject(), freelancerName });
   }

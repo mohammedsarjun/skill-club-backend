@@ -11,6 +11,7 @@ import { IContractRepository } from '../../repositories/interfaces/contract-repo
 import { IPaymentRepository } from '../../repositories/interfaces/payment-repository.interface';
 import { IContractTransactionRepository } from '../../repositories/interfaces/contract-transaction-repository.interface';
 import { IClientWalletRepository } from '../../repositories/interfaces/client-wallet-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { PayUService } from '../../utils/payu.service';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -24,6 +25,7 @@ export class ClientPaymentService implements IClientPaymentService {
     @inject('IContractTransactionRepository')
     private contractTransactionRepository: IContractTransactionRepository,
     @inject('IClientWalletRepository') private clientWalletRepository: IClientWalletRepository,
+    @inject('IContractActivityService') private contractActivityService: IContractActivityService,
     @inject('PaymentAmountStrategyFactory')
     private paymentAmountStrategyFactory: PaymentAmountStrategyFactory,
     private payuService: PayUService,
@@ -355,6 +357,46 @@ export class ClientPaymentService implements IClientPaymentService {
       // -------------------------------
       await session.commitTransaction();
 
+      // -------------------------------
+      // 10. Log contract activity (AFTER transaction commit)
+      // -------------------------------
+      if (paymentStatus === 'success') {
+        const contract = await this.contractRepository.findById(payment.contractId.toString());
+        if (contract) {
+          if (payment.purpose === 'milestone_funding' && payment.milestoneId) {
+            await this.contractActivityService.logActivity(
+              new Types.ObjectId(payment.contractId.toString()),
+              'milestone_funded',
+              'client',
+              payment.clientId as Types.ObjectId,
+              'Milestone Funded',
+              `Milestone funded with amount: ₹${payment.amount.toLocaleString()}`,
+              { milestoneId: payment.milestoneId.toString(), amount: payment.amount },
+            );
+          } else if (contract.paymentType === 'fixed') {
+            await this.contractActivityService.logActivity(
+              new Types.ObjectId(payment.contractId.toString()),
+              'fixed_contract_funded',
+              'client',
+              payment.clientId as Types.ObjectId,
+              'Fixed Contract Funded',
+              `Contract fully funded with amount: ₹${payment.amount.toLocaleString()}`,
+              { amount: payment.amount },
+            );
+          } else if (contract.paymentType === 'hourly' && contract.status === 'active') {
+            await this.contractActivityService.logActivity(
+              new Types.ObjectId(payment.contractId.toString()),
+              'hourly_contract_funded',
+              'client',
+              payment.clientId as Types.ObjectId,
+              'Hourly Contract Funded',
+              `Hourly contract activated with funding: ₹${payment.amount.toLocaleString()}. Current balance: ₹${contract.balance?.toLocaleString()}`,
+              { amount: payment.amount, balance: contract.balance },
+            );
+          }
+        }
+      }
+
       return {
         paymentId: payment.paymentId,
         status: paymentStatus,
@@ -363,7 +405,7 @@ export class ClientPaymentService implements IClientPaymentService {
       };
     } catch (error) {
       // -------------------------------
-      // 10. Rollback
+      // 11. Rollback
       // -------------------------------
       await session.abortTransaction();
       throw error;

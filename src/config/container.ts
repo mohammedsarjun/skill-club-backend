@@ -65,6 +65,9 @@ container.register<IClientRepository>('IClientRepository', { useClass: ClientRep
 container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
 container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
 container.register<IContractRepository>('IContractRepository', { useClass: ContractRepository });
+import { IContractActivityRepository } from '../repositories/interfaces/contract-activity-repository.interface';
+import { ContractActivityRepository } from '../repositories/contract-activity-repository';
+container.register<IContractActivityRepository>('IContractActivityRepository', { useClass: ContractActivityRepository });
 import { IDisputeRepository } from '../repositories/interfaces/dispute-repository.interface';
 import { DisputeRepository } from '../repositories/dispute-repository';
 container.register<IDisputeRepository>('IDisputeRepository', { useClass: DisputeRepository });
@@ -96,6 +99,9 @@ container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesSer
 container.register<IFileDownloadService>('IFileDownloadService', { useClass: FileDownloadService });
 container.register<IMeetingStatusService>('IMeetingStatusService', { useClass: MeetingStatusService });
 container.register<IWorklogTransactionService>('IWorklogTransactionService', { useClass: WorklogTransactionService });
+import { IContractActivityService } from '../services/commonServices/interfaces/contract-activity-service.interface';
+import { ContractActivityService } from '../services/commonServices/contract-activity-service';
+container.register<IContractActivityService>('IContractActivityService', { useClass: ContractActivityService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
