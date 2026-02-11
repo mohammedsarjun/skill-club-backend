@@ -51,19 +51,9 @@ export interface FreelancerOfferDetailDTO extends FreelancerOfferListItemDTO {
   }[];
   expectedStartDate?: Date;
   expectedEndDate?: Date;
-  communication: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?:
-      | 'monday'
-      | 'tuesday'
-      | 'wednesday'
-      | 'thursday'
-      | 'friday'
-      | 'saturday'
-      | 'sunday';
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
+  category?: {
+    categoryId: string;
+    categoryName: string;
   };
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';

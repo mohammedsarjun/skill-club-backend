@@ -8,6 +8,7 @@ export interface ClientTransactionDTO {
   transactionId: string;
   amount: number;
   purpose: string;
+  status: string;
   description: string;
   createdAt: string;
   freelancerName: string;

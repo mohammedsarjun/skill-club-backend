@@ -173,9 +173,9 @@ export interface IContract extends Document {
   description: string;
   expectedStartDate: Date;
   expectedEndDate: Date;
+  categoryId: Types.ObjectId;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  communication: ContractCommunication;
   reporting: ContractReporting;
 
   // Contract lifecycle

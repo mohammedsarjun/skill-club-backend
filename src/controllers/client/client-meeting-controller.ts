@@ -4,7 +4,7 @@ import '../../config/container';
 import { IClientMeetingController } from './interfaces/client-meeting-controller.interface';
 import { IClientMeetingService } from '../../services/clientServices/interfaces/client-meeting-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { ClientMeetingProposalRequestDTO } from '../../dto/clientDTO/client-meeting.dto';
+import { ClientMeetingProposalRequestDTO, ClientPreContractMeetingRequestDTO } from '../../dto/clientDTO/client-meeting.dto';
 
 @injectable()
 export class ClientMeetingController implements IClientMeetingController {
@@ -101,6 +101,44 @@ export class ClientMeetingController implements IClientMeetingController {
       message: 'Meetings retrieved successfully',
     });
   }
+
+  async getAllMeetings(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { page, limit, status, meetingType, requestedBy, rescheduleRequestedBy,isExpired } = req.query;
+
+    const query = {
+      page: page ? Number(page) : undefined,
+      limit: limit ? Number(limit) : undefined,
+      status: status as 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested' | undefined,
+      meetingType: meetingType as 'pre-contract' | 'post-contract' | undefined,
+      requestedBy: requestedBy as 'client' | 'freelancer' | undefined,
+      rescheduleRequestedBy: rescheduleRequestedBy as 'client' | 'freelancer' | undefined,
+      isExpired: isExpired !== undefined ? isExpired === 'true' : undefined,
+    };
+
+    const result = await this._clientMeetingService.getAllMeetings(clientId, query);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      data: result,
+      message: 'Meetings retrieved successfully',
+    });
+  }
+
+  async proposePreContractMeeting(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { freelancerId } = req.params;
+    const meetingData = req.body as ClientPreContractMeetingRequestDTO;
+
+    const result = await this._clientMeetingService.proposePreContractMeeting(clientId, freelancerId, meetingData);
+
+    res.status(HttpStatus.CREATED).json({
+      success: true,
+      data: result,
+      message: 'Pre-contract meeting proposed successfully',
+    });
+  }
+
   async joinMeeting(req: Request, res: Response): Promise<void> {
     const meetingId = req.params.meetingId;
     const clientId = req.user?.userId as string;

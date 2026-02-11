@@ -23,12 +23,13 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
   async getMeetings(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
-    const { page, limit, status } = req.query;
+    const { page, limit, status,isExpired } = req.query;
 
     const query: FreelancerMeetingQueryParamsDTO = {
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
       status: status as FreelancerMeetingQueryParamsDTO['status'],
+      isExpired: isExpired !== undefined ? isExpired === 'true' : undefined,
     };
 
     const result = await this._freelancerMeetingService.getAllMeetings(freelancerId, query);

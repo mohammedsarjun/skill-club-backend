@@ -17,17 +17,21 @@ import { IFreelancerData } from '../../models/interfaces/user.model.interface';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { IPortfolioRepository } from '../../repositories/interfaces/portfolio-respository.interface';
+import { IReviewRepository } from '../../repositories/interfaces/review-repository.interface';
 
 @injectable()
 export class ClientFreelancerService implements IClientFreelancerService {
   private _freelancerRepository: IFreelancerRepository;
   private _portfolioRepository: IPortfolioRepository;
+  private _reviewRepository: IReviewRepository;
   constructor(
     @inject('IFreelancerRepository') freelancerRepository: IFreelancerRepository,
     @inject('IPortfolioRepository') portfolioRepository: IPortfolioRepository,
+    @inject('IReviewRepository') reviewRepository: IReviewRepository,
   ) {
     this._freelancerRepository = freelancerRepository;
     this._portfolioRepository = portfolioRepository;
+    this._reviewRepository = reviewRepository;
   }
 
   async getAllFreelancers(
@@ -60,7 +64,11 @@ export class ClientFreelancerService implements IClientFreelancerService {
       throw new AppError('You cannot view your own freelancer profile.', HttpStatus.BAD_REQUEST);
     }
     const freelancerData = await this._freelancerRepository.getFreelacerByIdForClient(freelancerId);
-    const freelancerDto = mapFreelancerToFetchClientFreelancerDTO(freelancerData!);
+    
+    const averageRating = await this._reviewRepository.getAverageRatingByFreelancerId(freelancerId);
+    const { total } = await this._reviewRepository.findReviewsByFreelancerId(freelancerId, 1, 1);
+    
+    const freelancerDto = mapFreelancerToFetchClientFreelancerDTO(freelancerData!, averageRating, total);
 
     return freelancerDto;
   }

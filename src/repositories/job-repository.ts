@@ -146,10 +146,75 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
     if (filters.selectedCountry) {
       pipeline.push({
         $match: {
-          'client.country': filters.selectedCountry,
+          'client.address.country': filters.selectedCountry,
         },
       });
     }
+
+    pipeline.push({
+      $lookup: {
+        from: 'proposals',
+        localField: '_id',
+        foreignField: 'jobId',
+        as: 'proposals',
+      },
+    });
+
+    pipeline.push({
+      $addFields: {
+        proposalCount: { $size: '$proposals' },
+      },
+    });
+
+    pipeline.push({
+      $lookup: {
+        from: 'reviews',
+        let: { clientId: '$client._id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: { $eq: ['$revieweeId', '$$clientId'] },
+            },
+          },
+        ],
+        as: 'clientReviews',
+      },
+    });
+
+    pipeline.push({
+      $lookup: {
+        from: 'contracts',
+        let: { clientId: '$client._id' },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $and: [
+                  { $eq: ['$clientId', '$$clientId'] },
+                  { $in: ['$status', ['completed', 'cancelled']] },
+                ],
+              },
+            },
+          },
+        ],
+        as: 'completedContracts',
+      },
+    });
+
+    pipeline.push({
+      $addFields: {
+        clientRating: {
+          $cond: {
+            if: { $gt: [{ $size: '$clientReviews' }, 0] },
+            then: { $avg: '$clientReviews.rating' },
+            else: 0,
+          },
+        },
+        totalMoneySpent: {
+          $sum: '$completedContracts.totalAmount',
+        },
+      },
+    });
 
     pipeline.push({
       $addFields: {
@@ -218,10 +283,13 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
         rateType: 1,
         hourlyRate: 1,
         fixedRate: 1,
+        proposalCount: 1,
         client: {
           _id: '$client._id',
           companyName: '$client.clientProfile.companyName',
           country: '$client.address.country',
+          rating: '$clientRating',
+          totalMoneySpent: '$totalMoneySpent',
         },
         status: 1,
         createdAt: 1,

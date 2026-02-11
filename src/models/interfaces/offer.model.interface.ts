@@ -47,20 +47,7 @@ export interface OfferDetail {
   revisions?: number;
   expectedStartDate?: Date;
   expectedEndDate?: Date;
-  communication: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?:
-      | 'monday'
-      | 'tuesday'
-      | 'wednesday'
-      | 'thursday'
-      | 'friday'
-      | 'saturday'
-      | 'sunday';
-    meetingDayOfMonth?: number; // 1..31 when monthly
-    meetingTimeUtc?: string; // HH:mm
-  };
+  categoryId: Types.ObjectId;
   reporting: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string; // HH:mm

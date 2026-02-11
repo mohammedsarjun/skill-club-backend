@@ -106,14 +106,6 @@ export interface AdminContractDetailDTO {
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
 
-  communication?: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: string;
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
-  };
-
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;

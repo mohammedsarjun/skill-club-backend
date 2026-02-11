@@ -22,6 +22,7 @@ export const ERROR_MESSAGES = {
   GENERAL: {
     SERVER_ERROR: 'Something went wrong, please try again later',
     BAD_REQUEST: 'Invalid request',
+    NOT_FOUND: 'Resource not found',
   },
   TOKEN: {
     INVALID_TOKEN: 'Invalid or Expired Token',
@@ -60,6 +61,7 @@ export const ERROR_MESSAGES = {
   JOB: {
     NOT_FOUND: 'Job not found',
     INVALID_STATUS: 'Job status is not valid for this operation',
+    ALREADY_REPORTED: 'You have already reported this job',
   },
   PROPOSAL: {
     ALREADY_EXIST: 'Proposal already sent',
@@ -123,5 +125,20 @@ export const ERROR_MESSAGES = {
     INVALID_STATUS: 'Invalid meeting status for this action',
     REJECT_FAILED: 'Failed to reject meeting',
     UPDATE_FAILED: 'Failed to update meeting',
+  },
+  FINANCE: {
+    INSUFFICIENT_BALANCE: 'Insufficient balance for withdrawal',
+    INVALID_AMOUNT: 'Invalid withdrawal amount',
+  },
+  BANK: {
+    INVALID_DETAILS: 'Invalid bank details provided',
+    NOT_FOUND: 'Bank details not found',
+  },
+  REPORT: {
+    NOT_FOUND: 'No reports found',
+  },
+  NOTIFICATION: {
+    NOT_FOUND: 'Notification not found',
+    UNAUTHORIZED: 'You are not authorized to access this notification',
   },
 };

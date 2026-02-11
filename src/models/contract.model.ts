@@ -140,9 +140,9 @@ const ContractSchema = new Schema<IContract>(
     revisionAllowed: { type: Number, default: 0 },
     expectedStartDate: { type: Date, required: true },
     expectedEndDate: { type: Date, required: true },
+    categoryId: { type: Schema.Types.ObjectId, ref: 'category', required: true },
     referenceFiles: [{ fileName: String, fileUrl: String }],
     referenceLinks: [{ description: String, link: String }],
-    communication: { type: Schema.Types.Mixed },
     reporting: { type: Schema.Types.Mixed },
 
     status: {

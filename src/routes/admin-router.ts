@@ -15,6 +15,9 @@ import { AdminContractController } from '../controllers/admin/admin-contract-con
 import { AdminReviewController } from '../controllers/admin/admin-review-controller';
 import { AdminDashboardController } from '../controllers/admin/admin-dashboard-controller';
 import { AdminDisputeController } from '../controllers/admin/admin-dispute-controller';
+import { AdminWithdrawalController } from '../controllers/admin/admin-withdrawal-controller';
+import { AdminRevenueController } from '../controllers/admin/admin-revenue-controller';
+import { AdminNotificationController } from '../controllers/admin/admin-notification-controller';
 
 const adminRouter = express.Router();
 
@@ -25,6 +28,12 @@ const adminContractController = container.resolve(AdminContractController);
 const adminReviewController = container.resolve(AdminReviewController);
 const adminDashboardController = container.resolve(AdminDashboardController);
 const adminDisputeController = container.resolve(AdminDisputeController);
+const adminWithdrawalController=container.resolve(AdminWithdrawalController)
+const adminRevenueController = container.resolve(AdminRevenueController);
+const adminNotificationController = container.resolve(AdminNotificationController);
+
+import { AdminReportedJobController } from '../controllers/admin/admin-reported-job-controller';
+const adminReportedJobController = container.resolve(AdminReportedJobController);
 //auth
 adminRouter.post('/login', adminAuthController.login.bind(adminAuthController));
 adminRouter.get(
@@ -155,6 +164,20 @@ adminRouter.patch(
 );
 
 adminRouter.get(
+  '/reports',
+  authMiddleware,
+  roleGuard('admin'),
+  adminReportedJobController.getAllReportedJobs.bind(adminReportedJobController),
+);
+
+adminRouter.get(
+  '/jobs/:jobId/reports',
+  authMiddleware,
+  roleGuard('admin'),
+  adminReportedJobController.getReportsByJobId.bind(adminReportedJobController),
+);
+
+adminRouter.get(
   '/contracts',
   authMiddleware,
   roleGuard('admin'),
@@ -244,4 +267,54 @@ adminRouter.post(
   roleGuard('admin'),
   adminDisputeController.releaseHoldHourly.bind(adminDisputeController),
 );
+
+adminRouter.get('/withdraws/stats',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.getWithdrawStats.bind(adminWithdrawalController)
+)
+
+adminRouter.get('/withdraws',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.getWithdrawals.bind(adminWithdrawalController)
+)
+
+adminRouter.get('/withdraws/:withdrawalId',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.getWithdrawalDetail.bind(adminWithdrawalController)
+)
+
+adminRouter.post('/withdraws/:withdrawalId/approve',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.approveWithdrawal.bind(adminWithdrawalController)
+)
+
+adminRouter.post('/withdraws/:withdrawalId/reject',
+  authMiddleware,roleGuard("admin"),
+  adminWithdrawalController.rejectWithdrawal.bind(adminWithdrawalController)
+)
+
+adminRouter.get('/revenue',
+  authMiddleware,
+  roleGuard('admin'),
+  adminRevenueController.getRevenueData.bind(adminRevenueController)
+);
+
+adminRouter.get('/notifications',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.getNotifications.bind(adminNotificationController)
+);
+
+adminRouter.patch('/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.markNotificationAsRead.bind(adminNotificationController)
+);
+
+adminRouter.patch('/notifications/read-all',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.markAllNotificationsAsRead.bind(adminNotificationController)
+);
+
 export default adminRouter;

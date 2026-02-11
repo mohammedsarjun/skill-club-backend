@@ -67,21 +67,7 @@ const offerSchema = new Schema<IOffer>(
     revisions: { type: Number, default: 0 },
     expectedStartDate: { type: Date },
     expectedEndDate: { type: Date },
-    communication: {
-      preferredMethod: {
-        type: String,
-        enum: ['chat', 'video_call', 'email', 'mixed'],
-        required: true,
-      },
-      meetingFrequency: { type: String, enum: ['daily', 'weekly', 'monthly'], required: false },
-      meetingDayOfWeek: {
-        type: String,
-        enum: ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'],
-        required: false,
-      },
-      meetingDayOfMonth: { type: Number, min: 1, max: 31, required: false },
-      meetingTimeUtc: { type: String, required: false },
-    },
+    categoryId: { type: Schema.Types.ObjectId, ref: 'category', required: true },
     reporting: {
       frequency: { type: String, enum: ['daily', 'weekly', 'monthly'], required: true },
       dueTimeUtc: { type: String, required: true },

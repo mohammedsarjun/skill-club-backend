@@ -118,14 +118,6 @@ export interface FreelancerContractDetailDTO {
     responseMessage?: string;
   };
 
-  communication?: {
-    preferredMethod: 'chat' | 'video_call' | 'email' | 'mixed';
-    meetingFrequency?: 'daily' | 'weekly' | 'monthly';
-    meetingDayOfWeek?: string;
-    meetingDayOfMonth?: number;
-    meetingTimeUtc?: string;
-  };
-
   reporting?: {
     frequency: 'daily' | 'weekly' | 'monthly';
     dueTimeUtc: string;

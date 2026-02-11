@@ -25,7 +25,9 @@ export interface MeetingLog {
 
 /* ---------------- Main Meeting Interface ---------------- */
 export interface IMeeting extends Document {
-  contractId: Types.ObjectId;
+  contractId?: Types.ObjectId;
+  clientId?: Types.ObjectId;
+  freelancerId?: Types.ObjectId;
   type: 'recurring' | 'milestone' | 'fixed';
   milestoneId?: Types.ObjectId;
   deliverablesId?: Types.ObjectId;
@@ -46,6 +48,7 @@ export interface IMeeting extends Document {
     | "partial_missed"
     | "reschedule_requested"
     | "ongoing";
+    meetingType:"pre-contract" | "post-contract";
   attendance: MeetingAttendance;
   rescheduleRequestedBy: "freelancer" | "client" | null;
   rescheduleProposedTime?: Date | null;

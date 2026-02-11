@@ -2,7 +2,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IFreelancerEarningsService } from './interfaces/freelancer-earnings-service.interface';
 import { IContractTransactionRepository } from '../../repositories/interfaces/contract-transaction-repository.interface';
-import { IFreelancerWalletRepository } from '../../repositories/interfaces/freelancer-wallet-repository.interface';
+
 import {
   FreelancerEarningsOverviewDTO,
   FreelancerTransactionsQueryDTO,
@@ -17,14 +17,13 @@ import { Types } from 'mongoose';
 @injectable()
 export class FreelancerEarningsService implements IFreelancerEarningsService {
   private _contractTransactionRepository: IContractTransactionRepository;
-  private _freelancerWalletRepository: IFreelancerWalletRepository;
+
 
   constructor(
     @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
-    @inject('IFreelancerWalletRepository') freelancerWalletRepository: IFreelancerWalletRepository,
   ) {
     this._contractTransactionRepository = contractTransactionRepository;
-    this._freelancerWalletRepository = freelancerWalletRepository;
+
   }
 
   async getEarningsOverview(freelancerId: string): Promise<FreelancerEarningsOverviewDTO> {
@@ -32,18 +31,16 @@ export class FreelancerEarningsService implements IFreelancerEarningsService {
       throw new AppError(ERROR_MESSAGES.INVALID_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const wallet = await this._freelancerWalletRepository.findByFreelancerId(freelancerId);
-    
-    if (!wallet) {
-      throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
-    }
+    const totalEarnings = await this._contractTransactionRepository.getFreelancerTotalEarnings(freelancerId);
+    const availableBalance = await this._contractTransactionRepository.getFreelancerAvailableBalance(freelancerId);
+    const pendingWithdraw= await this._contractTransactionRepository.getPendingWithdraw(freelancerId)
 
-    const pending = await this._contractTransactionRepository.findPendingEarningsByFreelancerId(freelancerId);
+    
 
     return {
-      available: wallet.balance || 0,
-      pending: pending || 0,
-      totalEarnings: wallet.totalEarned || 0,
+      available: availableBalance||0,
+      pending: pendingWithdraw||0,
+      totalEarnings: totalEarnings||0,
     };
   }
 

@@ -9,4 +9,5 @@ export interface IFreelancerWalletRepository extends BaseRepository<IFreelancerW
   incrementTotalEarned(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null>;
   incrementTotalCommissionPaid(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null>;
   incrementTotalWithdrawn(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null>;
+
 }

@@ -217,6 +217,14 @@ container.register<IClientFinanceService>('IClientFinanceService', {
   useClass: ClientFinanceService,
 });
 
+import { IBankDetailsRepository } from '../repositories/interfaces/bank-details-repository.interface';
+import { BankDetailsRepository } from '../repositories/bank-details-repository';
+import { IClientBankService } from '../services/clientServices/interfaces/client-bank-service.interface';
+import { ClientBankService } from '../services/clientServices/client-bank-service';
+
+container.register<IBankDetailsRepository>('IBankDetailsRepository', { useClass: BankDetailsRepository });
+container.register<IClientBankService>('IClientBankService', { useClass: ClientBankService });
+
 //user category ,speciality,skills
 import { IUserCategoryServices } from '../services/userServices/interfaces/user-category-services.interface';
 import { userCategoryServices } from '../services/userServices/user-category-services';
@@ -347,6 +355,33 @@ import { FreelancerSavedJobService } from '../services/freelancerServices/freela
 container.register<ISavedJobRepository>('ISavedJobRepository', { useClass: SavedJobRepository });
 container.register<IFreelancerSavedJobService>('IFreelancerSavedJobService', {
   useClass: FreelancerSavedJobService,
+});
+
+import { IReportedJobRepository } from '../repositories/interfaces/reported-job-repository.interface';
+import { ReportedJobRepository } from '../repositories/reported-job-repository';
+import { IFreelancerReportedJobService } from '../services/freelancerServices/interfaces/freelancer-reported-job-service.interface';
+import { FreelancerReportedJobService } from '../services/freelancerServices/freelancer-reported-job-service';
+
+container.register<IReportedJobRepository>('IReportedJobRepository', {
+  useClass: ReportedJobRepository,
+});
+container.register<IFreelancerReportedJobService>('IFreelancerReportedJobService', {
+  useClass: FreelancerReportedJobService,
+});
+
+import { IAdminReportedJobService } from '../services/adminServices/interfaces/admin-reported-job-service.interface';
+import { AdminReportedJobService } from '../services/adminServices/admin-reported-job-service';
+
+container.register<IAdminReportedJobService>('IAdminReportedJobService', {
+  useClass: AdminReportedJobService,
+});
+
+// Freelancer finance (withdrawals)
+import { IFreelancerFinanceService } from '../services/freelancerServices/interfaces/freelancer-finance-service.interface';
+import { FreelancerFinanceService } from '../services/freelancerServices/freelancer-finance-service';
+
+container.register<IFreelancerFinanceService>('IFreelancerFinanceService', {
+  useClass: FreelancerFinanceService,
 });
 
 //client proposal Service
@@ -550,7 +585,55 @@ container.register<IDeliverablesChangeQueryStrategy>('IDeliverablesChangeQuerySt
 
 // deliverable change strategy factory (repository-level)
 import { DeliverableChangeQueryStrategyFactory } from '../repositories/factories/interfaces/deliverable-change.strategy.interface';
+
 container.register("DeliverableChangeQueryStrategyFactory", {
   useClass: DeliverableChangeQueryStrategyFactory,
 });
 
+
+
+//withdrawal
+import { AdminWithdrawalServices } from '../services/adminServices/admin-withdrawal-service';
+container.register("IAdminWithdrawalServices",
+  {useClass:AdminWithdrawalServices}
+)
+
+import { IAdminRevenueService } from '../services/adminServices/interfaces/admin-revenue-service.interface';
+import { AdminRevenueService } from '../services/adminServices/admin-revenue-service';
+
+container.register<IAdminRevenueService>('IAdminRevenueService', {
+  useClass: AdminRevenueService,
+});
+
+
+//notification
+
+import { INotificationService } from '../services/commonServices/interfaces/notification-service.interface';
+import { NotificationService } from '../services/commonServices/notification-service';
+container.register<INotificationService>('INotificationService', {
+  useClass: NotificationService,
+});
+
+import { INotificationRepository } from '../repositories/interfaces/notification-repository.interface';
+import { NotificationRepository } from '../repositories/notification-repository';
+container.register<INotificationRepository>('INotificationRepository', {
+  useClass: NotificationRepository,
+});
+
+import { IClientNotificationService } from '../services/clientServices/interfaces/client-notification-service.interface';
+import { ClientNotificationService } from '../services/clientServices/client-notification-service';
+container.register<IClientNotificationService>('IClientNotificationService', {
+  useClass: ClientNotificationService,
+});
+
+import { IFreelancerNotificationService } from '../services/freelancerServices/interfaces/freelancer-notification-service.interface';
+import { FreelancerNotificationService } from '../services/freelancerServices/freelancer-notification-service';
+container.register<IFreelancerNotificationService>('IFreelancerNotificationService', {
+  useClass: FreelancerNotificationService,
+});
+
+import { IAdminNotificationService } from '../services/adminServices/interfaces/admin-notification-service.interface';
+import { AdminNotificationService } from '../services/adminServices/admin-notification-service';
+container.register<IAdminNotificationService>('IAdminNotificationService', {
+  useClass: AdminNotificationService,
+});

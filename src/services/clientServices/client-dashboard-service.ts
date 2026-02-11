@@ -7,10 +7,13 @@ import { IProposalRepository } from '../../repositories/interfaces/proposal-repo
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
 import { IChatRepository } from '../../repositories/chat-repository.interface';
 import { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
+import { ISavedFreelancerRepository } from '../../repositories/interfaces/saved-freelancer-repository.interface';
 import {
   mapJobToRecentJobDTO,
   mapMessageToRecentMessageDTO,
   mapToDashboardStatsDTO,
+  mapContractToRecentActiveContractDTO,
+  mapToSavedFreelancerDTO,
 } from '../../mapper/clientMapper/client-dashboard.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -23,18 +26,21 @@ export class ClientDashboardService implements IClientDashboardService {
   private _contractRepository: IContractRepository;
   private _chatRepository: IChatRepository;
   private _userRepository: IUserRepository;
+  private _savedFreelancerRepository: ISavedFreelancerRepository;
   constructor(
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IProposalRepository') proposalRepository: IProposalRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
     @inject('IChatRepository') chatRepository: IChatRepository,
     @inject('IUserRepository') userRepository: IUserRepository,
+    @inject('ISavedFreelancerRepository') savedFreelancerRepository: ISavedFreelancerRepository,
   ) {
     this._jobRepository = jobRepository;
     this._proposalRepository = proposalRepository;
     this._contractRepository = contractRepository;
     this._chatRepository = chatRepository;
     this._userRepository = userRepository;
+    this._savedFreelancerRepository = savedFreelancerRepository;
   }
 
   async getDashboardData(clientId: string): Promise<ClientDashboardDTO> {
@@ -80,10 +86,24 @@ export class ClientDashboardService implements IClientDashboardService {
       }),
     );
 
+    // Fetch recent active contracts
+    const recentContractsData = await this._contractRepository.getRecentActiveContractsByClientId(clientId, 4);
+    const recentActiveContracts = recentContractsData.map(contract => 
+      mapContractToRecentActiveContractDTO(contract)
+    );
+
+    // Fetch saved freelancers
+    const savedFreelancersData = await this._savedFreelancerRepository.findWithFreelancerDetails(clientId, 1, 4);
+    const savedFreelancers = savedFreelancersData.map(saved => 
+      mapToSavedFreelancerDTO(saved)
+    );
+
     return {
       stats,
       recentJobs,
       recentMessages,
+      recentActiveContracts,
+      savedFreelancers,
     };
   }
 }

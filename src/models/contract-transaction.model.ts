@@ -7,15 +7,19 @@ const ContractTransactionSchema = new Schema<IContractTransaction>(
     contractId: { type: Schema.Types.ObjectId, required: true, ref: 'Contract', index: true },
     paymentId: { type: Schema.Types.ObjectId, ref: 'Payment' },
     milestoneId: { type: Schema.Types.ObjectId },
-workLogId: { type: Schema.Types.ObjectId },
-    clientId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
-    freelancerId: { type: Schema.Types.ObjectId, required: true, ref: 'User', index: true },
+    workLogId: { type: Schema.Types.ObjectId },
+    clientId: { type: Schema.Types.ObjectId,  ref: 'User', index: true },
+    freelancerId: { type: Schema.Types.ObjectId,  ref: 'User', index: true },
 
     amount: { type: Number, required: true },
     purpose: {
       type: String,
-      enum: ['funding', 'release', 'commission', 'refund', 'hold'],
+      enum: ['funding', 'release', 'commission', 'refund', 'hold', 'withdrawal'],
       required: true,
+    },
+    role:{
+      type:String,
+      enum:["client",'freelancer']
     },
     status: {
       type: String,
@@ -26,6 +30,8 @@ workLogId: { type: Schema.Types.ObjectId },
         'refunded_back_to_client',
         'released_back_to_contract',
         'amount_split_between_parties',
+        'withdrawal_requested',
+        'withdrawal_approved',
         'completed',
       ],
       default: 'completed',

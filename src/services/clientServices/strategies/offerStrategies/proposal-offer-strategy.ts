@@ -14,6 +14,9 @@ export class ProposalOfferStrategy implements IOfferCreationStrategy {
     if (!Types.ObjectId.isValid(dto.freelancerId)) {
       throw new AppError('Invalid freelancerId provided', HttpStatus.BAD_REQUEST);
     }
+    if (!dto.categoryId || !Types.ObjectId.isValid(dto.categoryId)) {
+      throw new AppError('Valid categoryId is required', HttpStatus.BAD_REQUEST);
+    }
 
     const offer: Partial<IOffer> = {
       clientId: new Types.ObjectId(clientId),
@@ -32,13 +35,7 @@ export class ProposalOfferStrategy implements IOfferCreationStrategy {
         revisions: typeof m.revisions === 'number' ? m.revisions : undefined,
       })),
       expectedEndDate: dto.expected_end_date ? new Date(dto.expected_end_date) : undefined,
-      communication: {
-        preferredMethod: dto.communication.preferred_method,
-        meetingFrequency: dto.communication.meeting_frequency,
-        meetingDayOfWeek: dto.communication.meeting_day_of_week,
-        meetingDayOfMonth: dto.communication.meeting_day_of_month,
-        meetingTimeUtc: dto.communication.meeting_time_utc,
-      },
+      categoryId: new Types.ObjectId(dto.categoryId),
       reporting: {
         frequency: dto.reporting.frequency,
         dueTimeUtc: dto.reporting.due_time_utc,
