@@ -61,13 +61,14 @@ export const mapJobModelDtoToClientJobResponseDto = (
 
 export function mapJobModelToClientJobDetailResponseDTO(
   dto: IJobDetail,
+  totalProposal: number = 0,
 ): ClientJobDetailResponseDTO {
   return {
     jobId: dto._id?.toString()!,
     jobTitle: dto.title,
     jobDescription: dto.description,
     category: { categoryId: dto.category._id, categoryName: dto.category.name },
-    totalProposal: 0,
+    totalProposal,
     status: dto.status,
     budget: {
       rateType: dto.rateType,
