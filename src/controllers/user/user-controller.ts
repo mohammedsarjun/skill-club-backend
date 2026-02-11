@@ -20,7 +20,11 @@ export class UserController implements IUserController {
     const userId = req.user?.userId;
     const user = await this._userService.selectRole(userId, role);
     // Issue new JWT with updated roles
-    const payload = user;
+    const payload = {
+      userId: user.userId,
+      activeRole: user.activeRole,
+      roles: user.roles,
+    };
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
 
     res.cookie('accessToken', accessToken, {
@@ -39,7 +43,11 @@ export class UserController implements IUserController {
   async me(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const user = await this._userService.me(userId!);
-    const payload = user;
+    const payload = {
+      userId: user.userId,
+      activeRole: user.activeRole,
+      roles: user.roles,
+    };
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
 
     res.cookie('accessToken', accessToken, {
@@ -83,7 +91,11 @@ export class UserController implements IUserController {
   async switchRole(req: Request, res: Response): Promise<void> {
     const userId = req.user!.userId;
     const user = await this._userService.switchRole(userId);
-    const payload = user;
+    const payload = {
+      userId: user.userId,
+      activeRole: user.activeRole,
+      roles: user.roles,
+    };
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
     const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
     res.cookie('accessToken', accessToken, {

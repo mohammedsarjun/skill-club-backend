@@ -70,8 +70,18 @@ export class AdminAuthController implements IAdminAuthController {
   }
 
   async me(req: Request, res: Response): Promise<void> {
-    const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
-    const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+    const adminData = {
+      userId: req.user!.userId,
+      roles: ['admin'] as string[],
+      activeRole: 'admin',
+      isOnboardingCompleted: true,
+      isFreelancerOnboarded: false,
+      isClientOnboarded: false,
+      isFreelancerBlocked: false,
+      isClientBlocked: false,
+    };
+    const tokenPayload = { userId: adminData.userId, activeRole: 'admin', roles: ['admin'] };
+    const accessToken = jwtService.createToken(tokenPayload, jwtConfig.accessTokenMaxAge);
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
@@ -83,7 +93,7 @@ export class AdminAuthController implements IAdminAuthController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.ADMIN.VERIFIED,
-      data: req.user,
+      data: adminData,
     });
   }
 }

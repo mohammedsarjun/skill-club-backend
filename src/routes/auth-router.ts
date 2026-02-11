@@ -13,6 +13,7 @@ import { GoogleAuthController } from '../controllers/auth/google-auth-controller
 import { jwtService } from '../utils/jwt';
 import { authMiddleware } from '../middlewares/auth-middleware';
 import { HttpStatus } from '../enums/http-status.enum';
+import { IUserRepository } from '../repositories/interfaces/user-repository.interface';
 import { jwtConfig } from '../config/jwt.config';
 
 
@@ -73,13 +74,24 @@ authRouter.post('/logout', authController.logout.bind(authController));
 
 authRouter.get('/me', authMiddleware, authController.me.bind(authController));
 
-authRouter.post('/refresh-token', (req, res) => {
+authRouter.post('/refresh-token', async (req, res) => {
   const refreshToken = req.cookies.refreshToken;
 
   try {
-    const decoded = jwtService.verifyToken(refreshToken);
+    const decoded = jwtService.verifyToken<{ userId: string }>(refreshToken);
 
-    const { iat, exp, nbf, ...payload } = decoded;
+    const userRepository = container.resolve<IUserRepository>('IUserRepository');
+    const user = await userRepository.findById(decoded.userId);
+    if (!user) {
+      res.sendStatus(HttpStatus.FORBIDDEN);
+      return;
+    }
+
+    const payload = {
+      userId: user._id.toString(),
+      activeRole: user.activeRole,
+      roles: user.roles,
+    };
 
     const newAccessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
 

@@ -5,7 +5,7 @@ import { GetUserDto } from '../../dto/authDTO/auth.dto';
 import type { IAuthController } from './interfaces/auth-controller.interface';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { UserDto, UserStateDto } from '../../dto/user.dto';
+import { UserDto } from '../../dto/user.dto';
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
@@ -21,7 +21,7 @@ export class AuthController implements IAuthController {
 
   async me(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
-    const user: UserStateDto|null = await this._authService.me(userId as string);
+    const user: UserDto | null = await this._authService.me(userId as string);
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'User fetched successfully',
@@ -42,8 +42,7 @@ export class AuthController implements IAuthController {
     const user: UserDto = await this._authService.login(req.body);
 
     // Generate JWT token
-    // 🔹 Create tokens
-    const payload = {userId:user.userId};
+    const payload = { userId: user.userId, activeRole: user.activeRole, roles: user.roles };
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
     const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 

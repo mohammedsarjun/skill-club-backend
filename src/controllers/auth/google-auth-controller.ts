@@ -30,8 +30,7 @@ export class GoogleAuthController implements IGoogleAuthController {
     const user: UserDto = await this._googleAuthService.verifyToken(idToken);
     await this._userService.markUserVerified(user.userId);
 
-    // 🔹 Create tokens
-    const payload = {userId:user.userId};
+    const payload = { userId: user.userId, activeRole: user.activeRole, roles: user.roles };
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
     const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 

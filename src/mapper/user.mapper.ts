@@ -15,6 +15,8 @@ import { Types } from 'mongoose';
 export const mapUserModelToUserDto = (modelData: IUser): UserDto => {
   return {
     userId: modelData._id.toString(),
+    firstName: modelData.firstName || '',
+    lastName: modelData.lastName || '',
     roles: modelData.roles,
     activeRole: modelData.activeRole,
     isOnboardingCompleted: modelData.isOnboardingCompleted,

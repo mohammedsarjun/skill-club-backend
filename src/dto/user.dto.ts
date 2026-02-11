@@ -5,6 +5,8 @@ export interface  UserStateDto{
 
 export interface UserDto {
   userId: string;
+  firstName: string;
+  lastName: string;
   roles: string[];
   activeRole: string;
   isOnboardingCompleted: boolean;
