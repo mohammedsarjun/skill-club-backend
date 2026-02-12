@@ -96,6 +96,18 @@ container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesSer
 container.register<IFileDownloadService>('IFileDownloadService', { useClass: FileDownloadService });
 container.register<IMeetingStatusService>('IMeetingStatusService', { useClass: MeetingStatusService });
 container.register<IWorklogTransactionService>('IWorklogTransactionService', { useClass: WorklogTransactionService });
+
+// Blacklisted Token
+import { IBlacklistedTokenRepository } from '../repositories/interfaces/blacklisted-token-repository.interface';
+import { BlacklistedTokenRepository } from '../repositories/blacklisted-token-repository';
+import { IBlacklistedTokenService } from '../services/commonServices/interfaces/blacklisted-token-service.interface';
+import { BlacklistedTokenService } from '../services/commonServices/blacklisted-token-service';
+container.register<IBlacklistedTokenRepository>('IBlacklistedTokenRepository', {
+  useClass: BlacklistedTokenRepository,
+});
+container.register<IBlacklistedTokenService>('IBlacklistedTokenService', {
+  useClass: BlacklistedTokenService,
+});
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';

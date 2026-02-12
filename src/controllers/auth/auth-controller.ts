@@ -9,13 +9,19 @@ import { UserDto } from '../../dto/user.dto';
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
+import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
 
 @injectable()
 export class AuthController implements IAuthController {
-  
   private _authService: IAuthService;
-  constructor(@inject('IAuthService') authService: IAuthService) {
+  private _blacklistedTokenService: IBlacklistedTokenService;
+
+  constructor(
+    @inject('IAuthService') authService: IAuthService,
+    @inject('IBlacklistedTokenService') blacklistedTokenService: IBlacklistedTokenService,
+  ) {
     this._authService = authService;
+    this._blacklistedTokenService = blacklistedTokenService;
   }
 
 
@@ -48,7 +54,7 @@ export class AuthController implements IAuthController {
 
     res.cookie('accessToken', accessToken, {
       httpOnly: process.env.NODE_ENV === 'production',
-      secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
+      secure: process.env.NODE_ENV === 'production', 
       sameSite: 'none',
       path: '/',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
@@ -69,7 +75,7 @@ export class AuthController implements IAuthController {
     });
   }
 
-  async logout(_req: Request, res: Response): Promise<void> {
+  async logout(req: Request, res: Response): Promise<void> {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -79,6 +85,20 @@ export class AuthController implements IAuthController {
         | 'strict',
       path: '/',
     };
+
+    // Add tokens to blacklist
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
+
+    if (accessToken) {
+      const accessTokenExpiry = new Date(Date.now() + jwtConfig.accessTokenMaxAge * 1000);
+      await this._blacklistedTokenService.addTokenToBlacklist(accessToken, accessTokenExpiry);
+    }
+
+    if (refreshToken) {
+      const refreshTokenExpiry = new Date(Date.now() + jwtConfig.refreshTokenMaxAge * 1000);
+      await this._blacklistedTokenService.addTokenToBlacklist(refreshToken, refreshTokenExpiry);
+    }
 
     // Clear both cookies
     res.clearCookie('accessToken', cookieOptions);

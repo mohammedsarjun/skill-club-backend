@@ -1,7 +1,10 @@
 import { Request, Response, NextFunction } from 'express';
+import { container } from 'tsyringe';
 import { jwtService } from '../utils/jwt';
 import { HttpStatus } from '../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../contants/error-constants';
+import type { IBlacklistedTokenService } from '../services/commonServices/interfaces/blacklisted-token-service.interface';
+import '../config/container';
 
 declare module 'express-serve-static-core' {
   interface Request {
@@ -13,13 +16,27 @@ declare module 'express-serve-static-core' {
   }
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): void | Response {
+export async function authMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> {
   try {
     const token = req.cookies.accessToken;
     if (!token) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ code: 'TOKEN_EXPIRED', message: 'Unauthorized: No token provided' });
+    }
+
+    // Check blacklist first using service
+    const blacklistedTokenService = container.resolve<IBlacklistedTokenService>(
+      'IBlacklistedTokenService',
+    );
+    const isBlacklisted = await blacklistedTokenService.findBlacklistedToken(token);
+
+    if (isBlacklisted) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Token invalidated' });
     }
 
     const decoded = jwtService.verifyToken<{
