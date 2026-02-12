@@ -595,38 +595,43 @@ export class ClientMeetingService implements IClientMeetingService {
     meetingData: ClientPreContractMeetingRequestDTO,
   ): Promise<ClientPreContractMeetingResponseDTO> {
     if (!meetingData.scheduledAt) {
-      throw new AppError('Meeting scheduled time is required', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.SCHEDULED_TIME_REQUIRED, HttpStatus.BAD_REQUEST);
     }
 
     if (!meetingData.durationMinutes || ![15, 30, 45, 60].includes(meetingData.durationMinutes)) {
-      throw new AppError('Duration must be 15, 30, 45, or 60 minutes', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.INVALID_DURATION, HttpStatus.BAD_REQUEST);
     }
 
     if (!meetingData.agenda || meetingData.agenda.trim().length < 10) {
-      throw new AppError('Agenda must be at least 10 characters', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.AGENDA_TOO_SHORT, HttpStatus.BAD_REQUEST);
     }
 
     if (meetingData.agenda.length > 500) {
-      throw new AppError('Agenda must not exceed 500 characters', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.AGENDA_TOO_LONG, HttpStatus.BAD_REQUEST);
     }
 
     if (!Types.ObjectId.isValid(freelancerId)) {
-      throw new AppError('Invalid freelancer ID', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.INVALID_FREELANCER_ID, HttpStatus.BAD_REQUEST);
     }
 
     const freelancer = await this._userRepository.findById(freelancerId);
     if (!freelancer) {
-      throw new AppError('Freelancer not found', HttpStatus.NOT_FOUND);
+      throw new AppError(ERROR_MESSAGES.MEETING.FREELANCER_NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
     if (!freelancer.freelancerProfile) {
-      throw new AppError('User is not a freelancer', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.USER_NOT_FREELANCER, HttpStatus.BAD_REQUEST);
     }
 
     const scheduledAt = new Date(meetingData.scheduledAt);
     const now = new Date();
     if (scheduledAt <= now) {
-      throw new AppError('Meeting must be scheduled in the future', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.MEETING.MUST_BE_FUTURE, HttpStatus.BAD_REQUEST);
+    }
+
+    const hasActiveMeeting = await this._meetingRepository.hasActivePreContractMeeting(clientId, freelancerId);
+    if (hasActiveMeeting) {
+      throw new AppError(ERROR_MESSAGES.MEETING.ALREADY_ACTIVE, HttpStatus.CONFLICT);
     }
 
     const meetingPayload: Record<string, unknown> = {

@@ -8,6 +8,7 @@ export interface IMeetingRepository extends BaseRepository<IMeeting> {
   createMeeting(meetingData: Partial<IMeeting>, session?: ClientSession): Promise<IMeeting>;
   createPreContractMeeting(clientId: string, freelancerId: string, meetingData: Record<string, unknown>): Promise<IMeeting>;
   findConflictingMeetings(contractId: string, scheduledAt: Date, durationMinutes: number): Promise<IMeeting[]>;
+  hasActivePreContractMeeting(clientId: string, freelancerId: string): Promise<boolean>;
   isMeetingAlreadyProposed(
     contractId: string,
     milestoneId?: string,

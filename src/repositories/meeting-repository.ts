@@ -61,6 +61,16 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return !!existingMeeting;
   }
 
+  async hasActivePreContractMeeting(clientId: string, freelancerId: string): Promise<boolean> {
+    const existingMeeting = await this.model.findOne({
+      clientId: new Types.ObjectId(clientId),
+      freelancerId: new Types.ObjectId(freelancerId),
+      meetingType: 'pre-contract',
+      status: { $in: ['proposed', 'accepted', 'ongoing'] },
+    });
+    return !!existingMeeting;
+  }
+
   async findAllForFreelancer(
     freelancerContractIds: string[],
     query: FreelancerMeetingQueryParamsDTO,
