@@ -43,8 +43,8 @@ export const mapUserModelToUserStateDto = (modelData: IUser): UserStateDto => {
   return {
     userId: modelData._id.toString(),
     activeRole: modelData.activeRole,
-  }
-}
+  };
+};
 export function mapFreelancerDtoToUserModel(raw: FreelancerRawDto): Partial<IUser> {
   return {
     freelancerProfile: {

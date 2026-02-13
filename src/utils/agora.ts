@@ -5,7 +5,7 @@ import { AGORA_TOKEN_EXPIRE } from '../config/agora.config';
 export const generateAgoraToken = ({
   channelName,
   account,
-  expireSeconds = AGORA_TOKEN_EXPIRE 
+  expireSeconds = AGORA_TOKEN_EXPIRE,
 }: {
   channelName: string;
   account: string;
@@ -22,6 +22,6 @@ export const generateAgoraToken = ({
     channelName,
     account,
     RtcRole.PUBLISHER,
-    privilegeExpire
+    privilegeExpire,
   );
 };

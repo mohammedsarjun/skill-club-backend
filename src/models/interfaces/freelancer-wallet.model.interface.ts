@@ -6,7 +6,7 @@ export interface IFreelancerWallet extends Document {
   totalEarned: number;
   totalWithdrawn: number;
   totalCommissionPaid: number;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -23,7 +23,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
   async getMeetings(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
-    const { page, limit, status,isExpired } = req.query;
+    const { page, limit, status, isExpired } = req.query;
 
     const query: FreelancerMeetingQueryParamsDTO = {
       page: page ? Number(page) : undefined,
@@ -58,7 +58,10 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const meetings = await this._freelancerMeetingService.getContractMeetings(freelancerId, contractId);
+    const meetings = await this._freelancerMeetingService.getContractMeetings(
+      freelancerId,
+      contractId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -122,7 +125,11 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
       type,
     };
 
-    const result = await this._freelancerMeetingService.proposeMeeting(freelancerId, contractId, data);
+    const result = await this._freelancerMeetingService.proposeMeeting(
+      freelancerId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -159,7 +166,10 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
     const freelancerId = req.user?.userId as string;
     const { meetingId, proposedTime } = req.body;
 
-    await this._freelancerMeetingService.counterReschedule(freelancerId, { meetingId, proposedTime });
+    await this._freelancerMeetingService.counterReschedule(freelancerId, {
+      meetingId,
+      proposedTime,
+    });
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -171,7 +181,10 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
     const meetingId = req.params.meetingId;
     const freelancerId = req.user?.userId as string;
 
-    const { channelName, token, appId, uid } = await this._freelancerMeetingService.joinMeeting(freelancerId, meetingId);
+    const { channelName, token, appId, uid } = await this._freelancerMeetingService.joinMeeting(
+      freelancerId,
+      meetingId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,

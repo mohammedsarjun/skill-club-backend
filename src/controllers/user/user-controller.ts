@@ -141,7 +141,6 @@ export class UserController implements IUserController {
 
   async updateAddress(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
-    console.log('working');
     const { address } = req.body;
     const user = await this._userService.updateAddress(userId as string, address);
     res.status(HttpStatus.OK).json({
@@ -177,7 +176,7 @@ export class UserController implements IUserController {
     });
   }
 
-    async getBankDetails(req: Request, res: Response): Promise<void> {
+  async getBankDetails(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const data = await this._userService.getBankDetails(userId!);
     res.status(HttpStatus.OK).json({ success: true, message: 'Bank details fetched', data });

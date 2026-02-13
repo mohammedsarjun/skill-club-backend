@@ -1,4 +1,3 @@
-
 import 'reflect-metadata';
 import cron from 'node-cron';
 import { container } from 'tsyringe';
@@ -6,7 +5,6 @@ import '../config/container';
 import { IClientContractService } from '../services/clientServices/interfaces/client-contract-service.interface';
 
 const clientContractService = container.resolve<IClientContractService>('IClientContractService');
-
 
 async function runAutoApprove() {
   try {
@@ -16,5 +14,5 @@ async function runAutoApprove() {
   }
 }
 cron.schedule('0 * * * *', async () => {
-await runAutoApprove();
+  await runAutoApprove();
 });

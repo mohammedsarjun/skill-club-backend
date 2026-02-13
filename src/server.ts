@@ -30,8 +30,6 @@ connectDB();
 const app = express();
 const httpServer = createServer(app);
 
-
-
 initializeSocket(httpServer);
 
 // HTTP request logging
@@ -51,7 +49,6 @@ app.use(
     credentials: true,
   }),
 );
-
 
 app.use('/api/auth', authRouter);
 

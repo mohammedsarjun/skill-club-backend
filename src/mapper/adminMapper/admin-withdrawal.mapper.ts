@@ -19,21 +19,32 @@ export function mapContractTransactionToAdminWithdrawDTO(
     ? `${freelancerObj.firstName || ''} ${freelancerObj.lastName || ''}`.trim() || ''
     : '';
 
-  const profile = (freelancerObj && (freelancerObj.freelancerProfile as IFreelancerProfile | undefined)) || undefined;
+  const profile =
+    (freelancerObj && (freelancerObj.freelancerProfile as IFreelancerProfile | undefined)) ||
+    undefined;
 
   const workCategory = profile?.workCategory
-    ? (profile.workCategory as any).name || profile.workCategory.toString()
+    ? typeof profile.workCategory === 'object' &&
+      profile.workCategory !== null &&
+      'name' in profile.workCategory
+      ? (profile.workCategory as { name: string }).name
+      : profile.workCategory.toString()
     : '';
 
   const userId = (() => {
-    const txFid = (transaction.freelancerId as any) || null;
+    const txFid = transaction.freelancerId as unknown as
+      | string
+      | { _id?: { toString(): string }; toString?: () => string }
+      | null;
     if (freelancerObj?._id) return freelancerObj._id.toString();
     if (!txFid) return '';
     if (typeof txFid === 'string') return txFid;
-    if (txFid._id) return txFid._id.toString();
-    if (typeof txFid.toString === 'function') {
-      const s = txFid.toString();
-      return /^[a-fA-F0-9]{24}$/.test(s) ? s : '';
+    if (typeof txFid === 'object' && txFid !== null) {
+      if ('_id' in txFid && txFid._id) return txFid._id.toString();
+      if (typeof txFid.toString === 'function') {
+        const s = txFid.toString();
+        return /^[a-fA-F0-9]{24}$/.test(s) ? s : '';
+      }
     }
     return '';
   })();
@@ -47,7 +58,9 @@ export function mapContractTransactionToAdminWithdrawDTO(
       status: transaction.status,
       amount: transaction.amount,
       description: transaction.description,
-      createdAt: transaction.createdAt ? transaction.createdAt.toISOString() : new Date().toISOString(),
+      createdAt: transaction.createdAt
+        ? transaction.createdAt.toISOString()
+        : new Date().toISOString(),
     },
     user: {
       id: userId,

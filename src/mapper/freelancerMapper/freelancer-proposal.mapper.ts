@@ -29,7 +29,6 @@ export function mapCreateProposalRequestDtoToProposalModel(
 export const mapProposalModelToFreelancerProposalResponseDTO = (
   rawProposalData: ProposalDetailWithJobDetail,
 ): FreelancerProposalResponseDTO => {
-  console.log(rawProposalData);
   return {
     proposalId: rawProposalData?._id?.toString()!,
     jobDetail: {

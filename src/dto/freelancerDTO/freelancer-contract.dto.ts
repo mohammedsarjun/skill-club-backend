@@ -62,7 +62,15 @@ export interface FreelancerContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-  status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested'|   'cancelled';
+    status:
+      | 'pending_funding'
+      | 'funded'
+      | 'under_review'
+      | 'submitted'
+      | 'approved'
+      | 'paid'
+      | 'changes_requested'
+      | 'cancelled';
     submittedAt?: Date;
     approvedAt?: Date;
     revisionsAllowed?: number;
@@ -126,7 +134,15 @@ export interface FreelancerContractDetailDTO {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  status:
+    | 'pending_funding'
+    | 'held'
+    | 'active'
+    | 'completed'
+    | 'cancelled'
+    | 'refunded'
+    | 'disputed'
+    | 'cancellation_requested';
   totalFunded: number;
   totalPaidToFreelancer: number;
   totalCommissionPaid: number;
@@ -134,7 +150,7 @@ export interface FreelancerContractDetailDTO {
   totalRefund: number;
   availableContractBalance: number;
   cancelledBy?: 'client' | 'freelancer';
-hasActiveCancellationDisputeWindow?: boolean; 
+  hasActiveCancellationDisputeWindow?: boolean;
   createdAt?: Date;
   updatedAt?: Date;
 }

@@ -11,7 +11,9 @@ import { FreelancerReviewListQueryDTO } from '../../dto/freelancerDTO/freelancer
 export class FreelancerReviewController implements IFreelancerReviewController {
   private _freelancerReviewService: IFreelancerReviewService;
 
-  constructor(@inject('IFreelancerReviewService') freelancerReviewService: IFreelancerReviewService) {
+  constructor(
+    @inject('IFreelancerReviewService') freelancerReviewService: IFreelancerReviewService,
+  ) {
     this._freelancerReviewService = freelancerReviewService;
   }
 

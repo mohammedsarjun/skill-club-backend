@@ -40,14 +40,18 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     contractId: string,
     page: number,
     limit: number,
-    status?: string
+    status?: string,
   ): Promise<IWorklog[]> {
     const skip = (page - 1) * limit;
     const filter: Record<string, unknown> = { contractId };
     if (status) {
       filter.status = status;
     }
-    return this.findAll(filter, { skip, limit, populate: { path: 'freelancerId', select: 'firstName lastName' } });
+    return this.findAll(filter, {
+      skip,
+      limit,
+      populate: { path: 'freelancerId', select: 'firstName lastName' },
+    });
   }
 
   async countWorklogsByContract(contractId: string, status?: string): Promise<number> {
@@ -62,7 +66,7 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     worklogId: string,
     status: 'approved' | 'rejected' | 'paid',
     reviewMessage?: string,
-    session?: mongoose.ClientSession
+    session?: mongoose.ClientSession,
   ): Promise<IWorklog | null> {
     const updateData: Partial<IWorklog> = {
       status,
@@ -74,45 +78,54 @@ export class WorklogRepository extends BaseRepository<IWorklog> implements IWork
     return this.model.findOneAndUpdate({ worklogId }, updateData, { new: true, session }).exec();
   }
 
-
   async getWorklogsForAutoPay(): Promise<IWorklog[]> {
+    return super.findAll({ status: { $in: ['approved', 'pending'] } });
+  }
 
-    return super.findAll({ status: { $in: ['approved','pending'] } });
-}
-
-  async getWeeklyHoursWorked(contractId: string, freelancerId: string, weekStart: Date, weekEnd: Date): Promise<number> {
-    const worklogs = await this.model.find({
-      contractId: new mongoose.Types.ObjectId(contractId),
-      freelancerId: new mongoose.Types.ObjectId(freelancerId),
-      startTime: { $gte: weekStart, $lt: weekEnd }
-    }).exec();
+  async getWeeklyHoursWorked(
+    contractId: string,
+    freelancerId: string,
+    weekStart: Date,
+    weekEnd: Date,
+  ): Promise<number> {
+    const worklogs = await this.model
+      .find({
+        contractId: new mongoose.Types.ObjectId(contractId),
+        freelancerId: new mongoose.Types.ObjectId(freelancerId),
+        startTime: { $gte: weekStart, $lt: weekEnd },
+      })
+      .exec();
 
     const totalMilliseconds = worklogs.reduce((sum, log) => sum + log.duration, 0);
     return totalMilliseconds / (1000 * 60 * 60);
   }
 
-  async updateDisputeWindowEndDate(worklogId: string, newEndDate: Date, session?: mongoose.ClientSession): Promise<IWorklog | null> {
-    return this.model.findOneAndUpdate(
-      { worklogId },
-      { disputeWindowEndDate: newEndDate },
-      { new: true, session }
-    ).exec();
+  async updateDisputeWindowEndDate(
+    worklogId: string,
+    newEndDate: Date,
+    session?: mongoose.ClientSession,
+  ): Promise<IWorklog | null> {
+    return this.model
+      .findOneAndUpdate({ worklogId }, { disputeWindowEndDate: newEndDate }, { new: true, session })
+      .exec();
   }
 
   async findWorklogsWithExpiredDisputeWindow(): Promise<IWorklog[]> {
-    return this.model.find({
-      status: 'rejected',
-      disputeWindowEndDate: { $lt: new Date() },
-    }).exec();
+    return this.model
+      .find({
+        status: 'rejected',
+        disputeWindowEndDate: { $lt: new Date() },
+      })
+      .exec();
   }
 
   async hasPendingWorklogs(contractId: string): Promise<boolean> {
-    const count = await this.model.countDocuments({
-      contractId,
-      status: 'submitted'
-    }).exec();
+    const count = await this.model
+      .countDocuments({
+        contractId,
+        status: 'submitted',
+      })
+      .exec();
     return count > 0;
   }
-
 }
-

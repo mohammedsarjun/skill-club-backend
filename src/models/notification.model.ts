@@ -1,15 +1,15 @@
-import mongoose from "mongoose";
-import { INotification } from "./interfaces/notification.model.interface";
+import mongoose from 'mongoose';
+import { INotification } from './interfaces/notification.model.interface';
 const notificationSchema = new mongoose.Schema<INotification>({
   userId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User",
+    ref: 'User',
     required: true,
     index: true,
   },
   role: {
     type: String,
-    enum: ["client", "freelancer"],
+    enum: ['client', 'freelancer'],
     required: true,
   },
 
@@ -25,8 +25,8 @@ const notificationSchema = new mongoose.Schema<INotification>({
 
   type: {
     type: String,
-    enum: ["job", "payment", "report", "system", "admin","meeting"],
-    default: "system",
+    enum: ['job', 'payment', 'report', 'system', 'admin', 'meeting'],
+    default: 'system',
     index: true,
   },
 
@@ -53,4 +53,4 @@ const notificationSchema = new mongoose.Schema<INotification>({
   },
 });
 
-export default mongoose.model("Notification", notificationSchema);
+export default mongoose.model('Notification', notificationSchema);

@@ -19,8 +19,10 @@ export class HourlyContractCancellationStrategy implements IContractCancellation
       };
     }
 
-    const hasPendingTimesheets = contract.timesheets?.some(t => t.status === 'pending');
-    const hasApprovedTimesheets = contract.timesheets?.some(t => t.status === 'approved' || t.status === 'paid');
+    const hasPendingTimesheets = contract.timesheets?.some((t) => t.status === 'pending');
+    const hasApprovedTimesheets = contract.timesheets?.some(
+      (t) => t.status === 'approved' || t.status === 'paid',
+    );
 
     if (hasPendingTimesheets || hasApprovedTimesheets) {
       return {

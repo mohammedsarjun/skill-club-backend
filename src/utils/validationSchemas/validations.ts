@@ -7,10 +7,8 @@ export const portfolioSchema = z.object({
   projectUrl: z.string().url('Invalid project URL').optional().or(z.literal('')),
   githubUrl: z.string().url('Invalid GitHub URL').optional().or(z.literal('')),
   technologies: z.array(z.string()),
-  // In a Node environment there is no global `File` constructor (it's a browser API).
-  // Validate uploaded files more defensively as unknown/any and refine elsewhere if needed.
-  images: z.array(z.any().optional()).optional(),
-  video: z.any().optional(),
+  images: z.array(z.unknown().optional()).optional(),
+  video: z.unknown().optional(),
 });
 
 export const educationSchema = z.object({

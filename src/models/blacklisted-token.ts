@@ -1,5 +1,5 @@
-import mongoose, {  Model } from "mongoose";
-import { IBlacklistedToken } from "./interfaces/blacklisted-token.interface";
+import mongoose, { Model } from 'mongoose';
+import { IBlacklistedToken } from './interfaces/blacklisted-token.interface';
 
 const blacklistedTokenSchema = new mongoose.Schema<IBlacklistedToken>({
   token: {
@@ -16,15 +16,11 @@ const blacklistedTokenSchema = new mongoose.Schema<IBlacklistedToken>({
 blacklistedTokenSchema.index({ token: 1 });
 
 // TTL index for auto deletion
-blacklistedTokenSchema.index(
-  { expiresAt: 1 },
-  { expireAfterSeconds: 0 }
-);
+blacklistedTokenSchema.index({ expiresAt: 1 }, { expireAfterSeconds: 0 });
 
-const BlacklistedToken: Model<IBlacklistedToken> =
-  mongoose.model<IBlacklistedToken>(
-    "BlacklistedToken",
-    blacklistedTokenSchema
-  );
+const BlacklistedToken: Model<IBlacklistedToken> = mongoose.model<IBlacklistedToken>(
+  'BlacklistedToken',
+  blacklistedTokenSchema,
+);
 
 export default BlacklistedToken;

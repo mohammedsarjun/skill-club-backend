@@ -1,7 +1,9 @@
 import { ICancellationRequest } from '../../models/interfaces/cancellation-request.model.interface';
 import { CancellationRequestResponseDTO } from '../../dto/clientDTO/client-cancellation-request.dto';
 
-export const toCancellationRequestResponseDTO = (request: ICancellationRequest): CancellationRequestResponseDTO => {
+export const toCancellationRequestResponseDTO = (
+  request: ICancellationRequest,
+): CancellationRequestResponseDTO => {
   return {
     cancellationRequestId: request.cancellationRequestId,
     contractId: request.contractId.toString(),

@@ -23,18 +23,18 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
   constructor(
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
-    this._contractTransactionRepository= contractTransactionRepository;
+    this._contractTransactionRepository = contractTransactionRepository;
   }
 
   async createDispute(
     freelancerId: string,
     data: CreateDisputeRequestDTO,
   ): Promise<DisputeResponseDTO> {
-    console.log('normakl duipsute flow');
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -84,10 +84,10 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
         data.contractId,
         'frozen_dispute',
       );
-    }else if(contract.paymentType === 'fixed_with_milestones'){
+    } else if (contract.paymentType === 'fixed_with_milestones') {
       await this._contractTransactionRepository.updateTransactionStatusForMilestoneContract(
         data.contractId,
-         data.scopeId!,
+        data.scopeId!,
         'frozen_dispute',
       );
     }

@@ -11,24 +11,28 @@ export interface IWorklogRepository extends IBaseRepository<IWorklog> {
     contractId: string,
     page: number,
     limit: number,
-    status?: string
+    status?: string,
   ): Promise<IWorklog[]>;
   countWorklogsByContract(contractId: string, status?: string): Promise<number>;
   updateWorklogStatus(
     worklogId: string,
     status: 'approved' | 'rejected' | 'paid',
     reviewMessage?: string,
-    session?: mongoose.ClientSession
+    session?: mongoose.ClientSession,
   ): Promise<IWorklog | null>;
   getWorklogsForAutoPay(): Promise<IWorklog[]>;
-  getWeeklyHoursWorked(contractId: string, freelancerId: string, weekStart: Date, weekEnd: Date): Promise<number>;
+  getWeeklyHoursWorked(
+    contractId: string,
+    freelancerId: string,
+    weekStart: Date,
+    weekEnd: Date,
+  ): Promise<number>;
   updateDisputeWindowEndDate(
     worklogId: string,
     newEndDate: Date,
-    session?: mongoose.ClientSession
+    session?: mongoose.ClientSession,
   ): Promise<IWorklog | null>;
   findWorklogsWithExpiredDisputeWindow(): Promise<IWorklog[]>;
   hasPendingWorklogs(contractId: string): Promise<boolean>;
   getWorklogsByObjectId(worklogObjectId: mongoose.Types.ObjectId): Promise<IWorklog | null>;
 }
-

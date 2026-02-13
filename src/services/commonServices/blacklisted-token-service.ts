@@ -15,9 +15,7 @@ export class BlacklistedTokenService implements IBlacklistedTokenService {
   }
 
   async addTokenToBlacklist(token: string, expiresAt: Date): Promise<IBlacklistedToken> {
-    console.log("token gonna added")
-    const blacklistedToken= await this._blacklistedTokenRepository.addToken(token, expiresAt);
-    console.log(blacklistedToken)
+    const blacklistedToken = await this._blacklistedTokenRepository.addToken(token, expiresAt);
     return blacklistedToken;
   }
 

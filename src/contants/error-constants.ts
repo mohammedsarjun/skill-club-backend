@@ -81,7 +81,8 @@ export const ERROR_MESSAGES = {
     NOT_HOURLY: 'This operation is only valid for hourly contracts',
     ALREADY_CANCELLED: 'Contract is already cancelled',
     INVALID_PAYMENT_TYPE: 'This operation is only valid for fixed payment contracts',
-    PENDING_DELIVERABLES: 'Please approve or reject all pending deliverables before cancelling the contract',
+    PENDING_DELIVERABLES:
+      'Please approve or reject all pending deliverables before cancelling the contract',
     CANCELLATION_IN_PROGRESS: 'Contract cancellation is already in progress',
     INVALID_END_STATUS: 'Contract must be active to be ended',
     PENDING_WORKLOGS: 'Please approve or reject all pending worklogs before ending the contract',

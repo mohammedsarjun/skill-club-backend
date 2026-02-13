@@ -67,9 +67,15 @@ export class FreelancerContractController implements IFreelancerContractControll
     const { contractId } = req.params;
     const { cancelContractReason } = req.body;
 
-    const result = await this._freelancerContractService.cancelContract(freelancerId, contractId, cancelContractReason);
+    const result = await this._freelancerContractService.cancelContract(
+      freelancerId,
+      contractId,
+      cancelContractReason,
+    );
 
-    res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancellation processed', data: result });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: 'Contract cancellation processed', data: result });
   }
 
   async submitDeliverable(req: Request, res: Response): Promise<void> {
@@ -146,20 +152,25 @@ export class FreelancerContractController implements IFreelancerContractControll
 
   async approveChangeRequest(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
-    const { contractId, deliverableId } = req.params; 
+    const { contractId, deliverableId } = req.params;
     const result = await this._freelancerContractService.approveChangeRequest(
       freelancerId,
       contractId,
       deliverableId,
     );
-    res.status(HttpStatus.OK).json({ success: true, message: 'Change request approved', data: result });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: 'Change request approved', data: result });
   }
 
   async getCancellationRequest(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._freelancerContractService.getCancellationRequest(freelancerId, contractId);
+    const result = await this._freelancerContractService.getCancellationRequest(
+      freelancerId,
+      contractId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -173,7 +184,11 @@ export class FreelancerContractController implements IFreelancerContractControll
     const { contractId } = req.params;
     const data: AcceptCancellationRequestDTO = req.body;
 
-    const result = await this._freelancerContractService.acceptCancellationRequest(freelancerId, contractId, data);
+    const result = await this._freelancerContractService.acceptCancellationRequest(
+      freelancerId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -187,7 +202,11 @@ export class FreelancerContractController implements IFreelancerContractControll
     const { contractId } = req.params;
     const { notes } = req.body;
 
-    const result = await this._freelancerContractService.raiseCancellationDispute(freelancerId, contractId, notes);
+    const result = await this._freelancerContractService.raiseCancellationDispute(
+      freelancerId,
+      contractId,
+      notes,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -201,7 +220,11 @@ export class FreelancerContractController implements IFreelancerContractControll
     const { contractId } = req.params;
     const data: CreateFreelancerCancellationRequestDTO = req.body;
 
-    const result = await this._freelancerContractService.createCancellationRequest(freelancerId, contractId, data);
+    const result = await this._freelancerContractService.createCancellationRequest(
+      freelancerId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -214,7 +237,10 @@ export class FreelancerContractController implements IFreelancerContractControll
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._freelancerContractService.endHourlyContract(freelancerId, contractId);
+    const result = await this._freelancerContractService.endHourlyContract(
+      freelancerId,
+      contractId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -222,5 +248,4 @@ export class FreelancerContractController implements IFreelancerContractControll
       data: result,
     });
   }
-
 }

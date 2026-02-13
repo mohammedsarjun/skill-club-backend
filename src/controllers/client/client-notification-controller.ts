@@ -9,7 +9,7 @@ export class ClientNotificationController {
   private _notificationService: IClientNotificationService;
 
   constructor(
-    @inject('IClientNotificationService') notificationService: IClientNotificationService
+    @inject('IClientNotificationService') notificationService: IClientNotificationService,
   ) {
     this._notificationService = notificationService;
   }
@@ -55,7 +55,9 @@ export class ClientNotificationController {
       }
 
       await this._notificationService.markAllNotificationsAsRead(clientId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications marked as read' });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: 'All notifications marked as read' });
     } catch (error) {
       next(error);
     }

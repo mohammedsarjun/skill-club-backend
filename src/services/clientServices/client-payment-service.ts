@@ -78,8 +78,6 @@ export class ClientPaymentService implements IClientPaymentService {
       }
     }
 
-    console.log(contract.paymentType, expectedAmount);
-
     const gatewayOrderId = `ORD_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`;
 
     const payment = await this.paymentRepository.createPayment({
@@ -252,19 +250,16 @@ export class ClientPaymentService implements IClientPaymentService {
         );
 
         if (updateContract?.paymentType === 'hourly') {
-          console.log(updateContract.estimatedHoursPerWeek, updateContract.hourlyRate, updateContract.balance);
           if (
             updateContract.estimatedHoursPerWeek! * (updateContract.hourlyRate || 0) >
             (updateContract.balance || 0)
           ) {
-      
             await this.contractRepository.updateStatusById(
               payment.contractId.toString(),
               'held',
               session,
             );
           } else {
-       
             // Activate contract
             await this.contractRepository.updateStatusById(
               payment.contractId.toString(),
@@ -294,11 +289,8 @@ export class ClientPaymentService implements IClientPaymentService {
             payment.contractId.toString(),
             payment.milestoneId.toString(),
             session,
-        
           );
         }
-
-
 
         // -------------------------------
         // 7. Contract transaction creation (replaces escrow + transaction)

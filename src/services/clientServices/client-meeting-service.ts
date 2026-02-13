@@ -145,7 +145,10 @@ export class ClientMeetingService implements IClientMeetingService {
         `A client has proposed a meeting: "${meetingData.agenda}"`,
         meeting.id,
       );
-      await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.freelancerId.toString(),
+        notification,
+      );
     }
 
     return mapMeetingToClientMeetingProposalResponseDTO(meeting);
@@ -189,9 +192,11 @@ export class ClientMeetingService implements IClientMeetingService {
       throw new AppError(ERROR_MESSAGES.MEETING.UPDATE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const freelancerId = meeting.freelancerId || (meeting.contractId
-      ? (await this._contractRepository.findById(meeting.contractId.toString()))?.freelancerId
-      : null);
+    const freelancerId =
+      meeting.freelancerId ||
+      (meeting.contractId
+        ? (await this._contractRepository.findById(meeting.contractId.toString()))?.freelancerId
+        : null);
     if (freelancerId) {
       const notification = buildMeetingNotification(
         freelancerId,
@@ -200,7 +205,10 @@ export class ClientMeetingService implements IClientMeetingService {
         `Your meeting "${meeting.agenda}" has been accepted by the client`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(freelancerId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        freelancerId.toString(),
+        notification,
+      );
     }
   }
 
@@ -253,9 +261,11 @@ export class ClientMeetingService implements IClientMeetingService {
       throw new AppError(ERROR_MESSAGES.MEETING.UPDATE_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const freelancerId = meeting.freelancerId || (meeting.contractId
-      ? (await this._contractRepository.findById(meeting.contractId.toString()))?.freelancerId
-      : null);
+    const freelancerId =
+      meeting.freelancerId ||
+      (meeting.contractId
+        ? (await this._contractRepository.findById(meeting.contractId.toString()))?.freelancerId
+        : null);
     if (freelancerId) {
       const notification = buildMeetingNotification(
         freelancerId,
@@ -264,7 +274,10 @@ export class ClientMeetingService implements IClientMeetingService {
         `Your meeting "${meeting.agenda}" has been rejected by the client`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(freelancerId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        freelancerId.toString(),
+        notification,
+      );
     }
   }
 
@@ -311,7 +324,10 @@ export class ClientMeetingService implements IClientMeetingService {
         `Your reschedule request for "${meeting.agenda}" has been approved`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.freelancerId.toString(),
+        notification,
+      );
     }
   }
 
@@ -365,7 +381,10 @@ export class ClientMeetingService implements IClientMeetingService {
         `Your reschedule request for "${meeting.agenda}" has been declined`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.freelancerId.toString(),
+        notification,
+      );
     }
   }
 
@@ -415,7 +434,10 @@ export class ClientMeetingService implements IClientMeetingService {
         `The client has requested to reschedule the meeting "${meeting.agenda}"`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.freelancerId.toString(),
+        notification,
+      );
     }
   }
 
@@ -477,8 +499,8 @@ export class ClientMeetingService implements IClientMeetingService {
       });
     }
 
-    allMeetings.sort((a, b) => 
-      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+    allMeetings.sort(
+      (a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime(),
     );
 
     const startIndex = (normalizedQuery.page! - 1) * normalizedQuery.limit!;
@@ -544,11 +566,14 @@ export class ClientMeetingService implements IClientMeetingService {
       return [];
     }
 
-    const meetings = await this._meetingRepository.findPreContractMeetingsForClient(clientId, query);
+    const meetings = await this._meetingRepository.findPreContractMeetingsForClient(
+      clientId,
+      query,
+    );
 
     const items = await Promise.all(
       meetings.map(async (meeting) => {
-        const freelancerUser = meeting.freelancerId 
+        const freelancerUser = meeting.freelancerId
           ? await this._userRepository.findById(meeting.freelancerId.toString())
           : null;
 
@@ -576,8 +601,8 @@ export class ClientMeetingService implements IClientMeetingService {
     const remainingSeconds = Math.floor((endTime.getTime() - Date.now()) / 1000);
     // Generate Agora token
     const token = generateAgoraToken({
-      channelName:meetingId, 
-      account: 0 as unknown as string, 
+      channelName: meetingId,
+      account: 0 as unknown as string,
       expireSeconds: remainingSeconds > 0 ? remainingSeconds : 3600,
     });
 
@@ -629,7 +654,10 @@ export class ClientMeetingService implements IClientMeetingService {
       throw new AppError(ERROR_MESSAGES.MEETING.MUST_BE_FUTURE, HttpStatus.BAD_REQUEST);
     }
 
-    const hasActiveMeeting = await this._meetingRepository.hasActivePreContractMeeting(clientId, freelancerId);
+    const hasActiveMeeting = await this._meetingRepository.hasActivePreContractMeeting(
+      clientId,
+      freelancerId,
+    );
     if (hasActiveMeeting) {
       throw new AppError(ERROR_MESSAGES.MEETING.ALREADY_ACTIVE, HttpStatus.CONFLICT);
     }
@@ -657,7 +685,11 @@ export class ClientMeetingService implements IClientMeetingService {
       ],
     };
 
-    const meeting = await this._meetingRepository.createPreContractMeeting(clientId, freelancerId, meetingPayload);
+    const meeting = await this._meetingRepository.createPreContractMeeting(
+      clientId,
+      freelancerId,
+      meetingPayload,
+    );
 
     const notification = buildMeetingNotification(
       new Types.ObjectId(freelancerId),

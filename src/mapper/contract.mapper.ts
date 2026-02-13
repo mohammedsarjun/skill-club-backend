@@ -1,4 +1,4 @@
-import { IOffer, OfferMilestone,} from '../models/interfaces/offer.model.interface';
+import { IOffer, OfferMilestone } from '../models/interfaces/offer.model.interface';
 import { IContract } from '../models/interfaces/contract.model.interface';
 import { Types } from 'mongoose';
 
@@ -7,9 +7,15 @@ export const mapOfferToContract = (offer: IOffer): Partial<IContract> => {
     if (offer.expectedEndDate) {
       return offer.expectedEndDate;
     }
-    if (offer.paymentType === 'fixed_with_milestones' && offer.milestones && offer.milestones.length > 0) {
+    if (
+      offer.paymentType === 'fixed_with_milestones' &&
+      offer.milestones &&
+      offer.milestones.length > 0
+    ) {
       const lastMilestone = offer.milestones.reduce((latest, current) => {
-        return new Date(current.expectedDelivery) > new Date(latest.expectedDelivery) ? current : latest;
+        return new Date(current.expectedDelivery) > new Date(latest.expectedDelivery)
+          ? current
+          : latest;
       });
       return lastMilestone.expectedDelivery;
     }
@@ -36,7 +42,8 @@ export const mapOfferToContract = (offer: IOffer): Partial<IContract> => {
       disputeEligible: false,
       disputeWindowEndsAt: undefined,
       isFunded: false,
-      revisionsAllowed: typeof milestone.revisions === 'number' ? milestone.revisions : offer.revisions || 0,
+      revisionsAllowed:
+        typeof milestone.revisions === 'number' ? milestone.revisions : offer.revisions || 0,
     })),
     revisions: typeof offer.revisions === 'number' ? offer.revisions : 0,
     revisionAllowed: typeof offer.revisions === 'number' ? offer.revisions : 0,
@@ -50,6 +57,6 @@ export const mapOfferToContract = (offer: IOffer): Partial<IContract> => {
     status: 'pending_funding' as const,
     fundedAmount: 0,
     totalPaid: 0,
-    balance:  0,
+    balance: 0,
   };
 };

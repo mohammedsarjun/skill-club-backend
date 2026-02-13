@@ -1,11 +1,11 @@
-import mongoose, { Schema } from "mongoose";
-import { IContractActivity } from "./interfaces/contract-activity.interface";
+import mongoose, { Schema } from 'mongoose';
+import { IContractActivity } from './interfaces/contract-activity.interface';
 
 const ContractActivitySchema = new Schema<IContractActivity>(
   {
     contractId: {
       type: Schema.Types.ObjectId,
-      ref: "Contract",
+      ref: 'Contract',
       required: true,
       index: true,
     },
@@ -13,34 +13,34 @@ const ContractActivitySchema = new Schema<IContractActivity>(
     actor: {
       role: {
         type: String,
-        enum: ["client", "freelancer", "system", "admin"],
+        enum: ['client', 'freelancer', 'system', 'admin'],
         required: true,
       },
 
       userId: {
         type: Schema.Types.ObjectId,
-        ref: "User",
+        ref: 'User',
       },
     },
 
     eventType: {
       type: String,
       enum: [
-        "contract_created",
-        "fixed_contract_funded",
-        "milestone_funded",
-        "hourly_contract_funded",
-        "deliverable_submitted",
-        "deliverable_approved",
-        "deliverable_rejected",
-        "revision_requested",
-        "work_logged",
-        "work_log_approved",
-        "work_log_rejected",
-        "milestone_completed",
-        "payment_released",
-        "dispute_raised",
-        "meeting_attended",
+        'contract_created',
+        'fixed_contract_funded',
+        'milestone_funded',
+        'hourly_contract_funded',
+        'deliverable_submitted',
+        'deliverable_approved',
+        'deliverable_rejected',
+        'revision_requested',
+        'work_logged',
+        'work_log_approved',
+        'work_log_rejected',
+        'milestone_completed',
+        'payment_released',
+        'dispute_raised',
+        'meeting_attended',
       ],
       required: true,
       index: true,
@@ -66,12 +66,12 @@ const ContractActivitySchema = new Schema<IContractActivity>(
 
       milestoneId: {
         type: Schema.Types.ObjectId,
-        ref: "Milestone",
+        ref: 'Milestone',
       },
 
       messageId: {
         type: Schema.Types.ObjectId,
-        ref: "Message",
+        ref: 'Message',
       },
 
       reason: {
@@ -85,12 +85,12 @@ const ContractActivitySchema = new Schema<IContractActivity>(
       createdAt: true,
       updatedAt: false, // 🔒 activity logs must be immutable
     },
-  }
+  },
 );
 
 const ContractActivity = mongoose.model<IContractActivity>(
-  "ContractActivity",
-  ContractActivitySchema
+  'ContractActivity',
+  ContractActivitySchema,
 );
 
 export default ContractActivity;

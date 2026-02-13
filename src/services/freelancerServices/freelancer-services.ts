@@ -69,7 +69,7 @@ export class FreelancerService implements IFreelancerService {
       const freelancerDto = mapFreelancerToDTO(freelancerData);
 
       return freelancerDto;
-    } catch (error) {
+    } catch {
       throw new AppError(ERROR_MESSAGES.FREELANCER.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

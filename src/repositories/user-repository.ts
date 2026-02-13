@@ -137,11 +137,9 @@ export class UserRepository extends BaseRepository<IUser> implements IUserReposi
   }
 
   async updateWalletBalance(userId: string, amount: number): Promise<IUser | null> {
-    return await this.model.findByIdAndUpdate(
-      userId,
-      { $inc: { walletBalance: amount } },
-      { new: true }
-    ).exec();
+    return await this.model
+      .findByIdAndUpdate(userId, { $inc: { walletBalance: amount } }, { new: true })
+      .exec();
   }
 
   async getUserGrowthByPeriod(

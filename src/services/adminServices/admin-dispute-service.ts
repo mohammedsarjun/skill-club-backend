@@ -52,8 +52,6 @@ export class AdminDisputeService implements IAdminDisputeService {
     const disputes = await this._disputeRepository.findAllForAdmin(query);
     const total = await this._disputeRepository.countForAdmin(query);
 
-  
-
     const items = disputes.map(mapDisputeToAdminListItemDTO);
     const pages = Math.ceil(total / limit);
 
@@ -157,7 +155,6 @@ export class AdminDisputeService implements IAdminDisputeService {
     };
   }
   async releaseHoldHourly(disputeId: string): Promise<void> {
-
     const dispute = await this._disputeRepository.findDisputeByDisputeId(disputeId);
     if (!dispute) {
       throw new AppError(ERROR_MESSAGES.DISPUTE.NOT_FOUND, HttpStatus.NOT_FOUND);

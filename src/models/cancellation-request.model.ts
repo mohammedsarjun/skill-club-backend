@@ -38,17 +38,17 @@ CancellationRequestSchema.pre<ICancellationRequest>('validate', async function (
     const counter = await Counter.findOneAndUpdate(
       { _id: 'cancellationRequestId' },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     ).exec();
-    const seq = (counter && (counter as any).seq) || 1;
+    const seq = (counter && (counter as unknown as { seq: number }).seq) || 1;
     this.cancellationRequestId = `cncl-${String(seq).padStart(4, '0')}`;
     next();
   } catch (err) {
-    next(err as any);
+    next(err as Error);
   }
 });
 
 export const CancellationRequest = mongoose.model<ICancellationRequest>(
   'CancellationRequest',
-  CancellationRequestSchema
+  CancellationRequestSchema,
 );

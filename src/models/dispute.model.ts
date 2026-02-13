@@ -62,13 +62,13 @@ DisputeSchema.pre<IDispute>('validate', async function (next) {
     const counter = await Counter.findOneAndUpdate(
       { _id: 'disputeId' },
       { $inc: { seq: 1 } },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     ).exec();
-    const seq = (counter && (counter as any).seq) || 1;
+    const seq = (counter && (counter as unknown as { seq: number }).seq) || 1;
     this.disputeId = `dspt-${String(seq).padStart(3, '0')}`;
     next();
   } catch (err) {
-    next(err as any);
+    next(err as Error);
   }
 });
 

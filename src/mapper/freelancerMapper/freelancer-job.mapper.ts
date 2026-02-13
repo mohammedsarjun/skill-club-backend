@@ -9,8 +9,8 @@ import { IJobDetail, IJobResponse } from '../../models/interfaces/job.model.inte
 export function mapJobModelToFreelancerJobDetailResponseDTO(
   jobDetailDto: IJobDetail,
   clientData: FreelancerClientMinimalDTO,
-  isProposalAlreadySent:boolean,
-  proposalCount: number
+  isProposalAlreadySent: boolean,
+  proposalCount: number,
 ): FreelancerJobDetailResponseDto {
   return {
     jobId: jobDetailDto?._id?.toString() as string,
@@ -46,7 +46,7 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
       totalJobsPosted: clientData.totalJobsPosted,
     },
     status: jobDetailDto.status,
-    isProposalAlreadySent:isProposalAlreadySent
+    isProposalAlreadySent: isProposalAlreadySent,
   };
 }
 
@@ -144,7 +144,6 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
       };
     }
   }
-  console.log(matchStage);
   return matchStage;
 }
 

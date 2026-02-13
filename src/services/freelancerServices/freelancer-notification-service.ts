@@ -13,15 +13,16 @@ import { HttpStatus } from '../../enums/http-status.enum';
 export class FreelancerNotificationService implements IFreelancerNotificationService {
   private _notificationRepository: INotificationRepository;
 
-  constructor(
-    @inject('INotificationRepository') notificationRepository: INotificationRepository
-  ) {
+  constructor(@inject('INotificationRepository') notificationRepository: INotificationRepository) {
     this._notificationRepository = notificationRepository;
   }
 
   async getNotifications(freelancerId: string): Promise<NotificationListResponseDto> {
     const userId = new Types.ObjectId(freelancerId);
-    const notifications = await this._notificationRepository.getUserNotifications(userId, 'freelancer');
+    const notifications = await this._notificationRepository.getUserNotifications(
+      userId,
+      'freelancer',
+    );
     const unreadCount = await this._notificationRepository.getUnreadCount(userId, 'freelancer');
 
     return {
@@ -33,7 +34,7 @@ export class FreelancerNotificationService implements IFreelancerNotificationSer
 
   async markNotificationAsRead(freelancerId: string, notificationId: string): Promise<void> {
     const notification = await this._notificationRepository.findById(notificationId);
-    
+
     if (!notification) {
       throw new AppError(ERROR_MESSAGES.NOTIFICATION.NOT_FOUND, HttpStatus.NOT_FOUND);
     }

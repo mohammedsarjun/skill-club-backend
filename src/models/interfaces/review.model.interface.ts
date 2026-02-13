@@ -1,7 +1,6 @@
 import { Types } from 'mongoose';
 import { Document } from 'mongoose';
 export interface IReview {
-    
   contractId: Types.ObjectId;
 
   reviewerId: Types.ObjectId;
@@ -22,6 +21,5 @@ export interface IReview {
 
   updatedAt?: Date;
 }
-
 
 export interface IReviewDocument extends IReview, Document {}

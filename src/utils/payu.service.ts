@@ -184,12 +184,6 @@ export class PayUService {
 
     const calculatedHash = crypto.createHash('sha512').update(hashString).digest('hex');
 
-    console.log('Hash verification debug:');
-    console.log('Hash string:', hashString);
-    console.log('Calculated hash:', calculatedHash);
-    console.log('Received hash:', hash);
-    console.log('Match:', calculatedHash === hash);
-
     return calculatedHash === hash;
   }
 

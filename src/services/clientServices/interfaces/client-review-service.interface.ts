@@ -1,4 +1,8 @@
-import { SubmitReviewDTO, ReviewStatusResponseDTO, ReviewResponseDTO } from '../../../dto/clientDTO/client-review.dto';
+import {
+  SubmitReviewDTO,
+  ReviewStatusResponseDTO,
+  ReviewResponseDTO,
+} from '../../../dto/clientDTO/client-review.dto';
 
 export interface IClientReviewService {
   submitReview(

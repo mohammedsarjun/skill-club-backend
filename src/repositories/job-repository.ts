@@ -306,11 +306,7 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
   }
 
   async getRecentJobsByClientId(clientId: string, limit: number): Promise<IJob[]> {
-    const jobs = await this.model
-      .find({ clientId })
-      .sort({ createdAt: -1 })
-      .limit(limit)
-      .lean();
+    const jobs = await this.model.find({ clientId }).sort({ createdAt: -1 }).limit(limit).lean();
     return jobs as IJob[];
   }
 

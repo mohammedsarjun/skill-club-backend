@@ -19,30 +19,50 @@ export class ClientWalletRepository
   }
 
   async createWallet(clientId: string, session?: ClientSession): Promise<IClientWallet> {
-    return await super.create({ clientId: new Types.ObjectId(clientId), balance: 0, totalFunded: 0, totalRefunded: 0 } as Partial<IClientWallet>, session);
+    return await super.create(
+      {
+        clientId: new Types.ObjectId(clientId),
+        balance: 0,
+        totalFunded: 0,
+        totalRefunded: 0,
+      } as Partial<IClientWallet>,
+      session,
+    );
   }
 
-  async updateBalance(clientId: string, amount: number, session?: ClientSession): Promise<IClientWallet | null> {
+  async updateBalance(
+    clientId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IClientWallet | null> {
     return await super.update(
       { clientId: new Types.ObjectId(clientId) },
       { $inc: { balance: amount } },
-      session
+      session,
     );
   }
 
-  async incrementTotalFunded(clientId: string, amount: number, session?: ClientSession): Promise<IClientWallet | null> {
+  async incrementTotalFunded(
+    clientId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IClientWallet | null> {
     return await super.update(
       { clientId: new Types.ObjectId(clientId) },
       { $inc: { totalFunded: amount } },
-      session
+      session,
     );
   }
 
-  async incrementTotalRefunded(clientId: string, amount: number, session?: ClientSession): Promise<IClientWallet | null> {
+  async incrementTotalRefunded(
+    clientId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IClientWallet | null> {
     return await super.update(
       { clientId: new Types.ObjectId(clientId) },
       { $inc: { totalRefunded: amount } },
-      session
+      session,
     );
   }
 }

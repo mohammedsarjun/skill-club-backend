@@ -1,6 +1,6 @@
 import BaseRepository from './baseRepositories/base-repository';
 import { IOffer } from '../models/interfaces/offer.model.interface';
-import { ClientSession,  UpdateQuery } from 'mongoose';
+import { ClientSession, UpdateQuery } from 'mongoose';
 import { OfferModel } from '../models/offer.model';
 import {
   IOfferRepository,
@@ -132,12 +132,20 @@ export class OfferRepository extends BaseRepository<IOffer> implements IOfferRep
     );
   }
 
-  async updateStatusById(offerId: string, status: string,session?: ClientSession): Promise<IOffer | null> {
+  async updateStatusById(
+    offerId: string,
+    status: string,
+    session?: ClientSession,
+  ): Promise<IOffer | null> {
     const now = new Date().toISOString();
-    return await super.updateById(offerId, {
-      $set: { status },
-      $push: { timeline: { status, at: now } },
-    }, session);
+    return await super.updateById(
+      offerId,
+      {
+        $set: { status },
+        $push: { timeline: { status, at: now } },
+      },
+      session,
+    );
   }
 
   async updateStatusWithReason(

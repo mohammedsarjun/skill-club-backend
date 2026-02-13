@@ -3,7 +3,10 @@ import { injectable, inject } from 'tsyringe';
 import { IFreelancerDisputeController } from './interfaces/freelancer-dispute-controller.interface';
 import { IFreelancerDisputeService } from '../../services/freelancerServices/interfaces/freelancer-dispute-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { CreateDisputeRequestDTO, RaiseDisputeForCancelledContractDTO } from '../../dto/freelancerDTO/freelancer-dispute.dto';
+import {
+  CreateDisputeRequestDTO,
+  RaiseDisputeForCancelledContractDTO,
+} from '../../dto/freelancerDTO/freelancer-dispute.dto';
 
 @injectable()
 export class FreelancerDisputeController implements IFreelancerDisputeController {

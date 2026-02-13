@@ -46,7 +46,7 @@ export function mapContractToFreelancerDetailDTO(
       approvedAt: milestone.approvedAt,
       disputeEligible: milestone.disputeEligible || false,
       disputeWindowEndsAt: milestone.disputeWindowEndsAt,
-      revisionsAllowed: (milestone as any).revisionsAllowed,
+      revisionsAllowed: milestone.revisionsAllowed,
       isFunded: milestone.isFunded,
       deliverables:
         milestone.deliverables?.map((deliverable, index) => ({
@@ -60,21 +60,19 @@ export function mapContractToFreelancerDetailDTO(
           version: deliverable.version || 1,
           submittedAt: deliverable.submittedAt,
           approvedAt: deliverable.approvedAt,
-          revisionsRequested: (deliverable as any).revisionsRequested || 0,
-          revisionsAllowed: (milestone as any).revisionsAllowed,
-          revisionsLeft:
-            ((milestone as any).revisionsAllowed || 0) -
-            ((deliverable as any).revisionsRequested || 0),
+          revisionsRequested: deliverable.revisionsRequested || 0,
+          revisionsAllowed: milestone.revisionsAllowed,
+          revisionsLeft: (milestone.revisionsAllowed || 0) - (deliverable.revisionsRequested || 0),
         })) || [],
-      extensionRequest: (milestone as any).extensionRequest
+      extensionRequest: milestone.extensionRequest
         ? {
-            requestedBy: (milestone as any).extensionRequest.requestedBy?.toString(),
-            requestedDeadline: (milestone as any).extensionRequest.requestedDeadline,
-            reason: (milestone as any).extensionRequest.reason,
-            status: (milestone as any).extensionRequest.status,
-            requestedAt: (milestone as any).extensionRequest.requestedAt,
-            respondedAt: (milestone as any).extensionRequest.respondedAt,
-            responseMessage: (milestone as any).extensionRequest.responseMessage,
+            requestedBy: milestone.extensionRequest.requestedBy?.toString(),
+            requestedDeadline: milestone.extensionRequest.requestedDeadline,
+            reason: milestone.extensionRequest.reason,
+            status: milestone.extensionRequest.status,
+            requestedAt: milestone.extensionRequest.requestedAt,
+            respondedAt: milestone.extensionRequest.respondedAt,
+            responseMessage: milestone.extensionRequest.responseMessage,
           }
         : undefined,
     })),
@@ -95,12 +93,11 @@ export function mapContractToFreelancerDetailDTO(
       status: deliverable.status,
       submittedAt: deliverable.submittedAt,
       approvedAt: deliverable.approvedAt,
-      revisionsRequested: (deliverable as any).revisionsRequested,
-      revisionsAllowed:
-        typeof (contract as any).revisions === 'number' ? (contract as any).revisions : undefined,
+      revisionsRequested: deliverable.revisionsRequested,
+      revisionsAllowed: typeof contract.revisions === 'number' ? contract.revisions : undefined,
       revisionsLeft:
-        (typeof (contract as any).revisions === 'number' ? (contract as any).revisions : 0) -
-        ((deliverable as any).revisionsRequested || 0),
+        (typeof contract.revisions === 'number' ? contract.revisions : 0) -
+        (deliverable.revisionsRequested || 0),
     })),
 
     title: contract.title,

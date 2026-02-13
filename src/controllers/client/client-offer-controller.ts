@@ -43,7 +43,6 @@ export class ClientOfferController implements IClientOfferController {
   async getOfferDetail(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const { offerId } = req.params;
-    console.log(offerId, clientId);
     const result = await this._clientOfferService.getOfferDetail(clientId, offerId);
     if (!result) {
       res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Offer not found' });

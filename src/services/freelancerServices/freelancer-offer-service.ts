@@ -87,7 +87,6 @@ export class FreelancerOfferService implements IFreelancerOfferService {
     const contractData = mapOfferToContract(existing);
 
     const session = await mongoose.startSession();
-    console.log('transaction starting');
     try {
       session.startTransaction();
 
@@ -103,17 +102,15 @@ export class FreelancerOfferService implements IFreelancerOfferService {
           session,
         );
       }
-  await this._offerRepository.updateStatusById(offerId, 'accepted', session);
+      await this._offerRepository.updateStatusById(offerId, 'accepted', session);
 
       await session.commitTransaction();
       return { accepted: true, contractId: contract.contractId };
     } catch (error) {
-      console.log('Error accepting offer:', error);
       await session.abortTransaction();
       session.endSession();
       throw error;
     } finally {
-      console.log('finallu completed');
       session.endSession();
     }
   }

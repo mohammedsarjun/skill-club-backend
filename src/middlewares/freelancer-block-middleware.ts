@@ -6,7 +6,7 @@ export function freelancerBlockMiddleware(
   _res: Response,
   next: NextFunction,
 ): void | Response {
-  next()
+  next();
   // try {
   //   const user = req.user;
   //   if (!user) {

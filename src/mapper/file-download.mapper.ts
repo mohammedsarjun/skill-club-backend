@@ -1,4 +1,4 @@
-import { FileDownloadInput } from "src/dto/files-download.dto";
+import { FileDownloadInput } from 'src/dto/files-download.dto';
 
 interface FileToZip {
   url: string;

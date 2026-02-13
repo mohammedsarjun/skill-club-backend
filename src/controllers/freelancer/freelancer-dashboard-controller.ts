@@ -11,7 +11,8 @@ export class FreelancerDashboardController implements IFreelancerDashboardContro
   private _freelancerDashboardService: IFreelancerDashboardServices;
 
   constructor(
-    @inject('IFreelancerDashboardServices') freelancerDashboardService: IFreelancerDashboardServices,
+    @inject('IFreelancerDashboardServices')
+    freelancerDashboardService: IFreelancerDashboardServices,
   ) {
     this._freelancerDashboardService = freelancerDashboardService;
   }

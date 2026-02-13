@@ -5,7 +5,19 @@ import { ClientSession } from 'mongoose';
 export interface IClientWalletRepository extends BaseRepository<IClientWallet> {
   findByClientId(clientId: string): Promise<IClientWallet | null>;
   createWallet(clientId: string, session?: ClientSession): Promise<IClientWallet>;
-  updateBalance(clientId: string, amount: number, session?: ClientSession): Promise<IClientWallet | null>;
-  incrementTotalFunded(clientId: string, amount: number, session?: ClientSession): Promise<IClientWallet | null>;
-  incrementTotalRefunded(clientId: string, amount: number, session?: ClientSession): Promise<IClientWallet | null>;
+  updateBalance(
+    clientId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IClientWallet | null>;
+  incrementTotalFunded(
+    clientId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IClientWallet | null>;
+  incrementTotalRefunded(
+    clientId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IClientWallet | null>;
 }

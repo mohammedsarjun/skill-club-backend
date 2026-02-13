@@ -307,8 +307,6 @@ freelancerRouter.post(
   freelancerContractController.approveChangeRequest.bind(freelancerContractController),
 );
 
-
-
 freelancerRouter.post(
   '/contracts/:contractId/milestones/deliverables',
   authMiddleware,
@@ -706,7 +704,9 @@ freelancerRouter.patch(
   authMiddleware,
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
-  freelancerNotificationController.markAllNotificationsAsRead.bind(freelancerNotificationController),
+  freelancerNotificationController.markAllNotificationsAsRead.bind(
+    freelancerNotificationController,
+  ),
 );
 
 export default freelancerRouter;

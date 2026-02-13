@@ -11,10 +11,7 @@ export class ReportedJobRepository
     super(ReportedJob);
   }
 
-  async findByFreelancerAndJob(
-    freelancerId: string,
-    jobId: string,
-  ): Promise<IReportedJob | null> {
+  async findByFreelancerAndJob(freelancerId: string, jobId: string): Promise<IReportedJob | null> {
     return await this.model.findOne({ freelancerId, jobId }).exec();
   }
 

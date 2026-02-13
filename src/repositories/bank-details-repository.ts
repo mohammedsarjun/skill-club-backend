@@ -6,7 +6,10 @@ import { IBankDetailsRepository } from './interfaces/bank-details-repository.int
 import { Types } from 'mongoose';
 
 @injectable()
-export class BankDetailsRepository extends BaseRepository<IBankDetails> implements IBankDetailsRepository {
+export class BankDetailsRepository
+  extends BaseRepository<IBankDetails>
+  implements IBankDetailsRepository
+{
   constructor() {
     super(BankDetails);
   }
@@ -16,6 +19,10 @@ export class BankDetailsRepository extends BaseRepository<IBankDetails> implemen
   }
 
   async createOrUpdateByUser(userId: string, data: Partial<IBankDetails>): Promise<IBankDetails> {
-    return await this.model.findOneAndUpdate({ userId: new Types.ObjectId(userId) }, { $set: data }, { upsert: true, new: true, setDefaultsOnInsert: true });
+    return await this.model.findOneAndUpdate(
+      { userId: new Types.ObjectId(userId) },
+      { $set: data },
+      { upsert: true, new: true, setDefaultsOnInsert: true },
+    );
   }
 }

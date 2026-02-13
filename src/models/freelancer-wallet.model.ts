@@ -3,7 +3,13 @@ import { IFreelancerWallet } from './interfaces/freelancer-wallet.model.interfac
 
 const FreelancerWalletSchema = new Schema<IFreelancerWallet>(
   {
-    freelancerId: { type: Schema.Types.ObjectId, required: true, unique: true, ref: 'User', index: true },
+    freelancerId: {
+      type: Schema.Types.ObjectId,
+      required: true,
+      unique: true,
+      ref: 'User',
+      index: true,
+    },
     balance: { type: Number, default: 0 },
     totalEarned: { type: Number, default: 0 },
     totalWithdrawn: { type: Number, default: 0 },

@@ -6,7 +6,17 @@ export interface FreelancerMeetingListItemDTO {
   durationMinutes: number;
   agenda: string;
   meetingType: 'pre-contract' | 'post-contract';
-  status: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested';
+  status:
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested'
+    | 'cancelled'
+    | 'rejected'
+    | 'ongoing'
+    | 'rescheduled_requested';
   client?: {
     clientId: string;
     firstName?: string;
@@ -46,7 +56,13 @@ export interface FreelancerMeetingListResultDTO {
 export interface FreelancerMeetingQueryParamsDTO {
   page?: number;
   limit?: number;
-  status?: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested';
+  status?:
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested';
   meetingType?: 'pre-contract' | 'post-contract';
   requestedBy?: 'client' | 'freelancer';
   rescheduleRequestedBy?: 'client' | 'freelancer';
@@ -61,7 +77,14 @@ export interface FreelancerMeetingDetailDTO {
   scheduledAt: Date;
   durationMinutes: number;
   agenda: string;
-  status: 'ongoing'|'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested';
+  status:
+    | 'ongoing'
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested';
   client?: {
     clientId: string;
     firstName?: string;
@@ -116,6 +139,13 @@ export interface FreelancerMeetingProposalResponseDTO {
   durationMinutes: number;
   agenda: string;
   type: 'milestone' | 'fixed';
-  status:'ongoing'| 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested';
+  status:
+    | 'ongoing'
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested';
   createdAt: Date;
 }

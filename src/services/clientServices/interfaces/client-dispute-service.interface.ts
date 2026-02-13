@@ -1,4 +1,7 @@
-import { CreateDisputeRequestDTO, DisputeResponseDTO } from '../../../dto/clientDTO/client-dispute.dto';
+import {
+  CreateDisputeRequestDTO,
+  DisputeResponseDTO,
+} from '../../../dto/clientDTO/client-dispute.dto';
 
 export interface IClientDisputeService {
   createDispute(clientId: string, data: CreateDisputeRequestDTO): Promise<DisputeResponseDTO>;

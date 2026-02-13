@@ -1,4 +1,3 @@
-
 export interface AdminWithdrawalStatsDTO {
   pendingRequests: number;
   totalPendingAmount: number;

@@ -43,8 +43,8 @@ export class ClientFreelancerReviewService implements IClientFreelancerReviewSer
           name: reviewer
             ? `${reviewer.firstName || ''} ${reviewer.lastName || ''}`.trim()
             : 'Anonymous',
-          companyName: (reviewer as any)?.companyName,
-          logo: (reviewer as any)?.logo,
+          companyName: reviewer?.clientProfile?.companyName,
+          logo: reviewer?.clientProfile?.logo,
         };
         return mapReviewToFreelancerReviewItemDTO(review, reviewerData);
       }),

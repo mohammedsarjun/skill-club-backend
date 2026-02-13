@@ -28,9 +28,11 @@ export class ClientWorklogService implements IClientWorklogService {
   constructor(
     @inject('IWorklogRepository') private worklogRepository: IWorklogRepository,
     @inject('IContractRepository') private contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') private _contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    private _contractTransactionRepository: IContractTransactionRepository,
     @inject('IClientWalletRepository') private _clientWalletRepository: IClientWalletRepository,
-    @inject('IFreelancerWalletRepository') private _freelancerWalletRepository: IFreelancerWalletRepository,
+    @inject('IFreelancerWalletRepository')
+    private _freelancerWalletRepository: IFreelancerWalletRepository,
     @inject('IUserRepository') private _userRepository: IUserRepository,
     @inject('IDisputeRepository') private _disputeRepository: IDisputeRepository,
   ) {}
@@ -121,7 +123,9 @@ export class ClientWorklogService implements IClientWorklogService {
       ? `${(worklog.freelancerId as unknown as { firstName?: string }).firstName} ${(worklog.freelancerId as unknown as { lastName?: string }).lastName || ''}`
       : '';
 
-    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(worklog._id.toString());
+    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(
+      worklog._id.toString(),
+    );
     const disputeRaisedBy = dispute ? dispute.raisedBy : undefined;
 
     return mapWorklogToDetailDTO({ ...worklog.toObject(), freelancerName }, disputeRaisedBy);
@@ -232,7 +236,7 @@ export class ClientWorklogService implements IClientWorklogService {
 
     await this.worklogRepository.updateDisputeWindowEndDate(
       data.worklogId,
-      new Date(Date.now() + 2 * 24 * 60 * 60 * 1000) 
+      new Date(Date.now() + 2 * 24 * 60 * 60 * 1000),
     );
 
     if (!updatedWorklog) {
@@ -254,25 +258,32 @@ export class ClientWorklogService implements IClientWorklogService {
       const session = await mongoose.startSession();
       try {
         session.startTransaction();
-        
+
         await this.worklogRepository.updateWorklogStatus(worklog.worklogId, 'paid', '', session);
         const contract = await this.contractRepository.findById(
           worklog.contractId.toString(),
           session,
         );
-        
+
         if (!contract) {
           throw new AppError('Contract not found', HttpStatus.NOT_FOUND);
         }
-        
+
         const contractHourlyRate = contract.hourlyRate || 0;
         const hoursWorked = worklog.duration / (1000 * 60 * 60);
         const amountToRelease = contractHourlyRate * hoursWorked;
 
         // Find funding transaction for this contract
-        const heldTransactions = await this._contractTransactionRepository.findByContractId(contract._id?.toString() || '');
-        const fundingTransaction = heldTransactions.find(t => t.purpose === 'hold' && t.status === 'active_hold' && t.workLogId?.toString() === worklog._id?.toString());
-        
+        const heldTransactions = await this._contractTransactionRepository.findByContractId(
+          contract._id?.toString() || '',
+        );
+        const fundingTransaction = heldTransactions.find(
+          (t) =>
+            t.purpose === 'hold' &&
+            t.status === 'active_hold' &&
+            t.workLogId?.toString() === worklog._id?.toString(),
+        );
+
         if (!fundingTransaction) {
           throw new AppError('No funding transaction found', HttpStatus.BAD_REQUEST);
         }
@@ -282,32 +293,38 @@ export class ClientWorklogService implements IClientWorklogService {
         const freelancerAmount = paymentAmount - commission;
 
         await this._contractTransactionRepository.updateTransactionStatusForWorklog(
-         worklog._id!.toString(),
+          worklog._id!.toString(),
           'released_to_freelancer',
           session,
         );
 
         // Create release transaction
-        await this._contractTransactionRepository.createTransaction({
-          contractId: new Types.ObjectId(worklog.contractId),
-          paymentId: fundingTransaction.paymentId,
-          clientId: contract.clientId,
-          freelancerId: contract.freelancerId,
-           amount: paymentAmount - (paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE),
-          purpose: 'release',
-          description: `Payment for approved worklog - ${worklog.worklogId}`,
-        }, session);
+        await this._contractTransactionRepository.createTransaction(
+          {
+            contractId: new Types.ObjectId(worklog.contractId),
+            paymentId: fundingTransaction.paymentId,
+            clientId: contract.clientId,
+            freelancerId: contract.freelancerId,
+            amount: paymentAmount - paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE,
+            purpose: 'release',
+            description: `Payment for approved worklog - ${worklog.worklogId}`,
+          },
+          session,
+        );
 
         // Create commission transaction
-        await this._contractTransactionRepository.createTransaction({
-          contractId: new Types.ObjectId(worklog.contractId),
-          paymentId: fundingTransaction.paymentId,
-          clientId: contract.clientId,
-          freelancerId: contract.freelancerId,
-          amount: commission,
-          purpose: 'commission',
-          description: `Platform commission (${COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE * 100}%) for worklog`,
-        }, session);
+        await this._contractTransactionRepository.createTransaction(
+          {
+            contractId: new Types.ObjectId(worklog.contractId),
+            paymentId: fundingTransaction.paymentId,
+            clientId: contract.clientId,
+            freelancerId: contract.freelancerId,
+            amount: commission,
+            purpose: 'commission',
+            description: `Platform commission (${COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE * 100}%) for worklog`,
+          },
+          session,
+        );
 
         // Update client wallet
         await this._clientWalletRepository.updateBalance(

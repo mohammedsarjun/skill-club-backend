@@ -28,6 +28,6 @@ export interface IUserServices {
     actionData: Record<string, unknown>,
   ): Promise<void>;
   updateUserProfile(userId: string, profileData: UserProfileDto): Promise<UserProfileDto>;
-    getBankDetails(userId: string): Promise<UserBankDTO | null>;
-    saveBankDetails(userId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO>;
+  getBankDetails(userId: string): Promise<UserBankDTO | null>;
+  saveBankDetails(userId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO>;
 }

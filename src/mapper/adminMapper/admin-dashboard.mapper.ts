@@ -5,6 +5,8 @@ import {
   RecentContractDto,
   RecentReviewDto,
 } from '../../dto/adminDTO/admin-dashboard.dto';
+import { IContract } from '../../models/interfaces/contract.model.interface';
+import { IUser } from '../../models/interfaces/user.model.interface';
 
 export function mapToDashboardStatsDto(data: {
   totalFreelancers: number;
@@ -39,27 +41,51 @@ export function mapToUserGrowthDataPoint(
   };
 }
 
-export function mapToRecentContractDto(contract: any): RecentContractDto {
+interface PopulatedAdminContract extends Omit<IContract, 'clientId' | 'freelancerId'> {
+  _id: { toString(): string };
+  clientId?: IUser | null;
+  freelancerId?: IUser | null;
+}
+
+interface PopulatedAdminReview {
+  _id: { toString(): string };
+  reviewerId?: IUser | null;
+  revieweeId?: IUser | null;
+  rating: number;
+  comment?: string;
+  reviewerRole: string;
+  createdAt: Date;
+}
+
+export function mapToRecentContractDto(contract: PopulatedAdminContract): RecentContractDto {
   return {
     id: contract._id.toString(),
     contractId: contract.contractId,
     title: contract.title,
-    clientName: contract.clientId?.clientProfile?.companyName || 
-                `${contract.clientId?.firstName || ''} ${contract.clientId?.lastName || ''}`.trim() || 'Unknown',
-    freelancerName: `${contract.freelancerId?.firstName || ''} ${contract.freelancerId?.lastName || ''}`.trim() || 'Unknown',
+    clientName:
+      contract.clientId?.clientProfile?.companyName ||
+      `${contract.clientId?.firstName || ''} ${contract.clientId?.lastName || ''}`.trim() ||
+      'Unknown',
+    freelancerName:
+      `${contract.freelancerId?.firstName || ''} ${contract.freelancerId?.lastName || ''}`.trim() ||
+      'Unknown',
     status: contract.status,
-    budget: contract.budget,
-    createdAt: contract.createdAt,
+    budget: contract.budget || 0,
+    createdAt: contract.createdAt!,
   };
 }
 
-export function mapToRecentReviewDto(review: any): RecentReviewDto {
+export function mapToRecentReviewDto(review: PopulatedAdminReview): RecentReviewDto {
   return {
     id: review._id.toString(),
-    reviewerName: `${review.reviewerId?.firstName || ''} ${review.reviewerId?.lastName || ''}`.trim() || 'Unknown',
-    revieweeName: `${review.revieweeId?.firstName || ''} ${review.revieweeId?.lastName || ''}`.trim() || 'Unknown',
+    reviewerName:
+      `${review.reviewerId?.firstName || ''} ${review.reviewerId?.lastName || ''}`.trim() ||
+      'Unknown',
+    revieweeName:
+      `${review.revieweeId?.firstName || ''} ${review.revieweeId?.lastName || ''}`.trim() ||
+      'Unknown',
     rating: review.rating,
-    comment: review.comment,
+    comment: review.comment || '',
     reviewerRole: review.reviewerRole,
     createdAt: review.createdAt,
   };

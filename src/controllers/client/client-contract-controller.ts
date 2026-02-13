@@ -65,7 +65,11 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const { cancelContractReason } = req.body;
 
-    const result = await this._clientContractService.cancelContract(clientId, contractId, cancelContractReason);
+    const result = await this._clientContractService.cancelContract(
+      clientId,
+      contractId,
+      cancelContractReason,
+    );
 
     res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
   }
@@ -156,11 +160,14 @@ export class ClientContractController implements IClientContractController {
     });
   }
 
-
   async getMilestoneDetail(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
-    const { contractId, milestoneId } = req.params; 
-    const result = await this._clientContractService.getMilestoneDetail(clientId, contractId, milestoneId);
+    const { contractId, milestoneId } = req.params;
+    const result = await this._clientContractService.getMilestoneDetail(
+      clientId,
+      contractId,
+      milestoneId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -202,20 +209,18 @@ export class ClientContractController implements IClientContractController {
     res.setHeader('Content-Disposition', `attachment; filename=deliverable-files.zip`);
 
     zipArchive.pipe(res);
-
   }
 
   async downloadMilestoneDeliverableFiles(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const { contractId, milestoneId } = req.params;
-        const data: DownloadDeliverableDTO = req.body;
+    const data: DownloadDeliverableDTO = req.body;
 
-  
     const zipArchive = await this._clientContractService.downloadMilestoneDeliverableFiles(
       clientId,
       contractId,
       milestoneId,
-      data
+      data,
     );
 
     res.setHeader('Content-Type', 'application/zip');
@@ -253,7 +258,11 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const data = req.body;
 
-    const result = await this._clientContractService.createCancellationRequest(clientId, contractId, data);
+    const result = await this._clientContractService.createCancellationRequest(
+      clientId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -280,7 +289,11 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const data = req.body;
 
-    const result = await this._clientContractService.acceptCancellationRequest(clientId, contractId, data);
+    const result = await this._clientContractService.acceptCancellationRequest(
+      clientId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -294,7 +307,11 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const { notes } = req.body;
 
-    const result = await this._clientContractService.raiseCancellationDispute(clientId, contractId, notes);
+    const result = await this._clientContractService.raiseCancellationDispute(
+      clientId,
+      contractId,
+      notes,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,

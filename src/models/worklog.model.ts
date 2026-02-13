@@ -48,7 +48,7 @@ const WorklogSchema = new Schema<IWorklog>(
     },
     status: {
       type: String,
-      enum: ['submitted', 'approved', 'rejected','paid'],
+      enum: ['submitted', 'approved', 'rejected', 'paid'],
       default: 'submitted',
     },
     reviewedAt: {
@@ -58,7 +58,7 @@ const WorklogSchema = new Schema<IWorklog>(
       type: String,
     },
   },
-  { timestamps: true }
+  { timestamps: true },
 );
 
 WorklogSchema.index({ contractId: 1, freelancerId: 1 });

@@ -31,7 +31,6 @@ import { IProposalRepository } from '../../repositories/interfaces/proposal-repo
 import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
 import { mapJobQuery } from '../../mapper/commonMapper/common-job-mapper';
 
-
 @injectable()
 export class ClientJobService implements IClientJobService {
   private _jobRepository: IJobRepository;
@@ -102,8 +101,13 @@ export class ClientJobService implements IClientJobService {
 
     const job = await this._jobRepository.getJobById(createdJob?._id as string);
 
-    const proposalCount = await this._proposalRepository.countProposalsByJobId(job?._id?.toString()!);
-    const responseJobData = mapJobModelToClientJobDetailResponseDTO(job as IJobDetail, proposalCount);
+    const proposalCount = await this._proposalRepository.countProposalsByJobId(
+      job?._id?.toString()!,
+    );
+    const responseJobData = mapJobModelToClientJobDetailResponseDTO(
+      job as IJobDetail,
+      proposalCount,
+    );
 
     return responseJobData;
   }
@@ -171,7 +175,10 @@ export class ClientJobService implements IClientJobService {
     const jobModelDto = await this._jobRepository.getJobById(jobId);
 
     const proposalCount = await this._proposalRepository.countProposalsByJobId(jobId);
-    const responseJobData = mapJobModelToClientJobDetailResponseDTO(jobModelDto as IJobDetail, proposalCount);
+    const responseJobData = mapJobModelToClientJobDetailResponseDTO(
+      jobModelDto as IJobDetail,
+      proposalCount,
+    );
 
     return responseJobData;
   }

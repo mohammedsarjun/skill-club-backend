@@ -1,6 +1,9 @@
 import { IMeeting } from '../../models/interfaces/meeting.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
-import { ClientMeetingProposalResponseDTO, ClientMeetingListItemDTO } from '../../dto/clientDTO/client-meeting.dto';
+import {
+  ClientMeetingProposalResponseDTO,
+  ClientMeetingListItemDTO,
+} from '../../dto/clientDTO/client-meeting.dto';
 import { IUser } from '../../models/interfaces/user.model.interface';
 import { Types } from 'mongoose';
 
@@ -23,7 +26,9 @@ function isPopulatedUser(freelancerId: Types.ObjectId | IUser): freelancerId is 
   return freelancerId && typeof freelancerId === 'object' && 'firstName' in freelancerId;
 }
 
-export const mapMeetingToClientMeetingProposalResponseDTO = (meeting: IMeeting): ClientMeetingProposalResponseDTO => {
+export const mapMeetingToClientMeetingProposalResponseDTO = (
+  meeting: IMeeting,
+): ClientMeetingProposalResponseDTO => {
   const rawObj = meeting as unknown as Record<string, unknown>;
   const rawId = docIdToString(rawObj._id) || docIdToString(rawObj.id) || '';
 
@@ -39,18 +44,22 @@ export const mapMeetingToClientMeetingProposalResponseDTO = (meeting: IMeeting):
   };
 };
 
-export const mapMeetingToClientMeetingListItemDTO = (meeting: IMeeting, contract: IContract): ClientMeetingListItemDTO => {
+export const mapMeetingToClientMeetingListItemDTO = (
+  meeting: IMeeting,
+  contract: IContract,
+): ClientMeetingListItemDTO => {
   const rawObj = meeting as unknown as Record<string, unknown>;
   const rawId = docIdToString(rawObj._id) || docIdToString(rawObj.id) || '';
 
-  const freelancerData = contract.freelancerId && isPopulatedUser(contract.freelancerId)
-    ? {
-        freelancerId: contract.freelancerId._id?.toString() || '',
-        firstName: contract.freelancerId.firstName,
-        lastName: contract.freelancerId.lastName,
-        profilePicture: contract.freelancerId.freelancerProfile?.logo,
-      }
-    : undefined;
+  const freelancerData =
+    contract.freelancerId && isPopulatedUser(contract.freelancerId)
+      ? {
+          freelancerId: contract.freelancerId._id?.toString() || '',
+          firstName: contract.freelancerId.firstName,
+          lastName: contract.freelancerId.lastName,
+          profilePicture: contract.freelancerId.freelancerProfile?.logo,
+        }
+      : undefined;
 
   return {
     meetingId: rawId,
@@ -63,10 +72,12 @@ export const mapMeetingToClientMeetingListItemDTO = (meeting: IMeeting, contract
     meetingType: meeting.meetingType,
     status: meeting.status,
     freelancer: freelancerData,
-    agora: meeting.agora ? {
-      channelName: meeting.agora.channelName as string,
-      createdAt: meeting.agora.createdAt
-    } : undefined,
+    agora: meeting.agora
+      ? {
+          channelName: meeting.agora.channelName as string,
+          createdAt: meeting.agora.createdAt,
+        }
+      : undefined,
     attendance: {
       clientJoined: meeting.attendance.clientJoined,
       clientLeftAt: meeting.attendance.clientLeftAt || undefined,
@@ -81,7 +92,10 @@ export const mapMeetingToClientMeetingListItemDTO = (meeting: IMeeting, contract
   };
 };
 
-export const mapPreContractMeetingToClientListItemDTO = (meeting: IMeeting, freelancerUser: IUser | null): ClientMeetingListItemDTO => {
+export const mapPreContractMeetingToClientListItemDTO = (
+  meeting: IMeeting,
+  freelancerUser: IUser | null,
+): ClientMeetingListItemDTO => {
   const rawObj = meeting as unknown as Record<string, unknown>;
   const rawId = docIdToString(rawObj._id) || docIdToString(rawObj.id) || '';
 
@@ -105,10 +119,12 @@ export const mapPreContractMeetingToClientListItemDTO = (meeting: IMeeting, free
     meetingType: meeting.meetingType,
     status: meeting.status,
     freelancer: freelancerData,
-    agora: meeting.agora ? {
-      channelName: meeting.agora.channelName as string,
-      createdAt: meeting.agora.createdAt
-    } : undefined,
+    agora: meeting.agora
+      ? {
+          channelName: meeting.agora.channelName as string,
+          createdAt: meeting.agora.createdAt,
+        }
+      : undefined,
     attendance: {
       clientJoined: meeting.attendance.clientJoined,
       clientLeftAt: meeting.attendance.clientLeftAt || undefined,

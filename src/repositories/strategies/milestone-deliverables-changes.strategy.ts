@@ -30,7 +30,7 @@ export class MilestoneDeliverablesChangeQueryStrategy implements IDeliverablesCh
         $set: {
           'milestones.$[milestone].status': 'changes_requested',
           'milestones.$[milestone].message': message,
-          'status': 'changes_requested',
+          status: 'changes_requested',
         },
         $inc: {
           'milestones.$[milestone].revisionsRequested': 1,

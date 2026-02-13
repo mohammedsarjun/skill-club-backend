@@ -39,7 +39,6 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     freelancerId: string,
     proposalData: CreateProposalRequestDto,
   ): Promise<void> {
-    console.log(proposalData);
     const jobData = await this._jobRepository.getJobById(proposalData.jobId);
     if (!jobData) {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -76,7 +75,6 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     queryFilters: Record<string, unknown>,
   ): Promise<FreelancerProposalResponseDTO[] | null> {
     const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
-    console.log(jobId);
     const skip =
       (proposalQueryDto?.page ? proposalQueryDto?.page - 1 : 0) *
       (proposalQueryDto.limit ? proposalQueryDto?.limit : 5);
@@ -91,7 +89,6 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     const proposalResponseDTO = proposalResponse?.map(
       mapProposalModelToFreelancerProposalResponseDTO,
     );
-    console.log(proposalResponseDTO);
     return proposalResponseDTO || null;
   }
 }

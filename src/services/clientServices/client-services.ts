@@ -26,10 +26,10 @@ export class ClientService implements IClientService {
       }
 
       // Map the profile to DTO safely
-      const clientDto = mapClientToDTO(clientData.clientProfile)
+      const clientDto = mapClientToDTO(clientData.clientProfile);
 
       return clientDto;
-    } catch (_error) {
+    } catch {
       throw new AppError(ERROR_MESSAGES.CLIENT.FETCH_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }

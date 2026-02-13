@@ -9,15 +9,17 @@ import { FreelancerTransactionsQueryDTO } from '../../dto/freelancerDTO/freelanc
 @injectable()
 export class FreelancerEarningsController implements IFreelancerEarningsController {
   private _freelancerEarningsService: IFreelancerEarningsService;
-  
-  constructor(@inject('IFreelancerEarningsService') freelancerEarningsService: IFreelancerEarningsService) {
+
+  constructor(
+    @inject('IFreelancerEarningsService') freelancerEarningsService: IFreelancerEarningsService,
+  ) {
     this._freelancerEarningsService = freelancerEarningsService;
   }
 
   async getEarningsOverview(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
     const result = await this._freelancerEarningsService.getEarningsOverview(freelancerId);
-    
+
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Earnings overview fetched successfully',
@@ -27,12 +29,16 @@ export class FreelancerEarningsController implements IFreelancerEarningsControll
 
   async getTransactions(req: Request, res: Response): Promise<void> {
     const freelancerId = req.user?.userId as string;
-    const { page, limit, period, startDate, endDate } = req.query as Record<string, string | undefined>;
+    const { page, limit, period, startDate, endDate } = req.query as Record<
+      string,
+      string | undefined
+    >;
 
     const allowedPeriods: Array<'week' | 'month' | 'year'> = ['week', 'month', 'year'];
-    const parsedPeriod = period && allowedPeriods.includes(period as 'week' | 'month' | 'year')
-      ? (period as 'week' | 'month' | 'year')
-      : undefined;
+    const parsedPeriod =
+      period && allowedPeriods.includes(period as 'week' | 'month' | 'year')
+        ? (period as 'week' | 'month' | 'year')
+        : undefined;
 
     const query: FreelancerTransactionsQueryDTO = {
       page: page ? Number(page) : undefined,
@@ -45,7 +51,7 @@ export class FreelancerEarningsController implements IFreelancerEarningsControll
     };
 
     const result = await this._freelancerEarningsService.getTransactions(freelancerId, query);
-    
+
     res.status(HttpStatus.OK).json({
       success: true,
       message: 'Transactions fetched successfully',

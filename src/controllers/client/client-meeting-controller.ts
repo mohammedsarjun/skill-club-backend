@@ -1,10 +1,13 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
-import '../../config/container';    
+import '../../config/container';
 import { IClientMeetingController } from './interfaces/client-meeting-controller.interface';
 import { IClientMeetingService } from '../../services/clientServices/interfaces/client-meeting-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { ClientMeetingProposalRequestDTO, ClientPreContractMeetingRequestDTO } from '../../dto/clientDTO/client-meeting.dto';
+import {
+  ClientMeetingProposalRequestDTO,
+  ClientPreContractMeetingRequestDTO,
+} from '../../dto/clientDTO/client-meeting.dto';
 
 @injectable()
 export class ClientMeetingController implements IClientMeetingController {
@@ -18,10 +21,12 @@ export class ClientMeetingController implements IClientMeetingController {
     const { contractId } = req.params;
     const meetingData = req.body as ClientMeetingProposalRequestDTO;
 
+    const result = await this._clientMeetingService.proposeMeeting(
+      clientId,
+      contractId,
+      meetingData,
+    );
 
-
-    const result = await this._clientMeetingService.proposeMeeting(clientId, contractId, meetingData);
-    
     res.status(HttpStatus.CREATED).json({
       success: true,
       data: result,
@@ -81,7 +86,10 @@ export class ClientMeetingController implements IClientMeetingController {
     const clientId = req.user?.userId as string;
     const { meetingId, proposedTime } = req.body;
 
-    await this._clientMeetingService.requestReschedule(clientId, { meetingId, proposedTime: new Date(proposedTime) });
+    await this._clientMeetingService.requestReschedule(clientId, {
+      meetingId,
+      proposedTime: new Date(proposedTime),
+    });
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -104,12 +112,24 @@ export class ClientMeetingController implements IClientMeetingController {
 
   async getAllMeetings(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
-    const { page, limit, status, meetingType, requestedBy, rescheduleRequestedBy,isExpired } = req.query;
+    const { page, limit, status, meetingType, requestedBy, rescheduleRequestedBy, isExpired } =
+      req.query;
 
     const query = {
       page: page ? Number(page) : undefined,
       limit: limit ? Number(limit) : undefined,
-      status: status as 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested' | undefined,
+      status: status as
+        | 'proposed'
+        | 'accepted'
+        | 'completed'
+        | 'missed'
+        | 'partial_missed'
+        | 'reschedule_requested'
+        | 'cancelled'
+        | 'rejected'
+        | 'ongoing'
+        | 'rescheduled_requested'
+        | undefined,
       meetingType: meetingType as 'pre-contract' | 'post-contract' | undefined,
       requestedBy: requestedBy as 'client' | 'freelancer' | undefined,
       rescheduleRequestedBy: rescheduleRequestedBy as 'client' | 'freelancer' | undefined,
@@ -130,7 +150,11 @@ export class ClientMeetingController implements IClientMeetingController {
     const { freelancerId } = req.params;
     const meetingData = req.body as ClientPreContractMeetingRequestDTO;
 
-    const result = await this._clientMeetingService.proposePreContractMeeting(clientId, freelancerId, meetingData);
+    const result = await this._clientMeetingService.proposePreContractMeeting(
+      clientId,
+      freelancerId,
+      meetingData,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -143,7 +167,10 @@ export class ClientMeetingController implements IClientMeetingController {
     const meetingId = req.params.meetingId;
     const clientId = req.user?.userId as string;
 
-    const { channelName, token, appId, uid } = await this._clientMeetingService.joinMeeting(clientId, meetingId);
+    const { channelName, token, appId, uid } = await this._clientMeetingService.joinMeeting(
+      clientId,
+      meetingId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,

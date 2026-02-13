@@ -18,4 +18,3 @@ export interface IClientContractController {
   acceptCancellationRequest(req: Request, res: Response): Promise<void>;
   raiseCancellationDispute(req: Request, res: Response): Promise<void>;
 }
-

@@ -8,9 +8,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 export class AdminNotificationController {
   private _notificationService: IAdminNotificationService;
 
-  constructor(
-    @inject('IAdminNotificationService') notificationService: IAdminNotificationService
-  ) {
+  constructor(@inject('IAdminNotificationService') notificationService: IAdminNotificationService) {
     this._notificationService = notificationService;
   }
 
@@ -33,10 +31,16 @@ export class AdminNotificationController {
     }
   }
 
-  async markAllNotificationsAsRead(_req: Request, res: Response, next: NextFunction): Promise<void> {
+  async markAllNotificationsAsRead(
+    _req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       await this._notificationService.markAllNotificationsAsRead();
-      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications marked as read' });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: 'All notifications marked as read' });
     } catch (error) {
       next(error);
     }

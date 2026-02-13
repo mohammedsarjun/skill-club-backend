@@ -6,17 +6,19 @@ import { injectAll, injectable } from 'tsyringe';
 
 @injectable()
 export class DeliverableChangeQueryStrategyFactory {
-  private readonly strategies: IDeliverablesChangeQueryStrategy[]
+  private readonly strategies: IDeliverablesChangeQueryStrategy[];
 
-  constructor(@injectAll("IDeliverablesChangeQueryStrategy") strategies:IDeliverablesChangeQueryStrategy[]) {
-    this.strategies=strategies
+  constructor(
+    @injectAll('IDeliverablesChangeQueryStrategy') strategies: IDeliverablesChangeQueryStrategy[],
+  ) {
+    this.strategies = strategies;
   }
 
-    getStrategy(type: string): IDeliverablesChangeQueryStrategy {
+  getStrategy(type: string): IDeliverablesChangeQueryStrategy {
     const strategy = this.strategies.find((s) => s.supports(type));
     if (!strategy) {
-      throw new AppError('No strategy found for the given type',HttpStatus.NOT_FOUND);
+      throw new AppError('No strategy found for the given type', HttpStatus.NOT_FOUND);
     }
     return strategy;
-}
+  }
 }

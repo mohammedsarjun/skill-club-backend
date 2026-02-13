@@ -7,8 +7,10 @@ export function mapReviewToAdminReviewItemDTO(
   reviewer: IUser | null,
   reviewee: IUser | null,
 ): AdminReviewItemDTO {
-  const reviewerName = [reviewer?.firstName, reviewer?.lastName].filter(Boolean).join(' ').trim() || 'Unknown';
-  const revieweeName = [reviewee?.firstName, reviewee?.lastName].filter(Boolean).join(' ').trim() || 'Unknown';
+  const reviewerName =
+    [reviewer?.firstName, reviewer?.lastName].filter(Boolean).join(' ').trim() || 'Unknown';
+  const revieweeName =
+    [reviewee?.firstName, reviewee?.lastName].filter(Boolean).join(' ').trim() || 'Unknown';
 
   return {
     reviewId: String(review._id),

@@ -1,7 +1,11 @@
 import { IContract } from '../../models/interfaces/contract.model.interface';
 
 export const calculateRequiredAmountForHourlyContract = (contract: IContract): number => {
-  if (contract.paymentType !== 'hourly' || !contract.hourlyRate || !contract.estimatedHoursPerWeek) {
+  if (
+    contract.paymentType !== 'hourly' ||
+    !contract.hourlyRate ||
+    !contract.estimatedHoursPerWeek
+  ) {
     return 0;
   }
   const weeklyAmount = contract.hourlyRate * contract.estimatedHoursPerWeek;
@@ -11,7 +15,11 @@ export const calculateRequiredAmountForHourlyContract = (contract: IContract): n
 };
 
 export const isHourlyContractBalanceSufficient = (contract: IContract): boolean => {
-  if (contract.paymentType !== 'hourly' || !contract.hourlyRate || !contract.estimatedHoursPerWeek) {
+  if (
+    contract.paymentType !== 'hourly' ||
+    !contract.hourlyRate ||
+    !contract.estimatedHoursPerWeek
+  ) {
     return false;
   }
   const weeklyAmount = contract.hourlyRate * contract.estimatedHoursPerWeek;

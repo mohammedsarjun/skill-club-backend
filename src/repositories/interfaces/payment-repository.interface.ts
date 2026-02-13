@@ -25,7 +25,10 @@ export interface ITransactionRepository extends BaseRepository<ITransaction> {
 export interface IEscrowRepository extends BaseRepository<IEscrow> {
   createEscrow(data: Partial<IEscrow>, session?: ClientSession): Promise<IEscrow>;
   findByContractId(contractId: string): Promise<IEscrow[]>;
-  findOneByContractIdAndStatus(contractId: string, status: IEscrow['status']): Promise<IEscrow | null>;
+  findOneByContractIdAndStatus(
+    contractId: string,
+    status: IEscrow['status'],
+  ): Promise<IEscrow | null>;
   findByContractAndMilestone(contractId: string, milestoneId: string): Promise<IEscrow | null>;
   updateEscrowStatus(escrowId: string, status: IEscrow['status']): Promise<IEscrow | null>;
   releaseEscrow(escrowId: string): Promise<IEscrow | null>;

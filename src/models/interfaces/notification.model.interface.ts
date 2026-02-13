@@ -1,17 +1,17 @@
-import { Document, Types } from "mongoose";
+import { Document, Types } from 'mongoose';
 
-export interface INotification extends Document  {
+export interface INotification extends Document {
   _id: string;
 
   userId: Types.ObjectId;
 
-  role: "client" | "freelancer"
+  role: 'client' | 'freelancer';
 
   title: string;
 
   message: string;
 
-  type: "job" | "payment" | "report" | "system" | "admin"|"meeting";
+  type: 'job' | 'payment' | 'report' | 'system' | 'admin' | 'meeting';
 
   isRead: boolean;
 

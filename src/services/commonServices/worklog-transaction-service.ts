@@ -16,14 +16,15 @@ export class WorklogTransactionService implements IWorklogTransactionService {
 
   constructor(
     @inject('IWorklogRepository') worklogRepository: IWorklogRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
-    @inject('IContractRepository') contractRepository: IContractRepository
+    @inject('IContractRepository') contractRepository: IContractRepository,
   ) {
     this._worklogRepository = worklogRepository;
     this._contractTransactionRepository = contractTransactionRepository;
     this._disputeRepository = disputeRepository;
-    this._contractRepository=contractRepository
+    this._contractRepository = contractRepository;
   }
 
   async releaseExpiredHoldTransactions(): Promise<void> {
@@ -37,35 +38,32 @@ export class WorklogTransactionService implements IWorklogTransactionService {
 
     for (const worklog of expiredWorklogs) {
       const hasDispute = await this._disputeRepository.findActiveDisputeByWorklog(
-        worklog._id.toString()
+        worklog._id.toString(),
       );
 
-    
-
       if (!hasDispute) {
-          const worklogTransaction = await this._contractTransactionRepository.releaseHoldTransactionsToContract(worklog._id.toString());
-           const contract = await this._contractRepository.findById(worklog.contractId.toString());
-           if(contract?.status==='completed'){
-                const refundTransaction: Partial<IContractTransaction> = {
-                     contractId: new Types.ObjectId(worklog.contractId.toString()),
-                     amount: worklogTransaction?.amount || 0,
-                     purpose: 'refund',
-                     description: 'Hourly Contract refund due to contract completion',
-                     clientId: contract.clientId,
-                     freelancerId: contract.freelancerId,
-                   };
-             
-                   await this._contractTransactionRepository.createTransaction(refundTransaction);
-             
-           }
+        const worklogTransaction =
+          await this._contractTransactionRepository.releaseHoldTransactionsToContract(
+            worklog._id.toString(),
+          );
+        const contract = await this._contractRepository.findById(worklog.contractId.toString());
+        if (contract?.status === 'completed') {
+          const refundTransaction: Partial<IContractTransaction> = {
+            contractId: new Types.ObjectId(worklog.contractId.toString()),
+            amount: worklogTransaction?.amount || 0,
+            purpose: 'refund',
+            description: 'Hourly Contract refund due to contract completion',
+            clientId: contract.clientId,
+            freelancerId: contract.freelancerId,
+          };
+
+          await this._contractTransactionRepository.createTransaction(refundTransaction);
+        }
       }
     }
 
     if (worklogIdsToRelease.length === 0) {
       return;
     }
-
- 
-    
   }
 }

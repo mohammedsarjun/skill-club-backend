@@ -32,7 +32,27 @@ export function mapToEarningsDto(
   };
 }
 
-export function mapToMeetingDto(meeting: any): FreelancerMeetingDto {
+interface PopulatedMeeting {
+  _id: { toString(): string };
+  contractId?: {
+    clientId?: { firstName?: string; lastName?: string };
+    title?: string;
+  };
+  scheduledAt: Date;
+  status: string;
+  agora?: { channelName?: string };
+}
+
+interface PopulatedReview {
+  _id: { toString(): string };
+  reviewerId?: { firstName?: string; lastName?: string };
+  rating: number;
+  comment?: string;
+  contractId?: { title?: string };
+  createdAt: Date;
+}
+
+export function mapToMeetingDto(meeting: PopulatedMeeting): FreelancerMeetingDto {
   const scheduledDate = new Date(meeting.scheduledAt);
   const timeString = scheduledDate.toLocaleTimeString('en-US', {
     hour: '2-digit',
@@ -41,9 +61,10 @@ export function mapToMeetingDto(meeting: any): FreelancerMeetingDto {
 
   return {
     id: meeting._id.toString(),
-    client: meeting.contractId?.clientId?.firstName && meeting.contractId?.clientId?.lastName
-      ? `${meeting.contractId.clientId.firstName} ${meeting.contractId.clientId.lastName}`
-      : 'Unknown Client',
+    client:
+      meeting.contractId?.clientId?.firstName && meeting.contractId?.clientId?.lastName
+        ? `${meeting.contractId.clientId.firstName} ${meeting.contractId.clientId.lastName}`
+        : 'Unknown Client',
     project: meeting.contractId?.title || 'Unknown Project',
     date: scheduledDate,
     time: timeString,
@@ -52,14 +73,15 @@ export function mapToMeetingDto(meeting: any): FreelancerMeetingDto {
   };
 }
 
-export function mapToReviewDto(review: any): FreelancerReviewDto {
+export function mapToReviewDto(review: PopulatedReview): FreelancerReviewDto {
   return {
     id: review._id.toString(),
-    client: review.reviewerId?.firstName && review.reviewerId?.lastName
-      ? `${review.reviewerId.firstName} ${review.reviewerId.lastName}`
-      : 'Anonymous',
+    client:
+      review.reviewerId?.firstName && review.reviewerId?.lastName
+        ? `${review.reviewerId.firstName} ${review.reviewerId.lastName}`
+        : 'Anonymous',
     rating: review.rating,
-    comment: review.comment,
+    comment: review.comment || '',
     project: review.contractId?.title || 'Project',
     date: review.createdAt,
   };

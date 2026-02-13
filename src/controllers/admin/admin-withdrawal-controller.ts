@@ -9,7 +9,9 @@ import { IAdminWithdrawalServices } from '../../services/adminServices/interface
 @injectable()
 export class AdminWithdrawalController implements IAdminWithdrawalController {
   private _adminWithdrawalService: IAdminWithdrawalServices;
-  constructor(@inject('IAdminWithdrawalServices') adminWithdrawalService: IAdminWithdrawalServices) {
+  constructor(
+    @inject('IAdminWithdrawalServices') adminWithdrawalService: IAdminWithdrawalServices,
+  ) {
     this._adminWithdrawalService = adminWithdrawalService;
   }
 
@@ -63,7 +65,7 @@ export class AdminWithdrawalController implements IAdminWithdrawalController {
   async rejectWithdrawal(_req: Request, res: Response): Promise<void> {
     const { withdrawalId } = _req.params;
     const { reason } = _req.body;
-    
+
     await this._adminWithdrawalService.rejectWithdrawal(withdrawalId, reason);
     res.status(HttpStatus.OK).json({
       success: true,

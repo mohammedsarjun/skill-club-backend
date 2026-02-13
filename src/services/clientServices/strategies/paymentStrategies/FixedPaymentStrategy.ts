@@ -1,7 +1,9 @@
-
-import { IPaymentAmountStrategy, PaymentCalculationContext } from "./interfaces/IPaymentAmountStrategy";
-import AppError from "../../../../utils/app-error";
-import { HttpStatus } from "../../../../enums/http-status.enum"
+import {
+  IPaymentAmountStrategy,
+  PaymentCalculationContext,
+} from './interfaces/IPaymentAmountStrategy';
+import AppError from '../../../../utils/app-error';
+import { HttpStatus } from '../../../../enums/http-status.enum';
 
 export class FixedPaymentStrategy implements IPaymentAmountStrategy {
   supports(type: string): boolean {

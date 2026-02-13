@@ -72,14 +72,8 @@ export class ClientReviewService implements IClientReviewService {
     return mapReviewToResponseDTO(review);
   }
 
-  async getReviewStatus(
-    clientId: string,
-    contractId: string,
-  ): Promise<ReviewStatusResponseDTO> {
-    const review = await this._reviewRepository.findByContractIdAndReviewerId(
-      contractId,
-      clientId,
-    );
+  async getReviewStatus(clientId: string, contractId: string): Promise<ReviewStatusResponseDTO> {
+    const review = await this._reviewRepository.findByContractIdAndReviewerId(contractId, clientId);
 
     if (review) {
       return {

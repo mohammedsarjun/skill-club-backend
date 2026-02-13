@@ -66,7 +66,6 @@ export class AdminAuthController implements IAdminAuthController {
     // Add tokens to blacklist
     const accessToken = req.cookies.accessToken;
     const refreshToken = req.cookies.refreshToken;
-    
 
     if (accessToken) {
       const accessTokenExpiry = new Date(Date.now() + jwtConfig.accessTokenMaxAge * 1000);

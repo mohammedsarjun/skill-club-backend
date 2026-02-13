@@ -10,9 +10,7 @@ import { MESSAGES } from '../../contants/contants';
 export class AdminDashboardController implements IAdminDashboardController {
   private _adminDashboardService: IAdminDashboardServices;
 
-  constructor(
-    @inject('IAdminDashboardServices') adminDashboardService: IAdminDashboardServices,
-  ) {
+  constructor(@inject('IAdminDashboardServices') adminDashboardService: IAdminDashboardServices) {
     this._adminDashboardService = adminDashboardService;
   }
 

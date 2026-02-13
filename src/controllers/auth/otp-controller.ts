@@ -39,15 +39,15 @@ export class OtpController implements IOtpController {
         await this._userServices.markUserVerified(userId);
 
         // 🔹 Create tokens
-        const payload = {userId:userId}
+        const payload = { userId: userId };
         const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
         const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
         res.cookie('accessToken', accessToken, {
           httpOnly: process.env.NODE_ENV === 'production',
           secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-           sameSite: 'none',
-      path: '/',
+          sameSite: 'none',
+          path: '/',
           maxAge: jwtConfig.accessTokenMaxAge * 1000,
         });
 

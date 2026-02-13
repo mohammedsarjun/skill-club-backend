@@ -8,9 +8,18 @@ import { ClientSession } from 'mongoose';
 export interface IContractRepository extends BaseRepository<IContract> {
   createContract(data: Partial<IContract>, session?: ClientSession): Promise<IContract>;
   findByOfferId(offerId: string): Promise<IContract | null>;
-  updateStatusById(contractId: string, status: IContract['status'], session?: ClientSession): Promise<IContract | null>;
-cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',cancelContractReason: string, session?: ClientSession): Promise<IContract | null>;
- 
+  updateStatusById(
+    contractId: string,
+    status: IContract['status'],
+    session?: ClientSession,
+  ): Promise<IContract | null>;
+  cancelContractByUser(
+    contractId: string,
+    cancelledBy: 'client' | 'freelancer',
+    cancelContractReason: string,
+    session?: ClientSession,
+  ): Promise<IContract | null>;
+
   findContractDetailByIdForClient(contractId: string, clientId: string): Promise<IContract | null>;
   findAllForClient(clientId: string, query: ClientContractQueryParamsDTO): Promise<IContract[]>;
   countForClient(clientId: string, query: ClientContractQueryParamsDTO): Promise<number>;
@@ -115,13 +124,16 @@ cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',ca
   findContractsWithPendingDeliverables(threeDaysAgo: Date): Promise<IContract[]>;
 
   isAllMilestonesPaid(contractId: string): Promise<boolean>;
-  
+
   activateHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null>;
   getTotalSpendByClientId(clientId: string): Promise<number>;
   getContractIdsByClientId(clientId: string): Promise<string[]>;
   hasPendingDeliverables(contractId: string): Promise<boolean>;
   hasAnyDeliverables(contractId: string): Promise<boolean>;
-  markContractCancellationPending(contractId: string, session?: ClientSession): Promise<IContract | null>;
+  markContractCancellationPending(
+    contractId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null>;
   approveDeliverableChangeRequest(
     contractId: string,
     deliverableId: string,
@@ -131,8 +143,20 @@ cancelContractByUser(contractId: string, cancelledBy: 'client' | 'freelancer',ca
     milestoneId: string,
     session?: ClientSession,
   ): Promise<IContract | null>;
-  markAllMilestonesAsCancelled(contractId: string, session?: ClientSession): Promise<IContract | null>;
-  markMilestoneAsCancelled(contractId:string,milestoneId:string,session?:ClientSession):Promise<IContract | null>;
-  markMilestoneAsDisputeEligible(contractId:string,milestoneId:string,disputeWindowEndsAt:Date,session?:ClientSession):Promise<IContract | null>;
+  markAllMilestonesAsCancelled(
+    contractId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null>;
+  markMilestoneAsCancelled(
+    contractId: string,
+    milestoneId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null>;
+  markMilestoneAsDisputeEligible(
+    contractId: string,
+    milestoneId: string,
+    disputeWindowEndsAt: Date,
+    session?: ClientSession,
+  ): Promise<IContract | null>;
   endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null>;
 }

@@ -2,8 +2,20 @@ import { AdminReportedJobResponseDTO } from '../../dto/adminDTO/admin-reported-j
 import { IReportedJob } from '../../models/interfaces/reported-job.model.interface';
 
 export function mapReportedJobToAdminDTO(report: IReportedJob): AdminReportedJobResponseDTO {
-  const freelancer = typeof report.freelancerId === 'object' ? (report.freelancerId as unknown as { _id: unknown; firstName?: string; lastName?: string; email?: string; profilePicture?: string }) : null;
-  const job = typeof report.jobId === 'object' ? (report.jobId as unknown as { _id: unknown; title?: string; status?: string }) : null;
+  const freelancer =
+    typeof report.freelancerId === 'object'
+      ? (report.freelancerId as unknown as {
+          _id: unknown;
+          firstName?: string;
+          lastName?: string;
+          email?: string;
+          profilePicture?: string;
+        })
+      : null;
+  const job =
+    typeof report.jobId === 'object'
+      ? (report.jobId as unknown as { _id: unknown; title?: string; status?: string })
+      : null;
 
   return {
     reportId: report._id?.toString() || '',

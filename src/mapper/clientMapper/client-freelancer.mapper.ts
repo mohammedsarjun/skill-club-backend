@@ -57,8 +57,6 @@ export const mapClientQueryToFreelancerModelQuery = (
   }
 
   if (freelancerQuery.categoryId) {
-    console.log(freelancerQuery.categoryId);
-    console.log('this is category id');
     query['freelancerProfile.workCategory'] = new Types.ObjectId(freelancerQuery.categoryId);
   }
 
@@ -127,7 +125,6 @@ export const mapFreelancerToFetchClientFreelancerDTO = (
   averageRating: number,
   totalReviews: number,
 ): FetchClientFreelancerDTO => {
-  console.log(user);
   return {
     name: `${user?.firstName} ${user?.lastName}`,
     address: user.address!,

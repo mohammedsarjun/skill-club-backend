@@ -246,7 +246,7 @@ export class AuthService implements IAuthService {
 
   async me(userId: string): Promise<UserDto | null> {
     const user = await this._userRepository.findById(userId);
-    if(!user) {
+    if (!user) {
       throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
     return user ? mapUserModelToUserDto(user) : null;

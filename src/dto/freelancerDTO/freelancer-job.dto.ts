@@ -42,7 +42,7 @@ export interface FreelancerJobDetailResponseDto {
     totalJobsPosted: number;
   };
   status: string;
-  isProposalAlreadySent:boolean
+  isProposalAlreadySent: boolean;
 }
 
 export interface FreelancerJobResponseDto {

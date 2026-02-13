@@ -14,7 +14,6 @@ export class ClientProposalController implements IClientProposalController {
     const userId = req.user?.userId;
     const jobId = req.params.jobId;
     const queryFilters = req.query as unknown as Record<string, unknown>;
-    console.log(queryFilters);
     const result = await this._clientProposalService.getAllProposal(
       userId as string,
       jobId as string,

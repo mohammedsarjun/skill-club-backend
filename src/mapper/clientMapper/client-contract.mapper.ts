@@ -1,6 +1,9 @@
 import { IContract, ContractDeliverable } from '../../models/interfaces/contract.model.interface';
 import { ClientDeliverableMapper } from './client-deliverable.mapper';
-import { ClientContractDetailDTO, EndHourlyContractResponseDTO } from '../../dto/clientDTO/client-contract.dto';
+import {
+  ClientContractDetailDTO,
+  EndHourlyContractResponseDTO,
+} from '../../dto/clientDTO/client-contract.dto';
 
 function docIdToString(id: unknown): string | undefined {
   if (!id) return undefined;
@@ -27,7 +30,6 @@ export const mapContractModelToClientContractDetailDTO = (
     availableContractBalance: number;
   },
 ): ClientContractDetailDTO => {
-  console.log(financialSummary)
   const rawObj = contract as unknown as Record<string, unknown>;
 
   const freelancerPopulated = rawObj.freelancerId as unknown as {
@@ -76,11 +78,11 @@ export const mapContractModelToClientContractDetailDTO = (
       status: m.status,
       submittedAt: m.submittedAt,
       approvedAt: m.approvedAt,
-      revisionsAllowed: (m as any).revisionsAllowed,
+      revisionsAllowed: m.revisionsAllowed,
       disputeEligible: m.disputeEligible || false,
       disputeWindowEndsAt: m.disputeWindowEndsAt,
-      isFunded:m.isFunded,
-      deliverables: (m.deliverables || []).map((d: any, index: number) => ({
+      isFunded: m.isFunded,
+      deliverables: (m.deliverables || []).map((d, index) => ({
         id: docIdToString(d._id) || `deliverable-${index}`,
         submittedBy: docIdToString(d.submittedBy) || '',
         files: d.files || [],
@@ -90,18 +92,18 @@ export const mapContractModelToClientContractDetailDTO = (
         submittedAt: d.submittedAt,
         approvedAt: d.approvedAt,
         revisionsRequested: d.revisionsRequested || 0,
-        revisionsAllowed: (m as any).revisionsAllowed,
-        revisionsLeft: ((m as any).revisionsAllowed || 0) - (d.revisionsRequested || 0),
+        revisionsAllowed: m.revisionsAllowed,
+        revisionsLeft: (m.revisionsAllowed || 0) - (d.revisionsRequested || 0),
       })),
-      extensionRequest: (m as any).extensionRequest
+      extensionRequest: m.extensionRequest
         ? {
-            requestedBy: (m as any).extensionRequest.requestedBy?.toString(),
-            requestedDeadline: (m as any).extensionRequest.requestedDeadline,
-            reason: (m as any).extensionRequest.reason,
-            status: (m as any).extensionRequest.status,
-            requestedAt: (m as any).extensionRequest.requestedAt,
-            respondedAt: (m as any).extensionRequest.respondedAt,
-            responseMessage: (m as any).extensionRequest.responseMessage,
+            requestedBy: m.extensionRequest.requestedBy?.toString(),
+            requestedDeadline: m.extensionRequest.requestedDeadline,
+            reason: m.extensionRequest.reason,
+            status: m.extensionRequest.status,
+            requestedAt: m.extensionRequest.requestedAt,
+            respondedAt: m.extensionRequest.respondedAt,
+            responseMessage: m.extensionRequest.responseMessage,
           }
         : undefined,
     })),
@@ -191,28 +193,29 @@ export const mapContractModelToClientContractDetailDTO = (
   };
 };
 
-
 const hasActiveCancellationDisputeWindow = (contract: IContract): boolean => {
-//fixed
-  let isContractCancelled=contract.status==='cancelled';
-  if(!isContractCancelled){
+  //fixed
+  let isContractCancelled = contract.status === 'cancelled';
+  if (!isContractCancelled) {
     return false;
   }
-  let isContractFunded=contract.isFunded;
-  if(!isContractFunded){
+  let isContractFunded = contract.isFunded;
+  if (!isContractFunded) {
     return false;
   }
 
-  let hasAnyDeliverablesSubmitted=contract.deliverables && contract.deliverables.length>0;
-  if(!hasAnyDeliverablesSubmitted){
+  let hasAnyDeliverablesSubmitted = contract.deliverables && contract.deliverables.length > 0;
+  if (!hasAnyDeliverablesSubmitted) {
     return false;
   }
-  let isWithinDisputeWindow= contract.cancelledAt? ( (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) ) <=5 : false;
-  if(!isWithinDisputeWindow){
+  let isWithinDisputeWindow = contract.cancelledAt
+    ? (new Date().getTime() - contract.cancelledAt.getTime()) / (1000 * 60 * 60 * 24) <= 5
+    : false;
+  if (!isWithinDisputeWindow) {
     return false;
   }
   return true;
-}
+};
 
 export const mapToEndHourlyContractResponseDTO = (): EndHourlyContractResponseDTO => {
   return {

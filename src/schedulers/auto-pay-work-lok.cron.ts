@@ -8,14 +8,12 @@ const clientWorklogService = container.resolve<IClientWorklogService>('IClientWo
 
 async function runAutoPayWorklog() {
   try {
-
     await clientWorklogService.autoPayWorkLog();
-
   } catch (err) {
     console.error('Auto-pay worklog cron failed:', err);
   }
 }
-   runAutoPayWorklog();
+runAutoPayWorklog();
 cron.schedule('0 0 * * 0', async () => {
   await runAutoPayWorklog();
 });

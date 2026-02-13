@@ -54,7 +54,7 @@ export class ProposalOfferStrategy implements IOfferCreationStrategy {
       expiresAt: new Date(dto.expires_at),
       status: 'pending',
       timeline: [{ status: 'pending', at: new Date(), note: 'Offer created via proposal' }],
-    revisions: typeof dto.revisions === 'number' ? dto.revisions : undefined,
+      revisions: typeof dto.revisions === 'number' ? dto.revisions : undefined,
     };
 
     if (dto.proposalId) {

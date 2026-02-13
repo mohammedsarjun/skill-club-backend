@@ -43,8 +43,6 @@ export class ClientFreelancerService implements IClientFreelancerService {
       queryFilter,
     );
 
-    console.log(repoResult);
-
     if (!repoResult) return null;
 
     const freelancersArray: IFreelancerData[] = repoResult ?? [];
@@ -64,11 +62,15 @@ export class ClientFreelancerService implements IClientFreelancerService {
       throw new AppError('You cannot view your own freelancer profile.', HttpStatus.BAD_REQUEST);
     }
     const freelancerData = await this._freelancerRepository.getFreelacerByIdForClient(freelancerId);
-    
+
     const averageRating = await this._reviewRepository.getAverageRatingByFreelancerId(freelancerId);
     const { total } = await this._reviewRepository.findReviewsByFreelancerId(freelancerId, 1, 1);
-    
-    const freelancerDto = mapFreelancerToFetchClientFreelancerDTO(freelancerData!, averageRating, total);
+
+    const freelancerDto = mapFreelancerToFetchClientFreelancerDTO(
+      freelancerData!,
+      averageRating,
+      total,
+    );
 
     return freelancerDto;
   }
@@ -82,7 +84,6 @@ export class ClientFreelancerService implements IClientFreelancerService {
     }
     const portfolioData = await this._portfolioRepository.getPortfolioByFreelancerId(freelancerId);
     const portfolioDto = portfolioData?.map(mapPortfolioToFetchClientPortfolioDTO);
-    console.log(portfolioDto);
     return portfolioDto ? portfolioDto : null;
   }
 }

@@ -1,6 +1,6 @@
-export interface  UserStateDto{
-  userId:string;
-  activeRole:string;
+export interface UserStateDto {
+  userId: string;
+  activeRole: string;
 }
 
 export interface UserDto {

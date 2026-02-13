@@ -3,8 +3,7 @@ import { Server, Socket } from 'socket.io';
 
 import { appLogger } from '../utils/logger';
 
-import * as cookie from "cookie";
-
+import * as cookie from 'cookie';
 
 import { jwtService } from '../utils/jwt';
 import { CreateNotificationInputDto } from 'src/dto/NotificationDto/notification.dto';
@@ -48,15 +47,15 @@ export const initializeSocket = (httpServer: HttpServer): Server => {
 
   io.use((socket: AuthenticatedSocket, next) => {
     try {
-const cookieHeader = socket.handshake.headers.cookie;
-    if (!cookieHeader) {
-      return next(new Error("No cookies found"));
-    }
+      const cookieHeader = socket.handshake.headers.cookie;
+      if (!cookieHeader) {
+        return next(new Error('No cookies found'));
+      }
 
-    const cookies = cookie.parse(cookieHeader);
-    const token = cookies.accessToken; // 👈 matches cookie name
+      const cookies = cookie.parse(cookieHeader);
+      const token = cookies.accessToken; // 👈 matches cookie name
 
-      console.log(token)
+      console.log(token);
       if (!token) {
         return next(new Error('Authentication error: No token provided'));
       }
@@ -132,4 +131,4 @@ export const emitNotification = (userId: string, payload: CreateNotificationInpu
     io.to(`user:${userId}`).emit('notification', payload);
     appLogger.info(`Emitted notification to user:${userId}`);
   }
-}
+};

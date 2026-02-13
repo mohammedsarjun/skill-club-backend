@@ -24,7 +24,10 @@ import {
   RespondToContractExtensionDTO,
   ContractExtensionResponseDTO,
 } from '../../dto/clientDTO/client-contract-extension.dto';
-import { CreateCancellationRequestDTO, CancellationRequestResponseDTO } from '../../dto/clientDTO/client-cancellation-request.dto';
+import {
+  CreateCancellationRequestDTO,
+  CancellationRequestResponseDTO,
+} from '../../dto/clientDTO/client-cancellation-request.dto';
 import { AcceptCancellationRequestDTO } from '../../dto/clientDTO/client-accept-cancellation-request.dto';
 import { mapContractModelToClientContractDetailDTO } from '../../mapper/clientMapper/client-contract.mapper';
 import { mapContractModelToClientContractListItemDTO } from '../../mapper/clientMapper/client-contract-list.mapper';
@@ -84,7 +87,8 @@ export class ClientContractService implements IClientContractService {
     deliverableChangeStrategyFactory: DeliverableChangeStrategyFactory,
     @inject('ContractCancellationStrategyFactory')
     cancellationStrategyFactory: ContractCancellationStrategyFactory,
-    @inject('ICancellationRequestRepository') cancellationRequestRepository: ICancellationRequestRepository,
+    @inject('ICancellationRequestRepository')
+    cancellationRequestRepository: ICancellationRequestRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
   ) {
     this._contractRepository = contractRepository;
@@ -381,8 +385,7 @@ export class ClientContractService implements IClientContractService {
       paymentId: fundingTransaction.paymentId,
       clientId: contract.clientId,
       freelancerId: contract.freelancerId,
-      amount: paymentAmount - (paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE)
-,
+      amount: paymentAmount - paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE,
       purpose: 'release',
       description: `Payment release for approved deliverable - ${contract.title}`,
     });
@@ -538,7 +541,7 @@ export class ClientContractService implements IClientContractService {
     for (const contract of contracts) {
       const pendingDeliverables =
         contract.deliverables?.filter(
-          (d: any) => d.status === 'submitted' && new Date(d.submittedAt) <= threeDaysAgo,
+          (d) => d.status === 'submitted' && new Date(d.submittedAt) <= threeDaysAgo,
         ) || [];
       for (const deliverable of pendingDeliverables) {
         try {
@@ -721,7 +724,7 @@ export class ClientContractService implements IClientContractService {
       milestoneId: new Types.ObjectId(data.milestoneId),
       clientId: contract.clientId,
       freelancerId: contract.freelancerId,
-      amount:   paymentAmount - (paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE),
+      amount: paymentAmount - paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE,
       purpose: 'release',
       description: `Payment release for approved milestone - ${milestone.title}`,
     });
@@ -1299,7 +1302,6 @@ export class ClientContractService implements IClientContractService {
 
     const amountAvailableForRefund =
       await this._contractTransactionRepository.findHourlyContractRefundAmount(contractId);
-    console.log('Amount available for refund:', amountAvailableForRefund);
 
     const refundTransaction: Partial<IContractTransaction> = {
       contractId: new Types.ObjectId(contractId),
@@ -1363,13 +1365,16 @@ export class ClientContractService implements IClientContractService {
         throw new AppError(ERROR_MESSAGES.CONTRACT.NO_DELIVERABLES, HttpStatus.BAD_REQUEST);
       }
 
-      const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
-      const totalPaid = await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
-      const totalCommission = await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
+      const totalFunded =
+        await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+      const totalPaid =
+        await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
+      const totalCommission =
+        await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
       totalHeldAmount = totalFunded - totalPaid - totalCommission;
     } else if (contract.paymentType === 'fixed_with_milestones') {
       const milestoneWithDeliverables = contract.milestones?.find(
-        (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+        (milestone) => milestone.deliverables && milestone.deliverables.length > 0,
       );
 
       if (!milestoneWithDeliverables) {
@@ -1379,9 +1384,13 @@ export class ClientContractService implements IClientContractService {
       totalHeldAmount = milestoneWithDeliverables.amount || 0;
     }
 
-    const existingRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    const existingRequest =
+      await this._cancellationRequestRepository.findPendingByContractId(contractId);
     if (existingRequest) {
-      throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_REQUEST_EXISTS, HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        ERROR_MESSAGES.CONTRACT.CANCELLATION_REQUEST_EXISTS,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const clientAmount = (totalHeldAmount * data.clientSplitPercentage) / 100;
@@ -1400,32 +1409,32 @@ export class ClientContractService implements IClientContractService {
       status: 'pending',
     });
 
-    const refundableMilestones= contract.milestones?.filter(
-      (milestone) => milestone.status == 'funded'
-    ) || [];
+    const refundableMilestones =
+      contract.milestones?.filter((milestone) => milestone.status == 'funded') || [];
 
     refundableMilestones.forEach(async (milestone) => {
       const refundTransaction: Partial<IContractTransaction> = {
-      contractId: new Types.ObjectId(contractId),
-      milestoneId: new Types.ObjectId(milestone._id),
-      amount: milestone.amount,
-      purpose: 'refund',
-      description: 'Refund to client for milestone funded but work not done',
-      clientId: contract.clientId,
-      freelancerId: contract.freelancerId,
-    };
+        contractId: new Types.ObjectId(contractId),
+        milestoneId: new Types.ObjectId(milestone._id),
+        amount: milestone.amount,
+        purpose: 'refund',
+        description: 'Refund to client for milestone funded but work not done',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      };
 
-    await this._contractTransactionRepository.createTransaction(refundTransaction);
-  });  
+      await this._contractTransactionRepository.createTransaction(refundTransaction);
+    });
 
-
-   
     await this._contractRepository.updateStatusById(contractId, 'cancellation_requested');
 
     return toCancellationRequestResponseDTO(cancellationRequest);
   }
 
-  async getCancellationRequest(clientId: string, contractId: string): Promise<CancellationRequestResponseDTO | null> {
+  async getCancellationRequest(
+    clientId: string,
+    contractId: string,
+  ): Promise<CancellationRequestResponseDTO | null> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
@@ -1444,7 +1453,8 @@ export class ClientContractService implements IClientContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
     }
 
-    const cancellationRequest = await this._cancellationRequestRepository.findByContractId(contractId);
+    const cancellationRequest =
+      await this._cancellationRequestRepository.findByContractId(contractId);
 
     if (!cancellationRequest) {
       return null;
@@ -1453,7 +1463,11 @@ export class ClientContractService implements IClientContractService {
     return toCancellationRequestResponseDTO(cancellationRequest);
   }
 
-  async acceptCancellationRequest(clientId: string, contractId: string, data: AcceptCancellationRequestDTO): Promise<{ success: boolean; message: string }> {
+  async acceptCancellationRequest(
+    clientId: string,
+    contractId: string,
+    data: AcceptCancellationRequestDTO,
+  ): Promise<{ success: boolean; message: string }> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
@@ -1469,10 +1483,14 @@ export class ClientContractService implements IClientContractService {
     }
 
     if (contract.clientId.toString() !== clientId) {
-      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+      throw new AppError(
+        ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    const cancellationRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    const cancellationRequest =
+      await this._cancellationRequestRepository.findPendingByContractId(contractId);
 
     if (!cancellationRequest) {
       throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -1483,7 +1501,10 @@ export class ClientContractService implements IClientContractService {
     }
 
     if (cancellationRequest.initiatedBy !== 'freelancer') {
-      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+      throw new AppError(
+        ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     await this._cancellationRequestRepository.updateStatus(
@@ -1527,7 +1548,11 @@ export class ClientContractService implements IClientContractService {
     return { success: true, message: 'Cancellation request accepted successfully' };
   }
 
-  async raiseCancellationDispute(clientId: string, contractId: string, notes: string): Promise<{ success: boolean; message: string }> {
+  async raiseCancellationDispute(
+    clientId: string,
+    contractId: string,
+    notes: string,
+  ): Promise<{ success: boolean; message: string }> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
@@ -1546,7 +1571,8 @@ export class ClientContractService implements IClientContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
     }
 
-    const cancellationRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    const cancellationRequest =
+      await this._cancellationRequestRepository.findPendingByContractId(contractId);
 
     if (!cancellationRequest) {
       throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -1557,7 +1583,10 @@ export class ClientContractService implements IClientContractService {
     }
 
     if (cancellationRequest.initiatedBy !== 'freelancer') {
-      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+      throw new AppError(
+        ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const existingDispute = await this._disputeRepository.findActiveDisputeByContract(contractId);
@@ -1589,4 +1618,3 @@ export class ClientContractService implements IClientContractService {
     return { success: true, message: 'Cancellation dispute raised successfully' };
   }
 }
-

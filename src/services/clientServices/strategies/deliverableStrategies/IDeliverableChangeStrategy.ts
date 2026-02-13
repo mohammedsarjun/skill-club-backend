@@ -1,4 +1,7 @@
-import { IContract, ContractDeliverable } from '../../../../models/interfaces/contract.model.interface';
+import {
+  IContract,
+  ContractDeliverable,
+} from '../../../../models/interfaces/contract.model.interface';
 
 export interface IDeliverableChangeStrategy {
   supports(type: string): boolean;

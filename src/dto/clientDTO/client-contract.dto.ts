@@ -61,7 +61,15 @@ export interface ClientContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested' | 'cancelled';
+    status:
+      | 'pending_funding'
+      | 'funded'
+      | 'under_review'
+      | 'submitted'
+      | 'approved'
+      | 'paid'
+      | 'changes_requested'
+      | 'cancelled';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -82,9 +90,9 @@ export interface ClientContractDetailDTO {
     approvedAt?: Date;
     revisionsRequested?: number;
     revisionsAllowed?: number;
-      revisionsLeft?: number;
-      isMeetingProposalSent?: boolean;
-      isFunded?: boolean;
+    revisionsLeft?: number;
+    isMeetingProposalSent?: boolean;
+    isFunded?: boolean;
   }[];
 
   title: string;
@@ -112,7 +120,15 @@ export interface ClientContractDetailDTO {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  status:
+    | 'pending_funding'
+    | 'held'
+    | 'active'
+    | 'completed'
+    | 'cancelled'
+    | 'refunded'
+    | 'disputed'
+    | 'cancellation_requested';
   totalFunded: number;
   totalPaidToFreelancer: number;
   totalCommissionPaid: number;

@@ -4,14 +4,22 @@ export interface ClientMilestonesDetailDTO {
   amount: number;
   amountBaseUSD?: number;
   expectedDelivery: string;
-  status: 'pending' | 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested' | 'cancelled';
+  status:
+    | 'pending'
+    | 'pending_funding'
+    | 'funded'
+    | 'under_review'
+    | 'submitted'
+    | 'approved'
+    | 'paid'
+    | 'changes_requested'
+    | 'cancelled';
   submittedAt?: string;
   approvedAt?: string;
   revisionsAllowed?: number;
   deliverables?: MilestoneDeliverableResponseDTO[];
   extensionRequest?: MilestoneExtensionResponseDTO;
 }
-
 
 export interface ApproveMilestoneDeliverableDTO {
   milestoneId: string;
@@ -54,5 +62,3 @@ export interface MilestoneExtensionResponseDTO {
   respondedAt?: string;
   responseMessage?: string;
 }
-
-

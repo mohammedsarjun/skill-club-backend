@@ -77,7 +77,15 @@ export interface AdminContractDetailDTO {
     title: string;
     amount: number;
     expectedDelivery: Date;
-    status: 'pending_funding' | 'funded' | 'under_review' | 'submitted' | 'approved' | 'paid' | 'changes_requested' | 'cancelled';
+    status:
+      | 'pending_funding'
+      | 'funded'
+      | 'under_review'
+      | 'submitted'
+      | 'approved'
+      | 'paid'
+      | 'changes_requested'
+      | 'cancelled';
     submittedAt?: Date;
     approvedAt?: Date;
   }[];
@@ -114,7 +122,15 @@ export interface AdminContractDetailDTO {
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
 
-  status: 'pending_funding' | 'held' | 'active' | 'completed' | 'cancelled' | 'refunded' | 'disputed' | 'cancellation_requested';
+  status:
+    | 'pending_funding'
+    | 'held'
+    | 'active'
+    | 'completed'
+    | 'cancelled'
+    | 'refunded'
+    | 'disputed'
+    | 'cancellation_requested';
   fundedAmount: number;
   totalPaid: number;
   balance: number;

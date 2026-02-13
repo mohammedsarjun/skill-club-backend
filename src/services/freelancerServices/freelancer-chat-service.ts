@@ -10,6 +10,7 @@ import {
 import { IChatRepository } from '../../repositories/chat-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
 import { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
+import { extractObjectId } from '../../utils/extract-object-id';
 import { FreelancerChatMapper } from '../../mapper/freelancerMapper/freelancer-chat.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -36,7 +37,6 @@ export class FreelancerChatService implements IFreelancerChatService {
       dto.contractId,
       freelancerId,
     );
-    console.log(dto.contractId, freelancerId);
     if (!contract) {
       throw new AppError('Contract not found or access denied', HttpStatus.NOT_FOUND);
     }
@@ -93,15 +93,8 @@ export class FreelancerChatService implements IFreelancerChatService {
       dto.skip,
     );
 
-    const clientIdStr =
-      typeof contract.clientId === 'string'
-        ? contract.clientId
-        : (contract.clientId as any)?._id?.toString() || (contract.clientId as any)?.id?.toString();
-    const freelancerIdStr =
-      typeof contract.freelancerId === 'string'
-        ? contract.freelancerId
-        : (contract.freelancerId as any)?._id?.toString() ||
-          (contract.freelancerId as any)?.id?.toString();
+    const clientIdStr = extractObjectId(contract.clientId) || '';
+    const freelancerIdStr = extractObjectId(contract.freelancerId) || '';
 
     const [client, freelancer] = await Promise.all([
       clientIdStr ? this._userRepository.findById(clientIdStr) : Promise.resolve(null),
@@ -110,13 +103,13 @@ export class FreelancerChatService implements IFreelancerChatService {
 
     const userMap = new Map<string, { name: string; avatar?: string }>();
     if (client) {
-      userMap.set(clientIdStr || String((contract.clientId as any) || ''), {
+      userMap.set(clientIdStr, {
         name: `${client.firstName} ${client.lastName}`,
         avatar: client.avatar,
       });
     }
     if (freelancer) {
-      userMap.set(freelancerIdStr || String((contract.freelancerId as any) || ''), {
+      userMap.set(freelancerIdStr, {
         name: `${freelancer.firstName} ${freelancer.lastName}`,
         avatar: freelancer.avatar,
       });

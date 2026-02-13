@@ -16,7 +16,6 @@ import { HttpStatus } from '../enums/http-status.enum';
 import { IUserRepository } from '../repositories/interfaces/user-repository.interface';
 import { jwtConfig } from '../config/jwt.config';
 
-
 const authRouter = express.Router();
 
 const authController = container.resolve(AuthController);
@@ -104,7 +103,7 @@ authRouter.post('/refresh-token', async (req, res) => {
     });
 
     res.json({ message: 'Access token refreshed' });
-  } catch (err) {
+  } catch {
     res.sendStatus(HttpStatus.FORBIDDEN);
   }
 });

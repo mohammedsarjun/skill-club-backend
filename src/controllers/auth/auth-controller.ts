@@ -24,7 +24,6 @@ export class AuthController implements IAuthController {
     this._blacklistedTokenService = blacklistedTokenService;
   }
 
-
   async me(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const user: UserDto | null = await this._authService.me(userId as string);
@@ -35,7 +34,6 @@ export class AuthController implements IAuthController {
     });
   }
   async signup(req: Request, res: Response): Promise<void> {
-    console.log(req.body);
     const user: GetUserDto = await this._authService.signup(req.body);
     res.status(HttpStatus.CREATED).json({
       success: true,
@@ -54,7 +52,7 @@ export class AuthController implements IAuthController {
 
     res.cookie('accessToken', accessToken, {
       httpOnly: process.env.NODE_ENV === 'production',
-      secure: process.env.NODE_ENV === 'production', 
+      secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       path: '/',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,

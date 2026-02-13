@@ -9,7 +9,7 @@ export class FreelancerNotificationController {
   private _notificationService: IFreelancerNotificationService;
 
   constructor(
-    @inject('IFreelancerNotificationService') notificationService: IFreelancerNotificationService
+    @inject('IFreelancerNotificationService') notificationService: IFreelancerNotificationService,
   ) {
     this._notificationService = notificationService;
   }
@@ -55,7 +55,9 @@ export class FreelancerNotificationController {
       }
 
       await this._notificationService.markAllNotificationsAsRead(freelancerId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications marked as read' });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: 'All notifications marked as read' });
     } catch (error) {
       next(error);
     }

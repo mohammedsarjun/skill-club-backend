@@ -24,7 +24,10 @@ export interface IProposalRepository extends BaseRepository<IProposal> {
   ): Promise<ProposalDetailWithJobDetail[] | null>;
   findOneById(proposalId: string): Promise<ProposalDetailWithFreelancerDetail | null>;
   updateStatusById(proposalId: string, status: string): Promise<IProposal | null>;
-  findProposalByFreelancerAndJobId(freelancerId:string,proposalId:string): Promise<IProposal | null>
+  findProposalByFreelancerAndJobId(
+    freelancerId: string,
+    proposalId: string,
+  ): Promise<IProposal | null>;
   countPendingProposalsByClientId(clientId: string): Promise<number>;
   countProposalsByJobId(jobId: string): Promise<number>;
 }

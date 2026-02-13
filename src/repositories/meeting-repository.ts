@@ -16,7 +16,11 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return meeting;
   }
 
-  async createPreContractMeeting(clientId: string, freelancerId: string, meetingData: Record<string, unknown>): Promise<IMeeting> {
+  async createPreContractMeeting(
+    clientId: string,
+    freelancerId: string,
+    meetingData: Record<string, unknown>,
+  ): Promise<IMeeting> {
     const preContractMeetingData = {
       ...meetingData,
       clientId: new Types.ObjectId(clientId),
@@ -26,9 +30,13 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return await this.create(preContractMeetingData);
   }
 
-  async findConflictingMeetings(contractId: string, scheduledAt: Date, durationMinutes: number): Promise<IMeeting[]> {
+  async findConflictingMeetings(
+    contractId: string,
+    scheduledAt: Date,
+    durationMinutes: number,
+  ): Promise<IMeeting[]> {
     const meetingEndTime = new Date(scheduledAt.getTime() + durationMinutes * 60 * 1000);
-    
+
     const conflicts = await this.model.find({
       contractId,
       status: { $in: ['proposed', 'accepted'] },
@@ -38,26 +46,24 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
           $expr: {
             $gt: [
               { $add: ['$scheduledAt', { $multiply: ['$durationMinutes', 60000] }] },
-              scheduledAt
-            ]
-          }
-        }
-      ]
+              scheduledAt,
+            ],
+          },
+        },
+      ],
     });
 
     return conflicts;
   }
 
-   async isMeetingAlreadyProposed(contractId: string): Promise<boolean> {
+  async isMeetingAlreadyProposed(contractId: string): Promise<boolean> {
     const query = {
-      contractId:new Types.ObjectId(contractId),
+      contractId: new Types.ObjectId(contractId),
       status: 'proposed',
     };
 
-
     const existingMeeting = await this.model.findOne(query);
 
-    console.log(existingMeeting)
     return !!existingMeeting;
   }
 
@@ -177,21 +183,24 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return await this.model.countDocuments(filter);
   }
 
-  async findDetailByIdForFreelancer(meetingId: string, freelancerContractIds: string[]): Promise<IMeeting | null> {
-    const meeting = await this.model.findOne({
-      _id: new Types.ObjectId(meetingId),
-      contractId: { $in: freelancerContractIds.map((id) => new Types.ObjectId(id)) },
-    }).exec();
+  async findDetailByIdForFreelancer(
+    meetingId: string,
+    freelancerContractIds: string[],
+  ): Promise<IMeeting | null> {
+    const meeting = await this.model
+      .findOne({
+        _id: new Types.ObjectId(meetingId),
+        contractId: { $in: freelancerContractIds.map((id) => new Types.ObjectId(id)) },
+      })
+      .exec();
 
     return meeting;
   }
 
   async acceptMeeting(meetingId: string): Promise<IMeeting | null> {
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      { status: 'accepted' },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(meetingId, { status: 'accepted' }, { new: true })
+      .exec();
 
     return meeting;
   }
@@ -205,19 +214,25 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       details: {},
     };
 
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'accepted',
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'accepted',
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
 
-  async rejectMeetingByClient(meetingId: string, clientId: string, reason: string): Promise<IMeeting | null> {
+  async rejectMeetingByClient(
+    meetingId: string,
+    clientId: string,
+    reason: string,
+  ): Promise<IMeeting | null> {
     const logEntry = {
       action: 'Meeting rejected by client',
       userId: clientId,
@@ -226,33 +241,41 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       details: { reason },
     };
 
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'rejected',
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'rejected',
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
 
   async requestReschedule(meetingId: string, proposedTime: Date): Promise<IMeeting | null> {
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'reschedule_requested',
-        rescheduleRequestedBy: 'freelancer',
-        rescheduleProposedTime: proposedTime,
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'reschedule_requested',
+          rescheduleRequestedBy: 'freelancer',
+          rescheduleProposedTime: proposedTime,
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
 
-  async rejectMeeting(meetingId: string, freelancerId: string, reason: string): Promise<IMeeting | null> {
+  async rejectMeeting(
+    meetingId: string,
+    freelancerId: string,
+    reason: string,
+  ): Promise<IMeeting | null> {
     const logEntry = {
       action: 'Meeting rejected by freelancer',
       userId: freelancerId,
@@ -261,14 +284,16 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       details: { reason },
     };
 
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'rejected',
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'rejected',
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
@@ -290,22 +315,28 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       },
     };
 
-    const updated = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'accepted',
-        scheduledAt: meeting.rescheduleProposedTime,
-        rescheduleRequestedBy: null,
-        rescheduleProposedTime: null,
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const updated = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'accepted',
+          scheduledAt: meeting.rescheduleProposedTime,
+          rescheduleRequestedBy: null,
+          rescheduleProposedTime: null,
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return updated;
   }
 
-  async declineReschedule(meetingId: string, clientId: string, reason: string): Promise<IMeeting | null> {
+  async declineReschedule(
+    meetingId: string,
+    clientId: string,
+    reason: string,
+  ): Promise<IMeeting | null> {
     const logEntry = {
       action: 'Reschedule declined by client',
       userId: clientId,
@@ -314,35 +345,42 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       details: { reason },
     };
 
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'rejected',
-        rescheduleRequestedBy: null,
-        rescheduleProposedTime: null,
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'rejected',
+          rescheduleRequestedBy: null,
+          rescheduleProposedTime: null,
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
 
   async requestRescheduleByClient(meetingId: string, proposedTime: Date): Promise<IMeeting | null> {
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'reschedule_requested',
-        rescheduleRequestedBy: 'client',
-        rescheduleProposedTime: proposedTime,
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'reschedule_requested',
+          rescheduleRequestedBy: 'client',
+          rescheduleProposedTime: proposedTime,
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
 
-  async approveRescheduleByFreelancer(meetingId: string, freelancerId: string): Promise<IMeeting | null> {
+  async approveRescheduleByFreelancer(
+    meetingId: string,
+    freelancerId: string,
+  ): Promise<IMeeting | null> {
     const logEntry = {
       action: 'Reschedule approved by freelancer',
       userId: freelancerId,
@@ -356,22 +394,28 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       return null;
     }
 
-    const updated = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'accepted',
-        scheduledAt: meeting.rescheduleProposedTime,
-        rescheduleRequestedBy: null,
-        rescheduleProposedTime: null,
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const updated = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'accepted',
+          scheduledAt: meeting.rescheduleProposedTime,
+          rescheduleRequestedBy: null,
+          rescheduleProposedTime: null,
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return updated;
   }
 
-  async declineRescheduleByFreelancer(meetingId: string, freelancerId: string, reason: string): Promise<IMeeting | null> {
+  async declineRescheduleByFreelancer(
+    meetingId: string,
+    freelancerId: string,
+    reason: string,
+  ): Promise<IMeeting | null> {
     const logEntry = {
       action: 'Reschedule declined by freelancer',
       userId: freelancerId,
@@ -380,30 +424,37 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       details: { reason },
     };
 
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'rejected',
-        rescheduleRequestedBy: null,
-        rescheduleProposedTime: null,
-        $push: { logs: logEntry },
-      },
-      { new: true },
-    ).exec();
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'rejected',
+          rescheduleRequestedBy: null,
+          rescheduleProposedTime: null,
+          $push: { logs: logEntry },
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
 
-  async requestRescheduleByFreelancer(meetingId: string, proposedTime: Date): Promise<IMeeting | null> {
-    const meeting = await this.model.findByIdAndUpdate(
-      meetingId,
-      {
-        status: 'reschedule_requested',
-        rescheduleRequestedBy: 'freelancer',
-        rescheduleProposedTime: proposedTime,
-      },
-      { new: true },
-    ).exec();
+  async requestRescheduleByFreelancer(
+    meetingId: string,
+    proposedTime: Date,
+  ): Promise<IMeeting | null> {
+    const meeting = await this.model
+      .findByIdAndUpdate(
+        meetingId,
+        {
+          status: 'reschedule_requested',
+          rescheduleRequestedBy: 'freelancer',
+          rescheduleProposedTime: proposedTime,
+        },
+        { new: true },
+      )
+      .exec();
 
     return meeting;
   }
@@ -421,11 +472,11 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     const result = await this.model.updateMany(
       {
         status: 'accepted',
-        scheduledAt: { $lte: currentTime }
+        scheduledAt: { $lte: currentTime },
       },
       {
-        $set: { status: 'ongoing' }
-      }
+        $set: { status: 'ongoing' },
+      },
     );
 
     return result.modifiedCount;
@@ -433,19 +484,18 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
 
   async completeOngoingMeetings(currentTime: Date): Promise<number> {
     const ongoingMeetings = await this.model.find({
-      status: 'ongoing'
+      status: 'ongoing',
     });
 
     let completedCount = 0;
 
     for (const meeting of ongoingMeetings) {
-      const meetingEndTime = new Date(meeting.scheduledAt.getTime() + meeting.durationMinutes * 60 * 1000);
-      
+      const meetingEndTime = new Date(
+        meeting.scheduledAt.getTime() + meeting.durationMinutes * 60 * 1000,
+      );
+
       if (meetingEndTime <= currentTime) {
-        await this.model.updateOne(
-          { _id: meeting._id },
-          { $set: { status: 'completed' } }
-        );
+        await this.model.updateOne({ _id: meeting._id }, { $set: { status: 'completed' } });
         completedCount++;
       }
     }
@@ -454,8 +504,7 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
   }
 
   async findById(id: string, session?: ClientSession): Promise<IMeeting | null> {
-    return await super.findById(id,session);
-   
+    return await super.findById(id, session);
   }
 
   async findUpcomingMeetingsByFreelancerId(contractIds: string[]): Promise<IMeeting[]> {
@@ -470,7 +519,10 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       .lean();
   }
 
-  async findPreContractMeetingsForClient(clientId: string, query: ClientMeetingQueryParamsDTO): Promise<IMeeting[]> {
+  async findPreContractMeetingsForClient(
+    clientId: string,
+    query: ClientMeetingQueryParamsDTO,
+  ): Promise<IMeeting[]> {
     const filter: Record<string, unknown> = {
       clientId: new Types.ObjectId(clientId),
       meetingType: 'pre-contract',
@@ -502,7 +554,10 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return meetings;
   }
 
-  async countPreContractMeetingsForClient(clientId: string, query: ClientMeetingQueryParamsDTO): Promise<number> {
+  async countPreContractMeetingsForClient(
+    clientId: string,
+    query: ClientMeetingQueryParamsDTO,
+  ): Promise<number> {
     const filter: Record<string, unknown> = {
       clientId: new Types.ObjectId(clientId),
       meetingType: 'pre-contract',
@@ -523,7 +578,10 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return await this.model.countDocuments(filter);
   }
 
-  async findPreContractMeetingsForFreelancer(freelancerId: string, query: FreelancerMeetingQueryParamsDTO): Promise<IMeeting[]> {
+  async findPreContractMeetingsForFreelancer(
+    freelancerId: string,
+    query: FreelancerMeetingQueryParamsDTO,
+  ): Promise<IMeeting[]> {
     const filter: Record<string, unknown> = {
       freelancerId: new Types.ObjectId(freelancerId),
       meetingType: 'pre-contract',
@@ -547,7 +605,10 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
     return meetings;
   }
 
-  async countPreContractMeetingsForFreelancer(freelancerId: string, query: FreelancerMeetingQueryParamsDTO): Promise<number> {
+  async countPreContractMeetingsForFreelancer(
+    freelancerId: string,
+    query: FreelancerMeetingQueryParamsDTO,
+  ): Promise<number> {
     const filter: Record<string, unknown> = {
       freelancerId: new Types.ObjectId(freelancerId),
       meetingType: 'pre-contract',
@@ -561,16 +622,20 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
   }
 
   async findMeetingsStartingSoon(startTime: Date, endTime: Date): Promise<IMeeting[]> {
-    return await this.model.find({
-      status: 'accepted',
-      scheduledAt: { $gte: startTime, $lte: endTime },
-    }).exec();
+    return await this.model
+      .find({
+        status: 'accepted',
+        scheduledAt: { $gte: startTime, $lte: endTime },
+      })
+      .exec();
   }
 
   async findAcceptedMeetingsStartingAt(currentTime: Date): Promise<IMeeting[]> {
-    return await this.model.find({
-      status: 'accepted',
-      scheduledAt: { $lte: currentTime },
-    }).exec();
+    return await this.model
+      .find({
+        status: 'accepted',
+        scheduledAt: { $lte: currentTime },
+      })
+      .exec();
   }
 }

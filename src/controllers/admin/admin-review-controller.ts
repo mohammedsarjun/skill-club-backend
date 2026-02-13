@@ -18,7 +18,12 @@ export class AdminReviewController implements IAdminReviewController {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const reviewerRole = req.query.reviewerRole as 'client' | 'freelancer' | undefined;
-    const isHideByAdmin = req.query.isHideByAdmin === 'true' ? true : req.query.isHideByAdmin === 'false' ? false : undefined;
+    const isHideByAdmin =
+      req.query.isHideByAdmin === 'true'
+        ? true
+        : req.query.isHideByAdmin === 'false'
+          ? false
+          : undefined;
 
     const query: AdminReviewQueryDTO = {
       page,

@@ -35,7 +35,8 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
   constructor(
     @inject('IWorklogRepository') worklogRepository: IWorklogRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
   ) {
     this._worklogRepository = worklogRepository;
@@ -81,7 +82,7 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       status: 'submitted',
     });
 
-    const amountToHold = (contract.hourlyRate || 0) * (data.duration / 3600000); 
+    const amountToHold = (contract.hourlyRate || 0) * (data.duration / 3600000);
 
     await this._contractTransactionRepository.createTransaction({
       contractId: new Types.ObjectId(data.contractId),
@@ -89,8 +90,7 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       amount: amountToHold,
       purpose: 'hold',
       status: 'active_hold',
-      description:
-      'Worklog has been submitted by the freelancer, so the funds are now on hold.',
+      description: 'Worklog has been submitted by the freelancer, so the funds are now on hold.',
       clientId: contract.clientId,
       freelancerId: contract.freelancerId,
     });
@@ -177,7 +177,9 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       throw new AppError('Unauthorized access to worklog', HttpStatus.FORBIDDEN);
     }
 
-    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(worklog._id.toString());
+    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(
+      worklog._id.toString(),
+    );
     const disputeRaisedBy = dispute ? dispute.raisedBy : undefined;
 
     return mapWorklogToDetailDTO(worklog, disputeRaisedBy);

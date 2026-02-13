@@ -2,7 +2,7 @@ import { ICancellationRequest } from '../../models/interfaces/cancellation-reque
 import { FreelancerCancellationRequestDTO } from '../../dto/freelancerDTO/freelancer-cancellation-request.dto';
 
 export function mapCancellationRequestToFreelancerDTO(
-  cancellationRequest: ICancellationRequest
+  cancellationRequest: ICancellationRequest,
 ): FreelancerCancellationRequestDTO {
   return {
     cancellationRequestId: cancellationRequest.cancellationRequestId,
