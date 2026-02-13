@@ -1,6 +1,6 @@
 import BaseRepository from './baseRepositories/base-repository';
 import ReportedJob from '../models/reported-job.model';
-import { IReportedJob } from '../models/interfaces/reported-job.model.interface';
+import { IHighReportedJob, IReportedJob } from '../models/interfaces/reported-job.model.interface';
 import { IReportedJobRepository } from './interfaces/reported-job-repository.interface';
 
 export class ReportedJobRepository
@@ -47,6 +47,22 @@ export class ReportedJobRepository
 
   async countAllReported(): Promise<number> {
     return await this.model.countDocuments().exec();
+  }
+
+  async getHighReportedJobs(): Promise<IHighReportedJob[]> {
+    return await this.model.aggregate([
+      {
+        $group: {
+          _id: '$jobId',
+          totalReportCount: { $sum: 1 },
+        },
+      },
+      {
+        $match: {
+          totalReportCount: { $gte: 20 },
+        },
+      },
+    ]);
   }
 }
 

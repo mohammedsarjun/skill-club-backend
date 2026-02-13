@@ -9,6 +9,7 @@ import { mapReportedJobToAdminDTO } from '../../mapper/adminMapper/admin-reporte
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { IHighReportedJob } from 'src/models/interfaces/reported-job.model.interface';
 
 @injectable()
 export class AdminReportedJobService implements IAdminReportedJobService {
@@ -50,5 +51,9 @@ export class AdminReportedJobService implements IAdminReportedJobService {
       reports: reportsDTO,
       totalReports: reports.length,
     };
+  }
+
+  async getHighReportedJobs(): Promise<IHighReportedJob[]>{
+    return await this._reportedJobRepository.getHighReportedJobs()
   }
 }

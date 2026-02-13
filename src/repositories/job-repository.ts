@@ -317,4 +317,6 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
   async countJobsByStatus(status: string): Promise<number> {
     return await super.count({ status });
   }
+
+
 }
