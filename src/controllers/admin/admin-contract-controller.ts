@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import { IAdminContractController } from './interfaces/admin-contract-controller.interface';
 import { IAdminContractService } from '../../services/adminServices/interfaces/admin-contract-service.interface';
+import { IContractActivityService } from '../../services/commonServices/interfaces/contract-activity-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { MESSAGES } from '../../contants/contants';
 import { AdminContractQueryParamsDTO } from '../../dto/adminDTO/admin-contract.dto';
@@ -9,12 +10,16 @@ import { AdminContractQueryParamsDTO } from '../../dto/adminDTO/admin-contract.d
 @injectable()
 export class AdminContractController implements IAdminContractController {
   private _adminContractService: IAdminContractService;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IAdminContractService')
     adminContractService: IAdminContractService,
+    @inject('IContractActivityService')
+    contractActivityService: IContractActivityService,
   ) {
     this._adminContractService = adminContractService;
+    this._contractActivityService = contractActivityService;
   }
 
   async getContracts(req: Request, res: Response): Promise<void> {
@@ -45,6 +50,18 @@ export class AdminContractController implements IAdminContractController {
       success: true,
       message: MESSAGES.CONTRACT.FETCH_SUCCESS,
       data: contract,
+    });
+  }
+
+  async getContractTimeline(req: Request, res: Response): Promise<void> {
+    const { contractId } = req.params;
+
+    const result = await this._contractActivityService.getAdminContractTimeline(contractId);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Contract timeline fetched successfully',
+      data: result,
     });
   }
 }

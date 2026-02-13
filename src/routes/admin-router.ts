@@ -192,6 +192,13 @@ adminRouter.get(
 );
 
 adminRouter.get(
+  '/contracts/:contractId/timeline',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContractController.getContractTimeline.bind(adminContractController),
+);
+
+adminRouter.get(
   '/reviews',
   authMiddleware,
   roleGuard('admin'),

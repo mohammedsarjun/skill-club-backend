@@ -1,4 +1,4 @@
-import { Types } from 'mongoose';
+import { Document, Types } from "mongoose";
 
 export type ActorRole = 'client' | 'freelancer' | 'system' | 'admin';
 
@@ -19,7 +19,7 @@ export type ContractEventType =
   | 'dispute_raised'
   | 'meeting_attended';
 
-export interface IContractActivity {
+export interface IContractActivity extends Document {
   _id: Types.ObjectId;
 
   contractId: Types.ObjectId;

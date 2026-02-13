@@ -13,6 +13,7 @@ import {
 } from '../../dto/freelancerDTO/freelancer-offer.dto';
 import { IJobRepository } from '../../repositories/interfaces/job-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import mongoose, { Types } from 'mongoose';
@@ -22,14 +23,17 @@ export class FreelancerOfferService implements IFreelancerOfferService {
   private _offerRepository: IOfferRepository;
   private _jobRepository: IJobRepository;
   private _contractRepository: IContractRepository;
+  private _contractActivityService: IContractActivityService;
   constructor(
     @inject('IOfferRepository') offerRepository: IOfferRepository,
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService
   ) {
     this._offerRepository = offerRepository;
     this._jobRepository = jobRepository;
     this._contractRepository = contractRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async rejectOffer(
@@ -93,6 +97,18 @@ export class FreelancerOfferService implements IFreelancerOfferService {
       const contract = await this._contractRepository.createContract(contractData, session);
 
       const contractId = contract._id as unknown as Types.ObjectId;
+      
+      await this._contractActivityService.logActivity(
+        contractId,
+        'contract_created',
+        'system',
+        undefined,
+        'Contract Created',
+        `Contract created from accepted offer. Payment type: ${contractData.paymentType}`,
+        undefined,
+        session
+      );
+
       if (contractData.paymentType === 'hourly') {
         await this._contractRepository.updateStatusById(contractId.toString(), 'held', session);
       } else {

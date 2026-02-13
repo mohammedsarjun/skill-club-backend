@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientContractController } from './interfaces/client-contract-controller.interface';
 import { IClientContractService } from '../../services/clientServices/interfaces/client-contract-service.interface';
+import { IContractActivityService } from '../../services/commonServices/interfaces/contract-activity-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
 import {
@@ -20,9 +21,14 @@ import { RespondToContractExtensionDTO } from '../../dto/clientDTO/client-contra
 @injectable()
 export class ClientContractController implements IClientContractController {
   private _clientContractService: IClientContractService;
+  private _contractActivityService: IContractActivityService;
 
-  constructor(@inject('IClientContractService') clientContractService: IClientContractService) {
+  constructor(
+    @inject('IClientContractService') clientContractService: IClientContractService,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService
+  ) {
     this._clientContractService = clientContractService;
+    this._contractActivityService = contractActivityService;
   }
 
   async getContracts(req: Request, res: Response): Promise<void> {
@@ -316,6 +322,19 @@ export class ClientContractController implements IClientContractController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: result.message,
+      data: result,
+    });
+  }
+
+  async getContractTimeline(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._contractActivityService.getContractTimeline(contractId, clientId, 'client');
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'Contract timeline fetched successfully',
       data: result,
     });
   }

@@ -14,4 +14,5 @@ export interface IFreelancerContractController {
   raiseCancellationDispute(req: Request, res: Response): Promise<void>;
   createCancellationRequest(req: Request, res: Response): Promise<void>;
   endHourlyContract(req: Request, res: Response): Promise<void>;
+  getContractTimeline(req: Request, res: Response): Promise<void>;
 }

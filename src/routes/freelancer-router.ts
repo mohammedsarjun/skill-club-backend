@@ -291,6 +291,14 @@ freelancerRouter.get(
   freelancerContractController.getContractDetail.bind(freelancerContractController),
 );
 
+freelancerRouter.get(
+  '/contracts/:contractId/timeline',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.getContractTimeline.bind(freelancerContractController),
+);
+
 freelancerRouter.post(
   '/contracts/:contractId/deliverables',
   authMiddleware,

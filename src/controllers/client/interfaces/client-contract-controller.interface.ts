@@ -17,4 +17,5 @@ export interface IClientContractController {
   getCancellationRequest(req: Request, res: Response): Promise<void>;
   acceptCancellationRequest(req: Request, res: Response): Promise<void>;
   raiseCancellationDispute(req: Request, res: Response): Promise<void>;
+  getContractTimeline(req: Request, res: Response): Promise<void>;
 }
