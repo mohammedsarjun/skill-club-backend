@@ -15,4 +15,5 @@ export interface IAuthService {
   verifyEmailChange(userId: string, otp: string): Promise<UserProfileDto | null>;
   resendChangeEmailOtp(userId: string): Promise<{ expiresAt: Date }>;
   me(userId: string): Promise<UserDto | null>;
+  refreshToken(refreshToken: string): Promise<{ accessToken: string; newRefreshToken: string }>;
 }

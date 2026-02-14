@@ -50,8 +50,8 @@ export async function authMiddleware(
   } catch (err) {
     console.error('Auth Middleware Error:', err);
     return res
-      .status(HttpStatus.FORBIDDEN)
-      .json({ message: 'Forbidden: Invalid or expired token' });
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ code: 'TOKEN_EXPIRED', message: 'Unauthorized: Invalid or expired token' });
   }
 }
 

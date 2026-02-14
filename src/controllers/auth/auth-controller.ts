@@ -199,4 +199,41 @@ export class AuthController implements IAuthController {
       data: result,
     });
   }
+
+  async refreshToken(req: Request, res: Response): Promise<void> {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      res.sendStatus(HttpStatus.FORBIDDEN);
+      return;
+    }
+
+    try {
+      const { accessToken, newRefreshToken } =
+        await this._authService.refreshToken(refreshToken);
+
+      res.cookie('accessToken', accessToken, {
+        httpOnly: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+        maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      });
+
+      res.cookie('refreshToken', newRefreshToken, {
+        httpOnly: process.env.NODE_ENV === 'production',
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'none',
+        path: '/',
+        maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+      });
+
+      res.status(HttpStatus.OK).json({ 
+        success:true,
+        message: 'Access token refreshed' 
+      });
+    } catch (error) {
+      res.sendStatus(HttpStatus.FORBIDDEN);
+    }
+  }
 }

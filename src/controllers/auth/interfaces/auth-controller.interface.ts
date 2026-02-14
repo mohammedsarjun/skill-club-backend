@@ -11,4 +11,5 @@ export interface IAuthController {
   changeEmailRequest(req: Request, res: Response): Promise<void>;
   resendChangeEmailOtp(req: Request, res: Response): Promise<void>;
   verifyEmailChange(req: Request, res: Response): Promise<void>;
+  refreshToken(req: Request, res: Response): Promise<void>;
 }
