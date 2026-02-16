@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IAdminNotificationService } from '../../services/adminServices/interfaces/admin-notification-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 
@@ -25,7 +26,7 @@ export class AdminNotificationController {
     try {
       const { notificationId } = req.params;
       await this._notificationService.markNotificationAsRead(notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Notification marked as read' });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }
@@ -40,7 +41,7 @@ export class AdminNotificationController {
       await this._notificationService.markAllNotificationsAsRead();
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: 'All notifications marked as read' });
+        .json({ success: true, message: MESSAGES.NOTIFICATION.ALL_MARKED_AS_READ });
     } catch (error) {
       next(error);
     }

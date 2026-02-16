@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
+import { MESSAGES } from '../../contants/contants';
 import { IFreelancerWorklogController } from './interfaces/freelancer-worklog-controller.interface';
 import { IFreelancerWorklogService } from '../../services/freelancerServices/interfaces/freelancer-worklog-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -24,7 +25,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Worklog submitted successfully',
+      message: MESSAGES.WORKLOG.SUBMITTED,
       data: result,
     });
   }
@@ -40,7 +41,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklogs fetched successfully',
+      message: MESSAGES.WORKLOG.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -62,7 +63,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklogs list fetched successfully',
+      message: MESSAGES.WORKLOG.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -79,7 +80,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklog detail fetched successfully',
+      message: MESSAGES.WORKLOG.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -95,7 +96,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklog validation checked successfully',
+      message: MESSAGES.WORKLOG.VALIDATION_SUCCESS,
       data: result,
     });
   }
@@ -113,7 +114,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Worklog dispute raised successfully',
+      message: MESSAGES.DISPUTE.RAISED,
       data: result,
     });
   }

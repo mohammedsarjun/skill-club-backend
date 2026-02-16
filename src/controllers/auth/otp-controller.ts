@@ -6,6 +6,8 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import type { IUserServices } from '../../services/userServices/interfaces/user-services.interface';
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
+import { MESSAGES } from '../../contants/contants';
+import { ERROR_MESSAGES } from '../../contants/error-constants';
 
 @injectable()
 export class OtpController implements IOtpController {
@@ -24,7 +26,7 @@ export class OtpController implements IOtpController {
     const otpResponse = await this._otpServices.createOtp(email, purpose);
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Otp Sent Successfully',
+      message: MESSAGES.AUTH.OTP_SENT,
       data: otpResponse,
       purpose,
     });
@@ -64,12 +66,12 @@ export class OtpController implements IOtpController {
         // await otpService.markOtpUsed(otpRecord.email);
         break;
       default:
-        throw new Error('Unknown OTP purpose');
+        throw new Error(ERROR_MESSAGES.OTP.UNKNOWN_PURPOSE);
     }
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Otp Verfied Successfully',
+      message: MESSAGES.AUTH.OTP_VERIFIED,
       data: response,
     });
   }

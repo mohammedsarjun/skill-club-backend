@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientNotificationService } from '../../services/clientServices/interfaces/client-notification-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class ClientNotificationController {
@@ -18,7 +19,7 @@ export class ClientNotificationController {
     try {
       const clientId = req.user?.userId;
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
@@ -35,12 +36,12 @@ export class ClientNotificationController {
       const { notificationId } = req.params;
 
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
       await this._notificationService.markNotificationAsRead(clientId, notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Notification marked as read' });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }
@@ -50,14 +51,14 @@ export class ClientNotificationController {
     try {
       const clientId = req.user?.userId;
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
       await this._notificationService.markAllNotificationsAsRead(clientId);
       res
         .status(HttpStatus.OK)
-        .json({ success: true, message: 'All notifications marked as read' });
+        .json({ success: true, message: MESSAGES.NOTIFICATION.ALL_MARKED_AS_READ });
     } catch (error) {
       next(error);
     }

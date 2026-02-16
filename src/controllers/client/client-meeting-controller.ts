@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IClientMeetingController } from './interfaces/client-meeting-controller.interface';
 import { IClientMeetingService } from '../../services/clientServices/interfaces/client-meeting-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -30,7 +31,7 @@ export class ClientMeetingController implements IClientMeetingController {
     res.status(HttpStatus.CREATED).json({
       success: true,
       data: result,
-      message: 'Meeting proposed successfully',
+      message: MESSAGES.MEETING.PROPOSED,
     });
   }
 
@@ -42,7 +43,7 @@ export class ClientMeetingController implements IClientMeetingController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meeting accepted successfully',
+      message: MESSAGES.MEETING.ACCEPTED,
     });
   }
 
@@ -54,7 +55,7 @@ export class ClientMeetingController implements IClientMeetingController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meeting rejected successfully',
+      message: MESSAGES.MEETING.REJECTED,
     });
   }
 
@@ -66,7 +67,7 @@ export class ClientMeetingController implements IClientMeetingController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reschedule approved successfully',
+      message: MESSAGES.MEETING.RESCHEDULE_APPROVED,
     });
   }
 
@@ -78,7 +79,7 @@ export class ClientMeetingController implements IClientMeetingController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reschedule declined successfully',
+      message: MESSAGES.MEETING.RESCHEDULE_DECLINED,
     });
   }
 
@@ -93,7 +94,7 @@ export class ClientMeetingController implements IClientMeetingController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reschedule request sent successfully',
+      message: MESSAGES.MEETING.RESCHEDULE_SENT,
     });
   }
 
@@ -106,7 +107,7 @@ export class ClientMeetingController implements IClientMeetingController {
     res.status(HttpStatus.OK).json({
       success: true,
       data: meetings,
-      message: 'Meetings retrieved successfully',
+      message: MESSAGES.MEETING.FETCH_SUCCESS,
     });
   }
 
@@ -141,7 +142,7 @@ export class ClientMeetingController implements IClientMeetingController {
     res.status(HttpStatus.OK).json({
       success: true,
       data: result,
-      message: 'Meetings retrieved successfully',
+      message: MESSAGES.MEETING.FETCH_SUCCESS,
     });
   }
 
@@ -159,7 +160,7 @@ export class ClientMeetingController implements IClientMeetingController {
     res.status(HttpStatus.CREATED).json({
       success: true,
       data: result,
-      message: 'Pre-contract meeting proposed successfully',
+      message: MESSAGES.MEETING.PRE_CONTRACT_PROPOSED,
     });
   }
 
@@ -174,7 +175,7 @@ export class ClientMeetingController implements IClientMeetingController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Joined meeting successfully',
+      message: MESSAGES.MEETING.JOINED,
       data: { channelName, token, appId, uid },
     });
   }

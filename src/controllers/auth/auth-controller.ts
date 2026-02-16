@@ -29,7 +29,7 @@ export class AuthController implements IAuthController {
     const user: UserDto | null = await this._authService.me(userId as string);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'User fetched successfully',
+      message: MESSAGES.AUTH.FETCH_SUCCESS,
       data: user,
     });
   }
@@ -172,7 +172,7 @@ export class AuthController implements IAuthController {
     );
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Change email request accepted. OTP has been sent to your new email.',
+      message: MESSAGES.AUTH.EMAIL_CHANGE_REQUEST,
       data: { expiresAt },
     });
   }
@@ -184,7 +184,7 @@ export class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Email Changed Successfully',
+      message: MESSAGES.AUTH.EMAIL_CHANGED,
       data: result,
     });
   }
@@ -195,7 +195,7 @@ export class AuthController implements IAuthController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Otp Resent Successfully',
+      message: MESSAGES.AUTH.OTP_RESENT,
       data: result,
     });
   }
@@ -230,7 +230,7 @@ export class AuthController implements IAuthController {
 
       res.status(HttpStatus.OK).json({ 
         success:true,
-        message: 'Access token refreshed' 
+        message: MESSAGES.AUTH.TOKEN_REFRESHED 
       });
     } catch (error) {
       res.sendStatus(HttpStatus.FORBIDDEN);

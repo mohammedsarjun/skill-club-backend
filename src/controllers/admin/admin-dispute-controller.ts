@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import { IAdminDisputeController } from './interfaces/admin-dispute-controller.interface';
 import { IAdminDisputeService } from '../../services/adminServices/interfaces/admin-dispute-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import { AdminDisputeQueryParamsDTO } from '../../dto/adminDTO/admin-dispute.dto';
 import { SplitDisputeFundsDTO } from '../../dto/adminDTO/admin-split-dispute-funds.dto';
 
@@ -31,7 +32,7 @@ export class AdminDisputeController implements IAdminDisputeController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Disputes fetched successfully',
+      message: MESSAGES.DISPUTE.FETCH_ALL_SUCCESS,
       data: result,
     });
   }
@@ -43,7 +44,7 @@ export class AdminDisputeController implements IAdminDisputeController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Dispute details fetched successfully',
+      message: MESSAGES.DISPUTE.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -56,7 +57,7 @@ export class AdminDisputeController implements IAdminDisputeController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Funds split successfully',
+      message: MESSAGES.DISPUTE.FUNDS_SPLIT,
       data: result,
     });
   }
@@ -67,7 +68,7 @@ export class AdminDisputeController implements IAdminDisputeController {
     await this._adminDisputeService.releaseHoldHourly(disputeId);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Hold released successfully for hourly worklog',
+      message: MESSAGES.DISPUTE.HOLD_RELEASED,
     });
   }
 }

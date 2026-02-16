@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import { IClientFinanceController } from './interfaces/client-finance-controller.interface';
 import { IClientFinanceService } from '../../services/clientServices/interfaces/client-finance-service.interface';
 
@@ -18,7 +19,7 @@ export class ClientFinanceController implements IClientFinanceController {
     const result = await this._clientFinanceService.getFinanceData(clientId!);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Finance data fetched successfully',
+      message: MESSAGES.FINANCE.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -29,7 +30,7 @@ export class ClientFinanceController implements IClientFinanceController {
     const result = await this._clientFinanceService.requestWithdrawal(clientId!, amount, note);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Withdrawal request created',
+      message: MESSAGES.FINANCE.WITHDRAWAL_REQUEST_CREATED,
       data: result,
     });
   }
@@ -41,7 +42,7 @@ export class ClientFinanceController implements IClientFinanceController {
     const result = await this._clientFinanceService.getWithdrawalHistory(clientId!, page, limit);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Withdrawal history fetched',
+      message: MESSAGES.FINANCE.HISTORY_FETCHED,
       data: result.items,
       total: result.total,
       page,

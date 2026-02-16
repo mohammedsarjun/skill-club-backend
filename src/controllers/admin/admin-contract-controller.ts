@@ -36,7 +36,7 @@ export class AdminContractController implements IAdminContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contracts fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -60,7 +60,7 @@ export class AdminContractController implements IAdminContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract timeline fetched successfully',
+      message: MESSAGES.CONTRACT.TIMELINE_FETCHED,
       data: result,
     });
   }

@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import IClientSavedFreelancerService from '../../services/clientServices/interfaces/client-saved-freelancer-service.interface';
 
 @injectable()
@@ -24,7 +25,7 @@ export class ClientSavedFreelancerController {
     );
     res.status(HttpStatus.OK).json({
       success: true,
-      message: result.saved ? 'Freelancer saved' : 'Freelancer unsaved',
+      message: result.saved ? MESSAGES.SAVED_FREELANCER.SAVED : MESSAGES.SAVED_FREELANCER.UNSAVED,
       data: { saved: result.saved },
     });
   }
@@ -48,7 +49,7 @@ export class ClientSavedFreelancerController {
     });
     res
       .status(HttpStatus.OK)
-      .json({ success: true, message: 'Saved freelancers fetched successfully', data: result });
+      .json({ success: true, message: MESSAGES.SAVED_FREELANCER.FETCH_SUCCESS, data: result });
   }
 }
 

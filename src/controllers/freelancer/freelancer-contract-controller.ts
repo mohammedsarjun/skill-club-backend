@@ -6,6 +6,7 @@ import { IFreelancerContractService } from '../../services/freelancerServices/in
 import { IContractActivityService } from '../../services/commonServices/interfaces/contract-activity-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { FreelancerContractQueryParamsDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
+import { MESSAGES } from '../../contants/contants';
 import { SubmitDeliverableDTO } from '../../dto/freelancerDTO/freelancer-deliverable.dto';
 import {
   SubmitMilestoneDeliverableDTO,
@@ -45,7 +46,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contracts fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -61,7 +62,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract detail fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -79,7 +80,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res
       .status(HttpStatus.OK)
-      .json({ success: true, message: 'Contract cancellation processed', data: result });
+      .json({ success: true, message: MESSAGES.CONTRACT.CANCELLATION_PROCESSED, data: result });
   }
 
   async submitDeliverable(req: Request, res: Response): Promise<void> {
@@ -95,7 +96,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Deliverable submitted successfully',
+      message: MESSAGES.CONTRACT.DELIVERABLE_SUBMITTED,
       data: result,
     });
   }
@@ -113,7 +114,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Milestone deliverable submitted successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_DELIVERABLE_SUBMITTED,
       data: result,
     });
   }
@@ -131,7 +132,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Extension request submitted successfully',
+      message: MESSAGES.CONTRACT.EXTENSION_REQUEST_SUBMITTED,
       data: result,
     });
   }
@@ -149,7 +150,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Contract extension request submitted successfully',
+      message: MESSAGES.CONTRACT.CONTRACT_EXTENSION_REQUEST_SUBMITTED,
       data: result,
     });
   }
@@ -164,7 +165,7 @@ export class FreelancerContractController implements IFreelancerContractControll
     );
     res
       .status(HttpStatus.OK)
-      .json({ success: true, message: 'Change request approved', data: result });
+      .json({ success: true, message: MESSAGES.CONTRACT.CHANGE_REQUEST_APPROVED, data: result });
   }
 
   async getCancellationRequest(req: Request, res: Response): Promise<void> {
@@ -178,7 +179,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Cancellation request fetched successfully',
+      message: MESSAGES.CONTRACT.CANCELLATION_REQUEST_FETCHED,
       data: result,
     });
   }
@@ -232,7 +233,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Cancellation request created successfully',
+      message: MESSAGES.CONTRACT.CANCELLATION_REQUEST_CREATED,
       data: result,
     });
   }
@@ -261,7 +262,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract timeline fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }

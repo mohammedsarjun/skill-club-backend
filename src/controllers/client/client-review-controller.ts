@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IClientReviewController } from './interfaces/client-review-controller.interface';
 import { IClientReviewService } from '../../services/clientServices/interfaces/client-review-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -23,7 +24,7 @@ export class ClientReviewController implements IClientReviewController {
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Review submitted successfully',
+      message: MESSAGES.REVIEW.SUBMITTED,
       data: result,
     });
   }

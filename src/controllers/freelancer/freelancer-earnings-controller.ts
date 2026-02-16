@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { IFreelancerEarningsController } from './interfaces/freelancer-earnings-controller.interface';
 import { IFreelancerEarningsService } from '../../services/freelancerServices/interfaces/freelancer-earnings-service.interface';
@@ -22,7 +23,7 @@ export class FreelancerEarningsController implements IFreelancerEarningsControll
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Earnings overview fetched successfully',
+      message: MESSAGES.EARNINGS.OVERVIEW_FETCHED,
       data: result,
     });
   }
@@ -54,7 +55,7 @@ export class FreelancerEarningsController implements IFreelancerEarningsControll
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Transactions fetched successfully',
+      message: MESSAGES.EARNINGS.TRANSACTIONS_FETCHED,
       data: result,
     });
   }

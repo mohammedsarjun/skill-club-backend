@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IFreelancerMeetingController } from './interfaces/freelancer-meeting-controller.interface';
 import { IFreelancerMeetingService } from '../../services/freelancerServices/interfaces/freelancer-meeting-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -36,7 +37,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meetings fetched successfully',
+      message: MESSAGES.MEETING.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -49,7 +50,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meeting detail fetched successfully',
+      message: MESSAGES.MEETING.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -65,7 +66,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meetings retrieved successfully',
+      message: MESSAGES.MEETING.FETCH_SUCCESS,
       data: meetings,
     });
   }
@@ -80,7 +81,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meeting accepted successfully',
+      message: MESSAGES.MEETING.ACCEPTED,
     });
   }
 
@@ -97,7 +98,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reschedule request sent successfully',
+      message: MESSAGES.MEETING.RESCHEDULE_SENT,
     });
   }
 
@@ -109,7 +110,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Meeting rejected successfully',
+      message: MESSAGES.MEETING.REJECTED,
     });
   }
 
@@ -133,7 +134,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Meeting proposed successfully',
+      message: MESSAGES.MEETING.PROPOSED,
       data: result,
     });
   }
@@ -146,7 +147,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reschedule approved successfully',
+      message: MESSAGES.MEETING.RESCHEDULE_APPROVED,
     });
   }
 
@@ -158,7 +159,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reschedule declined successfully',
+      message: MESSAGES.MEETING.RESCHEDULE_DECLINED,
     });
   }
 
@@ -173,7 +174,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Counter reschedule request sent successfully',
+      message: MESSAGES.MEETING.COUNTER_RESCHEDULE_SENT,
     });
   }
 
@@ -188,7 +189,7 @@ export class FreelancerMeetingController implements IFreelancerMeetingController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Joined meeting successfully',
+      message: MESSAGES.MEETING.JOINED,
       data: { channelName, token, appId, uid },
     });
   }

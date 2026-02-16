@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { IFreelancerSavedJobService } from '../../services/freelancerServices/interfaces/freelancer-saved-job-service.interface';
 
@@ -21,7 +22,7 @@ export class FreelancerSavedJobController {
     const result = await this._freelancerSavedJobService.toggleSaveJob(freelancerId, jobId);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: result.saved ? 'Job saved' : 'Job unsaved',
+      message: result.saved ? MESSAGES.SAVED_JOB.SAVED : MESSAGES.SAVED_JOB.UNSAVED,
       data: { saved: result.saved },
     });
   }
@@ -45,7 +46,7 @@ export class FreelancerSavedJobController {
     });
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Saved jobs fetched successfully',
+      message: MESSAGES.SAVED_JOB.FETCH_SUCCESS,
       data: result,
     });
   }

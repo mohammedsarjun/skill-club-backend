@@ -37,7 +37,7 @@ export class FreelancerProposalController implements IFreelancerProposalControll
     );
     res.status(200).json({
       success: true,
-      message: 'Proposals fetched successfully',
+      message: MESSAGES.PROPOSAL.FETCH_SUCCESS,
       data: result,
     });
   }

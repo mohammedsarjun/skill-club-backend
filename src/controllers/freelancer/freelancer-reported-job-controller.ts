@@ -4,6 +4,7 @@ import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { IFreelancerReportedJobController } from './interfaces/freelancer-reported-job-controller.interface';
 import { IFreelancerReportedJobService } from '../../services/freelancerServices/interfaces/freelancer-reported-job-service.interface';
+import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class FreelancerReportedJobController implements IFreelancerReportedJobController {
@@ -29,7 +30,7 @@ export class FreelancerReportedJobController implements IFreelancerReportedJobCo
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: result.message,
+      message: MESSAGES.REPORTED_JOB.REPORTED,
       data: { reported: result.reported },
     });
   }

@@ -30,6 +30,7 @@ export const ERROR_MESSAGES = {
   OTP: {
     EXPIRED: 'OTP has expired',
     INCORRECT_OTP: 'Enter otp is incorrect',
+    UNKNOWN_PURPOSE: 'Unknown OTP purpose',
   },
   CLIENT: {
     FAILED_CREATE: 'Failed to create client profile',
@@ -66,6 +67,9 @@ export const ERROR_MESSAGES = {
   PROPOSAL: {
     ALREADY_EXIST: 'Proposal already sent',
     NOT_FOUND: 'Proposal Not Found',
+  },
+  OFFER: {
+    NOT_FOUND: 'Offer not found',
   },
   CONTRACT: {
     NOT_FOUND: 'Contract not found',
@@ -151,5 +155,8 @@ export const ERROR_MESSAGES = {
   NOTIFICATION: {
     NOT_FOUND: 'Notification not found',
     UNAUTHORIZED: 'You are not authorized to access this notification',
+  },
+  FILE_UPLOAD: {
+    NO_FILE: 'No file provided',
   },
 };

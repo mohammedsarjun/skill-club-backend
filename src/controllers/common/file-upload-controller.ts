@@ -6,6 +6,7 @@ import type {
   IFileUploadService,
   UploadOptions,
 } from '../../services/commonServices/interfaces/file-upload-service.interface';
+import { ERROR_MESSAGES } from '../../contants/error-constants';
 
 @injectable()
 export class FileUploadController {
@@ -17,7 +18,7 @@ export class FileUploadController {
     const file = (req as Request & { file?: Express.Multer.File }).file;
 
     if (!file) {
-      throw new AppError('No file provided', HttpStatus.BAD_REQUEST);
+      throw new AppError(ERROR_MESSAGES.FILE_UPLOAD.NO_FILE, HttpStatus.BAD_REQUEST);
     }
 
     const options: UploadOptions = {

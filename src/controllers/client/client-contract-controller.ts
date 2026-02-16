@@ -5,6 +5,7 @@ import { IClientContractController } from './interfaces/client-contract-controll
 import { IClientContractService } from '../../services/clientServices/interfaces/client-contract-service.interface';
 import { IContractActivityService } from '../../services/commonServices/interfaces/contract-activity-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
 import {
   ApproveDeliverableDTO,
@@ -48,7 +49,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contracts fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -58,10 +59,9 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
 
     const result = await this._clientContractService.getContractDetail(clientId, contractId);
-
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract detail fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -77,7 +77,7 @@ export class ClientContractController implements IClientContractController {
       cancelContractReason,
     );
 
-    res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
+    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.CONTRACT.CANCELLED, data: result });
   }
 
   async approveDeliverable(req: Request, res: Response): Promise<void> {
@@ -89,7 +89,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Deliverable approved successfully',
+      message: MESSAGES.CONTRACT.DELIVERABLE_APPROVED,
       data: result,
     });
   }
@@ -107,7 +107,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Changes requested successfully',
+      message: MESSAGES.CONTRACT.CHANGES_REQUESTED,
       data: result,
     });
   }
@@ -125,7 +125,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Milestone deliverable approved successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_DELIVERABLE_APPROVED,
       data: result,
     });
   }
@@ -143,7 +143,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Milestone changes requested successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_CHANGES_REQUESTED,
       data: result,
     });
   }
@@ -177,7 +177,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Milestone detail fetched successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_DETAIL_FETCHED,
       data: result,
     });
   }
@@ -243,7 +243,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Hourly contract activated successfully',
+      message: MESSAGES.CONTRACT.HOURLY_ACTIVATED,
       data: result,
     });
   }
@@ -272,7 +272,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Cancellation request created successfully',
+      message: MESSAGES.CONTRACT.CANCELLATION_REQUEST_CREATED,
       data: result,
     });
   }
@@ -285,7 +285,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Cancellation request fetched successfully',
+      message: MESSAGES.CONTRACT.CANCELLATION_REQUEST_FETCHED,
       data: result,
     });
   }
@@ -334,7 +334,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract timeline fetched successfully',
+      message: MESSAGES.CONTRACT.TIMELINE_FETCHED,
       data: result,
     });
   }

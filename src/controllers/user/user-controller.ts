@@ -134,7 +134,7 @@ export class UserController implements IUserController {
     const user = await this._userService.getAddress(userId as string);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'User Address Fetched Successfully',
+      message: MESSAGES.USER.ADDRESS_FETCH_SUCCESS,
       data: user,
     });
   }
@@ -145,7 +145,7 @@ export class UserController implements IUserController {
     const user = await this._userService.updateAddress(userId as string, address);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'User Address Update Successfully',
+      message: MESSAGES.USER.ADDRESS_UPDATED,
       data: user,
     });
   }
@@ -160,7 +160,7 @@ export class UserController implements IUserController {
     );
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'User Address Fetched Successfully',
+      message: MESSAGES.USER.ACTION_VERIFICATION_INITIATED,
       data: user,
     });
   }
@@ -171,7 +171,7 @@ export class UserController implements IUserController {
     const user = await this._userService.updateUserProfile(userId as string, profileData);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'User Profile Updated Successfully',
+      message: MESSAGES.USER.PROFILE_UPDATED,
       data: user,
     });
   }
@@ -179,13 +179,13 @@ export class UserController implements IUserController {
   async getBankDetails(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const data = await this._userService.getBankDetails(userId!);
-    res.status(HttpStatus.OK).json({ success: true, message: 'Bank details fetched', data });
+    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.USER.BANK_DETAILS_FETCHED, data });
   }
 
   async saveBankDetails(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const payload = req.body;
     const data = await this._userService.saveBankDetails(userId!, payload);
-    res.status(HttpStatus.OK).json({ success: true, message: 'Bank details saved', data });
+    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.USER.BANK_DETAILS_SAVED, data });
   }
 }

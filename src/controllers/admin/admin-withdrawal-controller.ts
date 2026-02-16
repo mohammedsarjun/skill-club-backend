@@ -58,7 +58,7 @@ export class AdminWithdrawalController implements IAdminWithdrawalController {
     await this._adminWithdrawalService.approveWithdrawal(withdrawalId);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Withdrawal approved successfully',
+      message: MESSAGES.WITHDRAW.APPROVED,
     });
   }
 
@@ -69,7 +69,7 @@ export class AdminWithdrawalController implements IAdminWithdrawalController {
     await this._adminWithdrawalService.rejectWithdrawal(withdrawalId, reason);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Withdrawal rejected successfully',
+      message: MESSAGES.WITHDRAW.REJECTED,
     });
   }
 }

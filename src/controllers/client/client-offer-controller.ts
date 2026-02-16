@@ -6,6 +6,8 @@ import { IClientOfferService } from '../../services/clientServices/interfaces/cl
 import { ClientOfferQueryParamsDTO } from '../../dto/clientDTO/client-offer.dto';
 import { OfferStatus, OfferType } from '../../models/interfaces/offer.model.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
+import { ERROR_MESSAGES } from '../../contants/error-constants';
 
 @injectable()
 export class ClientOfferController implements IClientOfferController {
@@ -18,7 +20,7 @@ export class ClientOfferController implements IClientOfferController {
     const clientId = req.user?.userId as string;
     const offerData = req.body.offerData;
     const result = await this._clientOfferService.createOffer(clientId, offerData);
-    res.status(201).json({ success: true, message: 'Offer created successfully', data: result });
+    res.status(201).json({ success: true, message: MESSAGES.OFFER.CREATED, data: result });
   }
 
   async getAllOffers(req: Request, res: Response): Promise<void> {
@@ -37,7 +39,7 @@ export class ClientOfferController implements IClientOfferController {
     const result = await this._clientOfferService.getAllOffers(clientId, query);
     res
       .status(HttpStatus.OK)
-      .json({ success: true, message: 'Offers fetched successfully', data: result });
+      .json({ success: true, message: MESSAGES.OFFER.FETCH_SUCCESS, data: result });
   }
 
   async getOfferDetail(req: Request, res: Response): Promise<void> {
@@ -45,12 +47,12 @@ export class ClientOfferController implements IClientOfferController {
     const { offerId } = req.params;
     const result = await this._clientOfferService.getOfferDetail(clientId, offerId);
     if (!result) {
-      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Offer not found' });
+      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.OFFER.NOT_FOUND });
       return;
     }
     res
       .status(HttpStatus.OK)
-      .json({ success: true, message: 'Offer detail fetched successfully', data: result });
+      .json({ success: true, message: MESSAGES.OFFER.FETCH_DETAIL_SUCCESS, data: result });
   }
 
   async withdrawOffer(req: Request, res: Response): Promise<void> {
@@ -58,7 +60,7 @@ export class ClientOfferController implements IClientOfferController {
     const { offerId } = req.params;
     try {
       const result = await this._clientOfferService.withdrawOffer(clientId, offerId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Offer withdrawn', data: result });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OFFER.WITHDRAWN, data: result });
     } catch (e) {
       res
         .status(HttpStatus.BAD_REQUEST)

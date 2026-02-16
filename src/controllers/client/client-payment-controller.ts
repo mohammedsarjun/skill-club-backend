@@ -3,6 +3,7 @@ import { IClientPaymentService } from '../../services/clientServices/interfaces/
 import { inject, injectable } from 'tsyringe';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { InitiatePaymentDTO, PaymentCallbackDTO } from '../../dto/clientDTO/client-payment.dto';
+import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class ClientPaymentController {
@@ -12,7 +13,7 @@ export class ClientPaymentController {
     try {
       const clientId = req.user?.userId;
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
@@ -21,7 +22,7 @@ export class ClientPaymentController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Payment initiated successfully',
+        message: MESSAGES.PAYMENT.INITIATED,
         data: result,
       });
     } catch (error) {
