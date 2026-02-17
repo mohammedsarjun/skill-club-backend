@@ -9,11 +9,14 @@ pipeline {
             }
         }
 
-        stage('Restart Server') {
-            steps {
-             sh 'pm2 stop skillclub || true'
-             sh 'pm2 start app.js --name skillclub'
-            }
-        }
+       stage('Build & Restart') {
+    steps {
+        sh '''
+        npm install
+        npm run build
+        pm2 restart skillclub || pm2 start dist/index.js --name skillclub
+        '''
+    }
+}
     }
 }
