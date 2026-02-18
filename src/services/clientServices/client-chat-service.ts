@@ -8,6 +8,7 @@ import {
   MessageResponseDTO,
 } from '../../dto/clientDTO/client-chat.dto';
 import { IChatRepository } from '../../repositories/chat-repository.interface';
+import { extractObjectId } from '../../utils/extract-object-id';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
 import { IUserRepository } from '../../repositories/interfaces/user-repository.interface';
 import { ClientChatMapper } from '../../mapper/clientMapper/client-chat.mapper';
@@ -93,15 +94,8 @@ export class ClientChatService implements IClientChatService {
       dto.skip,
     );
 
-    const clientIdStr =
-      typeof contract.clientId === 'string'
-        ? contract.clientId
-        : (contract.clientId as any)?._id?.toString() || (contract.clientId as any)?.id?.toString();
-    const freelancerIdStr =
-      typeof contract.freelancerId === 'string'
-        ? contract.freelancerId
-        : (contract.freelancerId as any)?._id?.toString() ||
-          (contract.freelancerId as any)?.id?.toString();
+    const clientIdStr = extractObjectId(contract.clientId) || '';
+    const freelancerIdStr = extractObjectId(contract.freelancerId) || '';
 
     const [client, freelancer] = await Promise.all([
       clientIdStr ? this._userRepository.findById(clientIdStr) : Promise.resolve(null),
@@ -110,13 +104,13 @@ export class ClientChatService implements IClientChatService {
 
     const userMap = new Map<string, { name: string; avatar?: string }>();
     if (client) {
-      userMap.set(clientIdStr || String((contract.clientId as any) || ''), {
+      userMap.set(clientIdStr, {
         name: `${client.firstName} ${client.lastName}`,
         avatar: client.avatar,
       });
     }
     if (freelancer) {
-      userMap.set(freelancerIdStr || String((contract.freelancerId as any) || ''), {
+      userMap.set(freelancerIdStr, {
         name: `${freelancer.firstName} ${freelancer.lastName}`,
         avatar: freelancer.avatar,
       });

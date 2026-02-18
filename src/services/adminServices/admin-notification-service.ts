@@ -13,17 +13,15 @@ import { HttpStatus } from '../../enums/http-status.enum';
 export class AdminNotificationService implements IAdminNotificationService {
   private _notificationRepository: INotificationRepository;
 
-  constructor(
-    @inject('INotificationRepository') notificationRepository: INotificationRepository
-  ) {
+  constructor(@inject('INotificationRepository') notificationRepository: INotificationRepository) {
     this._notificationRepository = notificationRepository;
   }
 
   async getNotifications(): Promise<NotificationListResponseDto> {
     const allNotifications = await this._notificationRepository.findAll();
-    const notifications = allNotifications.sort((a, b) => 
-      new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-    ).slice(0, 100);
+    const notifications = allNotifications
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 100);
     const unreadCount = await this._notificationRepository.count({ isRead: false });
 
     return {
@@ -35,7 +33,7 @@ export class AdminNotificationService implements IAdminNotificationService {
 
   async markNotificationAsRead(notificationId: string): Promise<void> {
     const notification = await this._notificationRepository.findById(notificationId);
-    
+
     if (!notification) {
       throw new AppError(ERROR_MESSAGES.NOTIFICATION.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
@@ -46,8 +44,8 @@ export class AdminNotificationService implements IAdminNotificationService {
   async markAllNotificationsAsRead(): Promise<void> {
     const unreadNotifications = await this._notificationRepository.findAll();
     const updatePromises = unreadNotifications
-      .filter(n => !n.isRead)
-      .map(n => this._notificationRepository.updateById(n._id.toString(), { isRead: true }));
+      .filter((n) => !n.isRead)
+      .map((n) => this._notificationRepository.updateById(n._id.toString(), { isRead: true }));
     await Promise.all(updatePromises);
   }
 }

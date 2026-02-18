@@ -2,6 +2,8 @@ import { injectable, inject } from 'tsyringe';
 import { IClientDisputeService } from './interfaces/client-dispute-service.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
+
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { CreateDisputeRequestDTO, DisputeResponseDTO } from '../../dto/clientDTO/client-dispute.dto';
 import { mapDisputeToResponseDTO } from '../../mapper/clientMapper/client-dispute.mapper';
 import AppError from '../../utils/app-error';
@@ -14,16 +16,22 @@ import { Types } from 'mongoose';
 export class ClientDisputeService implements IClientDisputeService {
   private _disputeRepository: IDisputeRepository;
   private _contractRepository: IContractRepository;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
+    this._contractActivityService = contractActivityService;
   }
 
-  async createDispute(clientId: string, data: CreateDisputeRequestDTO): Promise<DisputeResponseDTO> {
+  async createDispute(
+    clientId: string,
+    data: CreateDisputeRequestDTO,
+  ): Promise<DisputeResponseDTO> {
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }
@@ -31,8 +39,6 @@ export class ClientDisputeService implements IClientDisputeService {
     if (!Types.ObjectId.isValid(data.contractId)) {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
-
-   
 
     const contract = await this._contractRepository.findContractDetailByIdForClient(
       data.contractId,
@@ -44,11 +50,13 @@ export class ClientDisputeService implements IClientDisputeService {
     }
 
     const validReasons = Object.values(DISPUTE_REASONS);
-    if (!validReasons.includes(data.reasonCode as typeof validReasons[number])) {
+    if (!validReasons.includes(data.reasonCode as (typeof validReasons)[number])) {
       throw new AppError(ERROR_MESSAGES.DISPUTE.INVALID_REASON, HttpStatus.BAD_REQUEST);
     }
 
-    const existingDispute = await this._disputeRepository.findActiveDisputeByContract(data.contractId);
+    const existingDispute = await this._disputeRepository.findActiveDisputeByContract(
+      data.contractId,
+    );
     if (existingDispute) {
       throw new AppError(ERROR_MESSAGES.DISPUTE.ALREADY_EXISTS, HttpStatus.CONFLICT);
     }
@@ -67,6 +75,16 @@ export class ClientDisputeService implements IClientDisputeService {
       description: data.description,
       status: 'open',
     });
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(data.contractId),
+      'dispute_raised',
+      'client',
+      new Types.ObjectId(clientId),
+      'Dispute Raised',
+      `Client raised a dispute. Reason: ${data.reasonCode}. Scope: ${data.scope || 'contract'}`,
+      { disputeId: dispute._id?.toString(), reasonCode: data.reasonCode, scope: data.scope || 'contract', scopeId: data.scopeId },
+    );
 
     return mapDisputeToResponseDTO(dispute);
   }
@@ -121,7 +139,6 @@ export class ClientDisputeService implements IClientDisputeService {
     reasonCode: string,
     description: string,
   ): Promise<DisputeResponseDTO> {
-  
     if (!Types.ObjectId.isValid(clientId)) {
       throw new AppError('Invalid clientId', HttpStatus.BAD_REQUEST);
     }

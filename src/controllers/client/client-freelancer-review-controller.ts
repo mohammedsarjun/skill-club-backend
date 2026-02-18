@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IClientFreelancerReviewController } from './interfaces/client-freelancer-review-controller.interface';
 import { IClientFreelancerReviewService } from '../../services/clientServices/interfaces/client-freelancer-review-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -34,7 +35,7 @@ export class ClientFreelancerReviewController implements IClientFreelancerReview
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Freelancer reviews fetched successfully',
+      message: MESSAGES.REVIEW.FETCH_SUCCESS,
       data: result,
     });
   }

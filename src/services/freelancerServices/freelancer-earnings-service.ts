@@ -18,12 +18,11 @@ import { Types } from 'mongoose';
 export class FreelancerEarningsService implements IFreelancerEarningsService {
   private _contractTransactionRepository: IContractTransactionRepository;
 
-
   constructor(
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
   ) {
     this._contractTransactionRepository = contractTransactionRepository;
-
   }
 
   async getEarningsOverview(freelancerId: string): Promise<FreelancerEarningsOverviewDTO> {
@@ -31,16 +30,17 @@ export class FreelancerEarningsService implements IFreelancerEarningsService {
       throw new AppError(ERROR_MESSAGES.INVALID_ID, HttpStatus.BAD_REQUEST);
     }
 
-    const totalEarnings = await this._contractTransactionRepository.getFreelancerTotalEarnings(freelancerId);
-    const availableBalance = await this._contractTransactionRepository.getFreelancerAvailableBalance(freelancerId);
-    const pendingWithdraw= await this._contractTransactionRepository.getPendingWithdraw(freelancerId)
-
-    
+    const totalEarnings =
+      await this._contractTransactionRepository.getFreelancerTotalEarnings(freelancerId);
+    const availableBalance =
+      await this._contractTransactionRepository.getFreelancerAvailableBalance(freelancerId);
+    const pendingWithdraw =
+      await this._contractTransactionRepository.getPendingWithdraw(freelancerId);
 
     return {
-      available: availableBalance||0,
-      pending: pendingWithdraw||0,
-      totalEarnings: totalEarnings||0,
+      available: availableBalance || 0,
+      pending: pendingWithdraw || 0,
+      totalEarnings: totalEarnings || 0,
     };
   }
 

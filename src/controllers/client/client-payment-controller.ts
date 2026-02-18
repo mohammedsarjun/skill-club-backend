@@ -3,6 +3,7 @@ import { IClientPaymentService } from '../../services/clientServices/interfaces/
 import { inject, injectable } from 'tsyringe';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { InitiatePaymentDTO, PaymentCallbackDTO } from '../../dto/clientDTO/client-payment.dto';
+import { MESSAGES } from '../../contants/contants';
 
 @injectable()
 export class ClientPaymentController {
@@ -12,7 +13,7 @@ export class ClientPaymentController {
     try {
       const clientId = req.user?.userId;
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
@@ -21,7 +22,7 @@ export class ClientPaymentController {
 
       res.status(HttpStatus.OK).json({
         success: true,
-        message: 'Payment initiated successfully',
+        message: MESSAGES.PAYMENT.INITIATED,
         data: result,
       });
     } catch (error) {
@@ -34,7 +35,6 @@ export class ClientPaymentController {
 
     try {
       const data: PaymentCallbackDTO = req.body;
-      console.log(data);
       // Log callback data for debugging
       // console.log('PayU Callback received:', {
       //   status: data.status,
@@ -46,13 +46,9 @@ export class ClientPaymentController {
       // Process the payment callback (verify hash, update DB, activate contract if success)
       const result = await this.paymentService.handlePaymentCallback(data);
 
-      console.log('Payment processed:', result);
-
       // Redirect based on payment result
       const paymentStatus = result.status === 'success' ? 'success' : 'failed';
       const redirectUrl = `${frontendUrl}/client/contracts/${result.contractId}?payment=${paymentStatus}`;
-
-      console.log('Redirecting to (sending 303 + HTML fallback):', redirectUrl);
 
       // Prefer HTTP 303 See Other so user agents follow with GET.
       // Some gateways correctly respect 303 and will perform a GET to the Location.
@@ -81,7 +77,6 @@ export class ClientPaymentController {
 
       if (contractId) {
         const redirectUrl = `${frontendUrl}/client/contracts/${contractId}?payment=failed`;
-        console.log('Error redirect to (sending 303 + HTML fallback):', redirectUrl);
         res.status(303).setHeader('Location', redirectUrl).contentType('text/html')
           .send(`<!doctype html>
               <html>
@@ -99,7 +94,6 @@ export class ClientPaymentController {
       } else {
         // If no contractId found, redirect to contracts list
         const redirectUrl = `${frontendUrl}/client/contracts?payment=failed`;
-        console.log('Fallback redirect to contracts list (sending 303 + HTML fallback)');
         res.status(303).setHeader('Location', redirectUrl).contentType('text/html')
           .send(`<!doctype html>
               <html>

@@ -32,11 +32,18 @@ import { Types } from 'mongoose';
 import { IContractTransactionRepository } from '../../repositories/interfaces/contract-transaction-repository.interface';
 import { ICancellationRequestRepository } from '../../repositories/interfaces/cancellation-request-repository.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
-import { FreelancerCancellationRequestDTO, AcceptCancellationRequestDTO } from '../../dto/freelancerDTO/freelancer-cancellation-request.dto';
-import { CreateFreelancerCancellationRequestDTO, FreelancerCancellationRequestResponseDTO } from '../../dto/freelancerDTO/freelancer-create-cancellation-request.dto';
+import {
+  FreelancerCancellationRequestDTO,
+  AcceptCancellationRequestDTO,
+} from '../../dto/freelancerDTO/freelancer-cancellation-request.dto';
+import {
+  CreateFreelancerCancellationRequestDTO,
+  FreelancerCancellationRequestResponseDTO,
+} from '../../dto/freelancerDTO/freelancer-create-cancellation-request.dto';
 import { mapCancellationRequestToFreelancerDTO } from '../../mapper/freelancerMapper/freelancer-cancellation-request.mapper';
 import { toFreelancerCancellationRequestResponseDTO } from '../../mapper/freelancerMapper/freelancer-create-cancellation-request.mapper';
 
@@ -46,17 +53,22 @@ export class FreelancerContractService implements IFreelancerContractService {
   private _contractTransactionRepository: IContractTransactionRepository;
   private _cancellationRequestRepository: ICancellationRequestRepository;
   private _disputeRepository: IDisputeRepository;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
-    @inject('ICancellationRequestRepository') cancellationRequestRepository: ICancellationRequestRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
+    @inject('ICancellationRequestRepository')
+    cancellationRequestRepository: ICancellationRequestRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
     this._cancellationRequestRepository = cancellationRequestRepository;
     this._disputeRepository = disputeRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async getAllContracts(
@@ -114,9 +126,8 @@ export class FreelancerContractService implements IFreelancerContractService {
       );
     }
 
-    const financialSummary = await this._contractTransactionRepository.findFinancialSummaryByContractId(
-      contractId,
-    );
+    const financialSummary =
+      await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
 
     return mapContractToFreelancerDetailDTO(contract, financialSummary);
   }
@@ -133,7 +144,6 @@ export class FreelancerContractService implements IFreelancerContractService {
     if (!Types.ObjectId.isValid(contractId)) {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
-
 
     if (!data.files || data.files.length === 0) {
       throw new AppError('At least one file is required', HttpStatus.BAD_REQUEST);
@@ -167,23 +177,23 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.message,
     );
 
-    const isFirstDeliverable = updatedContract?.deliverables?.length == 1
+    const isFirstDeliverable = updatedContract?.deliverables?.length == 1;
 
     if (isFirstDeliverable) {
-      const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+      const fundedAmount =
+        await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
 
       await this._contractTransactionRepository.createTransaction({
         contractId: new Types.ObjectId(contractId),
         amount: fundedAmount,
         purpose: 'hold',
         status: 'active_hold',
-        description: 'The deliverables have been submitted by the freelancer, so the funds are now on hold.',
+        description:
+          'The deliverables have been submitted by the freelancer, so the funds are now on hold.',
         clientId: contract.clientId,
         freelancerId: contract.freelancerId,
       });
     }
-
-
 
     if (
       !updatedContract ||
@@ -194,6 +204,16 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     const latestDeliverable = updatedContract.deliverables[updatedContract.deliverables.length - 1];
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'deliverable_submitted',
+      'freelancer',
+      new Types.ObjectId(freelancerId),
+      'Deliverable Submitted',
+      `Freelancer submitted deliverable (Version ${latestDeliverable.version}) with ${data.files.length} file(s)`,
+      { deliverableId: latestDeliverable._id?.toString(), version: latestDeliverable.version, filesCount: data.files.length },
+    );
 
     return FreelancerDeliverableMapper.toDeliverableResponseDTO(latestDeliverable, updatedContract);
   }
@@ -243,7 +263,6 @@ export class FreelancerContractService implements IFreelancerContractService {
       );
     }
 
-
     const milestone = contract.milestones?.find((m) => m._id?.toString() === data.milestoneId);
 
     if (!milestone) {
@@ -262,8 +281,6 @@ export class FreelancerContractService implements IFreelancerContractService {
       );
     }
 
-
-
     const updatedContract = await this._contractRepository.submitMilestoneDeliverable(
       contractId,
       data.milestoneId,
@@ -272,12 +289,18 @@ export class FreelancerContractService implements IFreelancerContractService {
       data.message,
     );
 
-    const targetedMilestone = updatedContract?.milestones?.find((milestone) => milestone._id?.toString() == data.milestoneId)
+    const targetedMilestone = updatedContract?.milestones?.find(
+      (milestone) => milestone._id?.toString() == data.milestoneId,
+    );
 
-    const isFirstDeliverableForMilestone = targetedMilestone?.deliverables?.length == 1
+    const isFirstDeliverableForMilestone = targetedMilestone?.deliverables?.length == 1;
 
     if (isFirstDeliverableForMilestone) {
-      const fundedAmount = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(contractId, data.milestoneId);
+      const fundedAmount =
+        await this._contractTransactionRepository.findTotalFundedAmountForMilestone(
+          contractId,
+          data.milestoneId,
+        );
 
       await this._contractTransactionRepository.createTransaction({
         contractId: new Types.ObjectId(contractId),
@@ -285,21 +308,21 @@ export class FreelancerContractService implements IFreelancerContractService {
         amount: fundedAmount,
         purpose: 'hold',
         status: 'active_hold',
-        description: 'The deliverables for the milestone have been submitted by the freelancer, so the funds are now on hold.',
+        description:
+          'The deliverables for the milestone have been submitted by the freelancer, so the funds are now on hold.',
         clientId: contract.clientId,
         freelancerId: contract.freelancerId,
       });
     }
 
     if (!updatedContract) {
-      throw new AppError('Failed to submit milestone deliverable', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        'Failed to submit milestone deliverable',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
-    await this._contractRepository.updateMilestoneStatus(
-      contractId,
-      data.milestoneId,
-      'submitted',
-    );
+    await this._contractRepository.updateMilestoneStatus(contractId, data.milestoneId, 'submitted');
 
     await this._contractRepository.addTimelineEntry(
       contractId,
@@ -318,11 +341,24 @@ export class FreelancerContractService implements IFreelancerContractService {
       !updatedMilestone.deliverables ||
       updatedMilestone.deliverables.length === 0
     ) {
-      throw new AppError('Failed to retrieve submitted deliverable', HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new AppError(
+        'Failed to retrieve submitted deliverable',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
 
     const latestDeliverable =
       updatedMilestone.deliverables[updatedMilestone.deliverables.length - 1];
+
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(contractId),
+      'deliverable_submitted',
+      'freelancer',
+      new Types.ObjectId(freelancerId),
+      'Milestone Deliverable Submitted',
+      `Freelancer submitted deliverable for milestone "${milestone.title}" (Version ${latestDeliverable.version}) with ${data.files.length} file(s)`,
+      { milestoneId: data.milestoneId, deliverableId: latestDeliverable._id?.toString(), version: latestDeliverable.version, filesCount: data.files.length },
+    );
 
     return FreelancerMilestoneMapper.toMilestoneDeliverableResponseDTO(
       latestDeliverable,
@@ -378,7 +414,10 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     if (milestone.status === 'paid' || milestone.status === 'approved') {
-      throw new AppError('Cannot request extension for completed milestone', HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        'Cannot request extension for completed milestone',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     if (milestone.extensionRequest && milestone.extensionRequest.status === 'pending') {
@@ -457,10 +496,7 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     if (contract.status !== 'active') {
-      throw new AppError(
-        'Contract must be active to request extension',
-        HttpStatus.BAD_REQUEST,
-      );
+      throw new AppError('Contract must be active to request extension', HttpStatus.BAD_REQUEST);
     }
 
     if (contract.paymentType !== 'fixed') {
@@ -510,7 +546,11 @@ export class FreelancerContractService implements IFreelancerContractService {
     );
   }
 
-  async cancelContract(freelancerId: string, contractId: string, cancelContractReason: string): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
+  async cancelContract(
+    freelancerId: string,
+    contractId: string,
+    cancelContractReason: string,
+  ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -535,7 +575,11 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_IN_PROGRESS, HttpStatus.BAD_REQUEST);
     }
 
-    await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+    await this._contractRepository.cancelContractByUser(
+      contractId,
+      'freelancer',
+      cancelContractReason,
+    );
 
     const paymentType = contract.paymentType;
 
@@ -560,20 +604,33 @@ export class FreelancerContractService implements IFreelancerContractService {
     cancelContractReason: string,
   ): Promise<{ cancelled: boolean; requiresDispute: boolean }> {
     if (contract.status === 'pending_funding') {
-      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+      await this._contractRepository.cancelContractByUser(
+        contractId,
+        'freelancer',
+        cancelContractReason,
+      );
       return { cancelled: true, requiresDispute: false };
     }
 
     if (!contract.isFunded) {
-      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+      await this._contractRepository.cancelContractByUser(
+        contractId,
+        'freelancer',
+        cancelContractReason,
+      );
       return { cancelled: true, requiresDispute: false };
     }
 
     const hasAnyDeliverables = await this._contractRepository.hasAnyDeliverables(contractId);
     if (!hasAnyDeliverables) {
-      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+      await this._contractRepository.cancelContractByUser(
+        contractId,
+        'freelancer',
+        cancelContractReason,
+      );
 
-      const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+      const totalFunded =
+        await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
 
       const refundTransaction: Partial<IContractTransaction> = {
         contractId: new Types.ObjectId(contractId),
@@ -606,7 +663,11 @@ export class FreelancerContractService implements IFreelancerContractService {
     );
 
     if (!isClientFundedForAtLeastOneMilestone) {
-      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+      await this._contractRepository.cancelContractByUser(
+        contractId,
+        'freelancer',
+        cancelContractReason,
+      );
       await this._contractRepository.markAllMilestonesAsCancelled(contractId);
       return { cancelled: true, requiresDispute: false };
     }
@@ -616,17 +677,22 @@ export class FreelancerContractService implements IFreelancerContractService {
     );
 
     if (!hasSubmittedMilestoneDeliverables) {
-      await this._contractRepository.cancelContractByUser(contractId, 'freelancer', cancelContractReason);
+      await this._contractRepository.cancelContractByUser(
+        contractId,
+        'freelancer',
+        cancelContractReason,
+      );
 
       const fundedMilestones = contract.milestones?.filter(
         (milestone) => milestone.isFunded === true,
       );
 
       for (const milestone of fundedMilestones || []) {
-        const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForMilestone(
-          contractId,
-          milestone._id?.toString() || '',
-        );
+        const totalFunded =
+          await this._contractTransactionRepository.findTotalFundedAmountForMilestone(
+            contractId,
+            milestone._id?.toString() || '',
+          );
 
         const refundTransaction: Partial<IContractTransaction> = {
           contractId: new Types.ObjectId(contractId),
@@ -681,7 +747,10 @@ export class FreelancerContractService implements IFreelancerContractService {
     );
   }
 
-  async endHourlyContract(freelancerId: string, contractId: string): Promise<{ ended: boolean; message: string }> {
+  async endHourlyContract(
+    freelancerId: string,
+    contractId: string,
+  ): Promise<{ ended: boolean; message: string }> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -690,7 +759,10 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
 
-    const contract = await this._contractRepository.findDetailByIdForFreelancer(contractId, freelancerId);
+    const contract = await this._contractRepository.findDetailByIdForFreelancer(
+      contractId,
+      freelancerId,
+    );
 
     if (!contract) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -704,7 +776,8 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.INVALID_END_STATUS, HttpStatus.BAD_REQUEST);
     }
 
-    const amountAvailableForRefund = await this._contractTransactionRepository.findHourlyContractRefundAmount(contractId);
+    const amountAvailableForRefund =
+      await this._contractTransactionRepository.findHourlyContractRefundAmount(contractId);
 
     const refundTransaction: Partial<IContractTransaction> = {
       contractId: new Types.ObjectId(contractId),
@@ -722,7 +795,11 @@ export class FreelancerContractService implements IFreelancerContractService {
     return { ended: true, message: 'Contract ended successfully' };
   }
 
-  async approveChangeRequest(freelancerId: string, contractId: string, deliverableId: string): Promise<DeliverableResponseDTO> {
+  async approveChangeRequest(
+    freelancerId: string,
+    contractId: string,
+    deliverableId: string,
+  ): Promise<DeliverableResponseDTO> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -747,7 +824,10 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError('Deliverable not found', HttpStatus.NOT_FOUND);
     }
     if (deliverable.status !== 'changes_requested') {
-      throw new AppError('No change request to approve for this deliverable', HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        'No change request to approve for this deliverable',
+        HttpStatus.BAD_REQUEST,
+      );
     }
     const updatedContract = await this._contractRepository.approveDeliverableChangeRequest(
       contractId,
@@ -758,10 +838,12 @@ export class FreelancerContractService implements IFreelancerContractService {
       updatedContract!.deliverables!.find((d) => d._id?.toString() === deliverableId)!,
       updatedContract!,
     );
-
   }
 
-  async getCancellationRequest(freelancerId: string, contractId: string): Promise<FreelancerCancellationRequestDTO | null> {
+  async getCancellationRequest(
+    freelancerId: string,
+    contractId: string,
+  ): Promise<FreelancerCancellationRequestDTO | null> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -780,7 +862,8 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
     }
 
-    const cancellationRequest = await this._cancellationRequestRepository.findByContractId(contractId);
+    const cancellationRequest =
+      await this._cancellationRequestRepository.findByContractId(contractId);
 
     if (!cancellationRequest) {
       return null;
@@ -789,7 +872,11 @@ export class FreelancerContractService implements IFreelancerContractService {
     return mapCancellationRequestToFreelancerDTO(cancellationRequest);
   }
 
-  async acceptCancellationRequest(freelancerId: string, contractId: string, data: AcceptCancellationRequestDTO): Promise<{ success: boolean; message: string }> {
+  async acceptCancellationRequest(
+    freelancerId: string,
+    contractId: string,
+    data: AcceptCancellationRequestDTO,
+  ): Promise<{ success: boolean; message: string }> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -805,10 +892,14 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     if (contract.freelancerId.toString() !== freelancerId) {
-      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+      throw new AppError(
+        ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
-    const cancellationRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    const cancellationRequest =
+      await this._cancellationRequestRepository.findPendingByContractId(contractId);
 
     if (!cancellationRequest) {
       throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -819,7 +910,10 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     if (cancellationRequest.initiatedBy !== 'client') {
-      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+      throw new AppError(
+        ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     await this._cancellationRequestRepository.updateStatus(
@@ -855,14 +949,19 @@ export class FreelancerContractService implements IFreelancerContractService {
 
     await this._contractTransactionRepository.updateTransactionStatusForFixedContract(
       contractId,
-      'amount_split_between_parties',);
+      'amount_split_between_parties',
+    );
 
     await this._contractRepository.updateStatusById(contractId, 'cancelled');
 
     return { success: true, message: 'Cancellation request accepted successfully' };
   }
 
-  async raiseCancellationDispute(freelancerId: string, contractId: string, notes: string): Promise<{ success: boolean; message: string }> {
+  async raiseCancellationDispute(
+    freelancerId: string,
+    contractId: string,
+    notes: string,
+  ): Promise<{ success: boolean; message: string }> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -881,7 +980,8 @@ export class FreelancerContractService implements IFreelancerContractService {
       throw new AppError(ERROR_MESSAGES.CONTRACT.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
     }
 
-    const cancellationRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    const cancellationRequest =
+      await this._cancellationRequestRepository.findPendingByContractId(contractId);
 
     if (!cancellationRequest) {
       throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -892,7 +992,10 @@ export class FreelancerContractService implements IFreelancerContractService {
     }
 
     if (cancellationRequest.initiatedBy !== 'client') {
-      throw new AppError(ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS, HttpStatus.FORBIDDEN);
+      throw new AppError(
+        ERROR_MESSAGES.CANCELLATION_REQUEST.UNAUTHORIZED_ACCESS,
+        HttpStatus.FORBIDDEN,
+      );
     }
 
     const existingDispute = await this._disputeRepository.findActiveDisputeByContract(contractId);
@@ -969,13 +1072,16 @@ export class FreelancerContractService implements IFreelancerContractService {
         throw new AppError(ERROR_MESSAGES.CONTRACT.NO_DELIVERABLES, HttpStatus.BAD_REQUEST);
       }
 
-      const totalFunded = await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
-      const totalPaid = await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
-      const totalCommission = await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
+      const totalFunded =
+        await this._contractTransactionRepository.findTotalFundedAmountForFixedContract(contractId);
+      const totalPaid =
+        await this._contractTransactionRepository.findTotalPaidToFreelancerByContractId(contractId);
+      const totalCommission =
+        await this._contractTransactionRepository.findTotalCommissionByContractId(contractId);
       totalHeldAmount = totalFunded - totalPaid - totalCommission;
     } else if (contract.paymentType === 'fixed_with_milestones') {
       const milestoneWithDeliverables = contract.milestones?.find(
-        (milestone) => milestone.deliverables && milestone.deliverables.length > 0
+        (milestone) => milestone.deliverables && milestone.deliverables.length > 0,
       );
 
       if (!milestoneWithDeliverables) {
@@ -985,9 +1091,13 @@ export class FreelancerContractService implements IFreelancerContractService {
       totalHeldAmount = milestoneWithDeliverables.amount || 0;
     }
 
-    const existingRequest = await this._cancellationRequestRepository.findPendingByContractId(contractId);
+    const existingRequest =
+      await this._cancellationRequestRepository.findPendingByContractId(contractId);
     if (existingRequest) {
-      throw new AppError(ERROR_MESSAGES.CONTRACT.CANCELLATION_REQUEST_EXISTS, HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        ERROR_MESSAGES.CONTRACT.CANCELLATION_REQUEST_EXISTS,
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
     const clientAmount = (totalHeldAmount * data.clientSplitPercentage) / 100;
@@ -1006,27 +1116,25 @@ export class FreelancerContractService implements IFreelancerContractService {
       status: 'pending',
     });
 
-    const refundableMilestones= contract.milestones?.filter(
-      (milestone) => milestone.status == 'funded'
-    ) || [];
+    const refundableMilestones =
+      contract.milestones?.filter((milestone) => milestone.status == 'funded') || [];
 
     refundableMilestones.forEach(async (milestone) => {
       const refundTransaction: Partial<IContractTransaction> = {
-      contractId: new Types.ObjectId(contractId),
-      milestoneId: new Types.ObjectId(milestone._id),
-      amount: milestone.amount,
-      purpose: 'refund',
-      description: 'Refund to client for milestone funded but work not done',
-      clientId: contract.clientId,
-      freelancerId: contract.freelancerId,
-    };
+        contractId: new Types.ObjectId(contractId),
+        milestoneId: new Types.ObjectId(milestone._id),
+        amount: milestone.amount,
+        purpose: 'refund',
+        description: 'Refund to client for milestone funded but work not done',
+        clientId: contract.clientId,
+        freelancerId: contract.freelancerId,
+      };
 
-    await this._contractTransactionRepository.createTransaction(refundTransaction);
-  });  
+      await this._contractTransactionRepository.createTransaction(refundTransaction);
+    });
 
     await this._contractRepository.updateStatusById(contractId, 'cancellation_requested');
 
     return toFreelancerCancellationRequestResponseDTO(cancellationRequest);
   }
 }
-

@@ -1,25 +1,24 @@
 import { Schema, model } from 'mongoose';
-import {  IReviewDocument } from './interfaces/review.model.interface';
+import { IReviewDocument } from './interfaces/review.model.interface';
 
 const reviewSchema = new Schema<IReviewDocument>(
   {
-  
     contractId: {
       type: Schema.Types.ObjectId,
       ref: 'Contract',
-      required: true, 
+      required: true,
     },
 
     reviewerId: {
       type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true, 
+      required: true,
     },
 
     revieweeId: {
-      type:  Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       ref: 'User',
-      required: true, 
+      required: true,
     },
 
     reviewerRole: {
@@ -53,7 +52,7 @@ const reviewSchema = new Schema<IReviewDocument>(
   },
   {
     timestamps: true,
-  }
+  },
 );
 
 export const Review = model('Review', reviewSchema);

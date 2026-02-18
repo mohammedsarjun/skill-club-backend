@@ -28,7 +28,7 @@ const adminContractController = container.resolve(AdminContractController);
 const adminReviewController = container.resolve(AdminReviewController);
 const adminDashboardController = container.resolve(AdminDashboardController);
 const adminDisputeController = container.resolve(AdminDisputeController);
-const adminWithdrawalController=container.resolve(AdminWithdrawalController)
+const adminWithdrawalController = container.resolve(AdminWithdrawalController);
 const adminRevenueController = container.resolve(AdminRevenueController);
 const adminNotificationController = container.resolve(AdminNotificationController);
 
@@ -192,6 +192,13 @@ adminRouter.get(
 );
 
 adminRouter.get(
+  '/contracts/:contractId/timeline',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContractController.getContractTimeline.bind(adminContractController),
+);
+
+adminRouter.get(
   '/reviews',
   authMiddleware,
   roleGuard('admin'),
@@ -268,53 +275,67 @@ adminRouter.post(
   adminDisputeController.releaseHoldHourly.bind(adminDisputeController),
 );
 
-adminRouter.get('/withdraws/stats',
-  authMiddleware,roleGuard("admin"),
-  adminWithdrawalController.getWithdrawStats.bind(adminWithdrawalController)
-)
-
-adminRouter.get('/withdraws',
-  authMiddleware,roleGuard("admin"),
-  adminWithdrawalController.getWithdrawals.bind(adminWithdrawalController)
-)
-
-adminRouter.get('/withdraws/:withdrawalId',
-  authMiddleware,roleGuard("admin"),
-  adminWithdrawalController.getWithdrawalDetail.bind(adminWithdrawalController)
-)
-
-adminRouter.post('/withdraws/:withdrawalId/approve',
-  authMiddleware,roleGuard("admin"),
-  adminWithdrawalController.approveWithdrawal.bind(adminWithdrawalController)
-)
-
-adminRouter.post('/withdraws/:withdrawalId/reject',
-  authMiddleware,roleGuard("admin"),
-  adminWithdrawalController.rejectWithdrawal.bind(adminWithdrawalController)
-)
-
-adminRouter.get('/revenue',
+adminRouter.get(
+  '/withdraws/stats',
   authMiddleware,
   roleGuard('admin'),
-  adminRevenueController.getRevenueData.bind(adminRevenueController)
+  adminWithdrawalController.getWithdrawStats.bind(adminWithdrawalController),
 );
 
-adminRouter.get('/notifications',
+adminRouter.get(
+  '/withdraws',
   authMiddleware,
   roleGuard('admin'),
-  adminNotificationController.getNotifications.bind(adminNotificationController)
+  adminWithdrawalController.getWithdrawals.bind(adminWithdrawalController),
 );
 
-adminRouter.patch('/notifications/:notificationId/read',
+adminRouter.get(
+  '/withdraws/:withdrawalId',
   authMiddleware,
   roleGuard('admin'),
-  adminNotificationController.markNotificationAsRead.bind(adminNotificationController)
+  adminWithdrawalController.getWithdrawalDetail.bind(adminWithdrawalController),
 );
 
-adminRouter.patch('/notifications/read-all',
+adminRouter.post(
+  '/withdraws/:withdrawalId/approve',
   authMiddleware,
   roleGuard('admin'),
-  adminNotificationController.markAllNotificationsAsRead.bind(adminNotificationController)
+  adminWithdrawalController.approveWithdrawal.bind(adminWithdrawalController),
+);
+
+adminRouter.post(
+  '/withdraws/:withdrawalId/reject',
+  authMiddleware,
+  roleGuard('admin'),
+  adminWithdrawalController.rejectWithdrawal.bind(adminWithdrawalController),
+);
+
+adminRouter.get(
+  '/revenue',
+  authMiddleware,
+  roleGuard('admin'),
+  adminRevenueController.getRevenueData.bind(adminRevenueController),
+);
+
+adminRouter.get(
+  '/notifications',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.getNotifications.bind(adminNotificationController),
+);
+
+adminRouter.patch(
+  '/notifications/:notificationId/read',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.markNotificationAsRead.bind(adminNotificationController),
+);
+
+adminRouter.patch(
+  '/notifications/read-all',
+  authMiddleware,
+  roleGuard('admin'),
+  adminNotificationController.markAllNotificationsAsRead.bind(adminNotificationController),
 );
 
 export default adminRouter;

@@ -87,16 +87,21 @@ export class ClientDashboardService implements IClientDashboardService {
     );
 
     // Fetch recent active contracts
-    const recentContractsData = await this._contractRepository.getRecentActiveContractsByClientId(clientId, 4);
-    const recentActiveContracts = recentContractsData.map(contract => 
-      mapContractToRecentActiveContractDTO(contract)
+    const recentContractsData = await this._contractRepository.getRecentActiveContractsByClientId(
+      clientId,
+      4,
+    );
+    const recentActiveContracts = recentContractsData.map((contract) =>
+      mapContractToRecentActiveContractDTO(contract),
     );
 
     // Fetch saved freelancers
-    const savedFreelancersData = await this._savedFreelancerRepository.findWithFreelancerDetails(clientId, 1, 4);
-    const savedFreelancers = savedFreelancersData.map(saved => 
-      mapToSavedFreelancerDTO(saved)
+    const savedFreelancersData = await this._savedFreelancerRepository.findWithFreelancerDetails(
+      clientId,
+      1,
+      4,
     );
+    const savedFreelancers = savedFreelancersData.map((saved) => mapToSavedFreelancerDTO(saved));
 
     return {
       stats,

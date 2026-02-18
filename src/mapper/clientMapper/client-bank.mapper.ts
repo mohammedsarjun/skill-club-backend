@@ -1,5 +1,5 @@
 import { IBankDetails } from '../../models/interfaces/bank-details.model.interface';
-import {  UserBankDTO } from '../../dto/commonDTO/user-bank.dto';
+import { UserBankDTO } from '../../dto/commonDTO/user-bank.dto';
 
 export const mapBankToDTO = (bank: IBankDetails): UserBankDTO => ({
   userId: bank.userId.toString(),

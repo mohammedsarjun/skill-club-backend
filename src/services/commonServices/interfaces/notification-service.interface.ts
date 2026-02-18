@@ -1,5 +1,8 @@
-import { CreateNotificationInputDto } from "src/dto/NotificationDto/notification.dto";
+import { CreateNotificationInputDto } from 'src/dto/NotificationDto/notification.dto';
 
 export interface INotificationService {
-   createAndEmitNotification(userId: string, notificationData: Partial<CreateNotificationInputDto>): Promise<void> 
+  createAndEmitNotification(
+    userId: string,
+    notificationData: Partial<CreateNotificationInputDto>,
+  ): Promise<void>;
 }

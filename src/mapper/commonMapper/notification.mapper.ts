@@ -2,7 +2,7 @@ import { INotification } from '../../models/interfaces/notification.model.interf
 import { NotificationResponseDto } from '../../dto/NotificationDto/notification-response.dto';
 
 export const mapNotificationToResponseDto = (
-  notification: INotification
+  notification: INotification,
 ): NotificationResponseDto => {
   return {
     _id: notification._id.toString(),

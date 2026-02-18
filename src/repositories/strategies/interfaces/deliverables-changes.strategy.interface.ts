@@ -1,4 +1,4 @@
-import { FilterQuery, QueryOptions, UpdateQuery } from "mongoose";
+import { FilterQuery, QueryOptions, UpdateQuery } from 'mongoose';
 import { IContract } from '../../../models/interfaces/contract.model.interface';
 
 export interface DeliverableChangeParams {
@@ -13,7 +13,6 @@ interface UpdateQueryResult {
   update: UpdateQuery<IContract>;
   options: QueryOptions;
 }
-
 
 export interface IDeliverablesChangeQueryStrategy {
   supports(type: string): boolean;

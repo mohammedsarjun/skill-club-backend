@@ -22,6 +22,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import { Types } from 'mongoose';
 import { IContractTransactionRepository } from 'src/repositories/interfaces/contract-transaction-repository.interface';
 import { IDisputeRepository } from '../../repositories/interfaces/dispute-repository.interface';
+import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { DISPUTE_REASONS } from '../../contants/dispute.constants';
 
@@ -31,17 +32,21 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
   private _contractRepository: IContractRepository;
   private _contractTransactionRepository: IContractTransactionRepository;
   private _disputeRepository: IDisputeRepository;
+  private _contractActivityService: IContractActivityService;
 
   constructor(
     @inject('IWorklogRepository') worklogRepository: IWorklogRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._worklogRepository = worklogRepository;
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
     this._disputeRepository = disputeRepository;
+    this._contractActivityService = contractActivityService;
   }
 
   async submitWorklog(freelancerId: string, data: SubmitWorklogDTO): Promise<WorklogResponseDTO> {
@@ -81,7 +86,7 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       status: 'submitted',
     });
 
-    const amountToHold = (contract.hourlyRate || 0) * (data.duration / 3600000); 
+    const amountToHold = (contract.hourlyRate || 0) * (data.duration / 3600000);
 
     await this._contractTransactionRepository.createTransaction({
       contractId: new Types.ObjectId(data.contractId),
@@ -89,11 +94,21 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       amount: amountToHold,
       purpose: 'hold',
       status: 'active_hold',
-      description:
-      'Worklog has been submitted by the freelancer, so the funds are now on hold.',
+      description: 'Worklog has been submitted by the freelancer, so the funds are now on hold.',
       clientId: contract.clientId,
       freelancerId: contract.freelancerId,
     });
+
+    const hoursWorked = data.duration / 3600000;
+    await this._contractActivityService.logActivity(
+      new Types.ObjectId(data.contractId),
+      'work_logged',
+      'freelancer',
+      new Types.ObjectId(freelancerId),
+      'Work Logged',
+      `Freelancer logged ${hoursWorked.toFixed(2)} hours of work. Amount: ₹${amountToHold.toLocaleString()}`,
+      { worklogId: worklog._id?.toString(), hours: hoursWorked, amount: amountToHold, filesCount: data.files.length },
+    );
 
     return mapWorklogToResponseDTO(worklog);
   }
@@ -177,7 +192,9 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       throw new AppError('Unauthorized access to worklog', HttpStatus.FORBIDDEN);
     }
 
-    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(worklog._id.toString());
+    const dispute = await this._disputeRepository.findActiveDisputeByWorklog(
+      worklog._id.toString(),
+    );
     const disputeRaisedBy = dispute ? dispute.raisedBy : undefined;
 
     return mapWorklogToDetailDTO(worklog, disputeRaisedBy);

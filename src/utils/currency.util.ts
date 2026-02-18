@@ -66,7 +66,7 @@ export async function getUsdRateFor(currency: SupportedCurrency): Promise<number
           return rate;
         }
       }
-    } catch (e) {
+    } catch {
       // swallow, will throw below
     }
   } else {

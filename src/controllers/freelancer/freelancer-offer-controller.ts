@@ -6,6 +6,8 @@ import { IFreelancerOfferController } from './interfaces/freelancer-offer-contro
 import { IFreelancerOfferService } from '../../services/freelancerServices/interfaces/freelancer-offer-service.interface';
 import { FreelancerOfferQueryParamsDTO } from '../../repositories/interfaces/offer-repository.interface';
 import { OfferStatus, OfferType } from '../../models/interfaces/offer.model.interface';
+import { MESSAGES } from '../../contants/contants';
+import { ERROR_MESSAGES } from '../../contants/error-constants';
 
 @injectable()
 export class FreelancerOfferController implements IFreelancerOfferController {
@@ -51,7 +53,7 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const result = await this._freelancerOfferService.getAllOffers(freelancerId, query);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Offers fetched successfully',
+      message: MESSAGES.OFFER.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -61,12 +63,12 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const { offerId } = req.params;
     const result = await this._freelancerOfferService.getOfferDetail(freelancerId, offerId);
     if (!result) {
-      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: 'Offer not found' });
+      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.OFFER.NOT_FOUND });
       return;
     }
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Offer detail fetched successfully',
+      message: MESSAGES.OFFER.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -77,7 +79,7 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const reason = (req.body && (req.body.reason as string)) || undefined;
     try {
       const result = await this._freelancerOfferService.rejectOffer(freelancerId, offerId, reason);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Offer rejected', data: result });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OFFER.REJECTED, data: result });
     } catch (e) {
       res
         .status(HttpStatus.BAD_REQUEST)
@@ -90,7 +92,7 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const { offerId } = req.params;
     try {
       const result = await this._freelancerOfferService.acceptOffer(freelancerId, offerId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Offer accepted', data: result });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OFFER.ACCEPTED, data: result });
     } catch (e) {
       res
         .status(HttpStatus.BAD_REQUEST)

@@ -1,5 +1,8 @@
 import { IDeliverableChangeStrategy } from './IDeliverableChangeStrategy';
-import { IContract, ContractDeliverable } from '../../../../models/interfaces/contract.model.interface';
+import {
+  IContract,
+  ContractDeliverable,
+} from '../../../../models/interfaces/contract.model.interface';
 
 export class MilestoneDeliverableChangeStrategy implements IDeliverableChangeStrategy {
   supports(type: string): boolean {

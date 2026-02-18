@@ -1,10 +1,13 @@
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
-import { ClientTransactionDTO, ClientFinanceStatsDTO } from '../../dto/clientDTO/client-finance.dto';
+import {
+  ClientTransactionDTO,
+  ClientFinanceStatsDTO,
+} from '../../dto/clientDTO/client-finance.dto';
 import { Types } from 'mongoose';
 
 const formatTimeAgo = (date: Date): string => {
   const seconds = Math.floor((new Date().getTime() - date.getTime()) / 1000);
-  
+
   if (seconds < 60) return 'just now';
   if (seconds < 3600) return `${Math.floor(seconds / 60)} minutes ago`;
   if (seconds < 86400) return `${Math.floor(seconds / 3600)} hours ago`;
@@ -13,9 +16,9 @@ const formatTimeAgo = (date: Date): string => {
   return `${Math.floor(seconds / 2592000)} months ago`;
 };
 
-export const  mapTransactionToDTO = (
+export const mapTransactionToDTO = (
   transaction: IContractTransaction,
-  freelancerName: string
+  freelancerName: string,
 ): ClientTransactionDTO => {
   return {
     transactionId: transaction.transactionId,
@@ -32,7 +35,7 @@ export const  mapTransactionToDTO = (
 export const mapFinanceStatsToDTO = (
   totalSpent: number,
   totalRefunded: number,
-  availableBalance: number
+  availableBalance: number,
 ): ClientFinanceStatsDTO => {
   return {
     totalSpent,

@@ -32,7 +32,7 @@ export class FixedDeliverablesChangeQueryStrategy implements IDeliverablesChange
           'deliverables.$[elem].message': message,
         },
         $inc: {
-          'revisionAllowed': -1,
+          revisionAllowed: -1,
         },
       },
 

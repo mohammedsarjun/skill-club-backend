@@ -51,7 +51,7 @@ userRouter.get(
 userRouter.post(
   '/bank-details',
   authMiddleware,
- 
+
   userController.saveBankDetails.bind(userController),
 );
 

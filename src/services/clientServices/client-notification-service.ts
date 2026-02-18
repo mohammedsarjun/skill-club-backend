@@ -13,9 +13,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 export class ClientNotificationService implements IClientNotificationService {
   private _notificationRepository: INotificationRepository;
 
-  constructor(
-    @inject('INotificationRepository') notificationRepository: INotificationRepository
-  ) {
+  constructor(@inject('INotificationRepository') notificationRepository: INotificationRepository) {
     this._notificationRepository = notificationRepository;
   }
 
@@ -33,7 +31,7 @@ export class ClientNotificationService implements IClientNotificationService {
 
   async markNotificationAsRead(clientId: string, notificationId: string): Promise<void> {
     const notification = await this._notificationRepository.findById(notificationId);
-    
+
     if (!notification) {
       throw new AppError(ERROR_MESSAGES.NOTIFICATION.NOT_FOUND, HttpStatus.NOT_FOUND);
     }

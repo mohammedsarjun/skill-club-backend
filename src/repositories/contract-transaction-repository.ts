@@ -9,7 +9,8 @@ import { AdminWithdrawalStatsDTO } from 'src/dto/adminDTO/admin-withdrawal.dto';
 @injectable()
 export class ContractTransactionRepository
   extends BaseRepository<IContractTransaction>
-  implements IContractTransactionRepository {
+  implements IContractTransactionRepository
+{
   constructor() {
     super(ContractTransaction);
   }
@@ -47,7 +48,7 @@ export class ContractTransactionRepository
   ): Promise<IContractTransaction[]> {
     const skip = (page - 1) * limit;
     return await this.model
-      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal', role: "client" })
+      .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal', role: 'client' })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
@@ -58,7 +59,7 @@ export class ContractTransactionRepository
     return await this.model.countDocuments({
       clientId: new Types.ObjectId(clientId),
       purpose: 'withdrawal',
-      role: 'client'
+      role: 'client',
     });
   }
 
@@ -544,21 +545,21 @@ export class ContractTransactionRepository
     ]);
     return result.length > 0
       ? {
-        totalFunded: result[0].totalFunded,
-        totalPaidToFreelancer: result[0].totalPaidToFreelancer,
-        commissionPaid: result[0].commissionPaid,
-        totalHeld: result[0].totalHeld,
-        totalRefund: result[0].totalRefund,
-        availableContractBalance: result[0].availableContractBalance,
-      }
+          totalFunded: result[0].totalFunded,
+          totalPaidToFreelancer: result[0].totalPaidToFreelancer,
+          commissionPaid: result[0].commissionPaid,
+          totalHeld: result[0].totalHeld,
+          totalRefund: result[0].totalRefund,
+          availableContractBalance: result[0].availableContractBalance,
+        }
       : {
-        totalFunded: 0,
-        totalPaidToFreelancer: 0,
-        commissionPaid: 0,
-        totalHeld: 0,
-        totalRefund: 0,
-        availableContractBalance: 0,
-      };
+          totalFunded: 0,
+          totalPaidToFreelancer: 0,
+          commissionPaid: 0,
+          totalHeld: 0,
+          totalRefund: 0,
+          availableContractBalance: 0,
+        };
   }
 
   async updateHoldTransactionStatusToSplit(
@@ -651,7 +652,7 @@ export class ContractTransactionRepository
         $match: {
           clientId: new Types.ObjectId(clientId),
           purpose: 'withdrawal',
-          role: "client"
+          role: 'client',
         },
       },
       { $group: { _id: null, totalWithdrawn: { $sum: '$amount' } } },
@@ -719,16 +720,15 @@ export class ContractTransactionRepository
     limit: number,
     status?: string,
   ): Promise<IContractTransaction[]> {
-    console.log(status)
     const skip = (page - 1) * limit;
     const filter: Record<string, unknown> = {
       freelancerId: new Types.ObjectId(freelancerId),
       purpose: 'withdrawal',
-      role: 'freelancer'
+      role: 'freelancer',
     };
 
     if (status) {
-      (filter as any).status = status;
+      filter.status = status;
     }
 
     return await this.model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
@@ -738,10 +738,10 @@ export class ContractTransactionRepository
     const filter: Record<string, unknown> = {
       freelancerId: new Types.ObjectId(freelancerId),
       purpose: 'withdrawal',
-      role: 'freelancer'
+      role: 'freelancer',
     };
     if (status) {
-      (filter as any).status = status;
+      filter.status = status;
     }
     return await this.model.countDocuments(filter);
   }
@@ -758,11 +758,11 @@ export class ContractTransactionRepository
     };
 
     if (role) {
-      (filter as any).role = role;
+      filter.role = role;
     }
 
     if (status) {
-      (filter as any).status = status;
+      filter.status = status;
     }
 
     return await this.model
@@ -781,11 +781,11 @@ export class ContractTransactionRepository
     };
 
     if (role) {
-      (filter as any).role = role;
+      filter.role = role;
     }
 
     if (status) {
-      (filter as any).status = status;
+      filter.status = status;
     }
 
     return await this.model.countDocuments(filter);
@@ -797,21 +797,21 @@ export class ContractTransactionRepository
         $match: {
           freelancerId: new Types.ObjectId(freelancerId),
           purpose: { $in: ['withdrawal'] },
-          status: "withdrawal_requested"
+          status: 'withdrawal_requested',
         },
       },
       {
         $group: {
           _id: null,
           pendingWithdraw: {
-            $sum: "$amount",
+            $sum: '$amount',
           },
         },
       },
       {
         $project: {
           _id: 0,
-          pendingWithdraw: "$pendingWithdraw",
+          pendingWithdraw: '$pendingWithdraw',
         },
       },
     ]);
@@ -823,8 +823,8 @@ export class ContractTransactionRepository
     const result = await this.model.aggregate([
       {
         $match: {
-          purpose: "withdrawal"
-        }
+          purpose: 'withdrawal',
+        },
       },
       {
         $group: {
@@ -843,43 +843,44 @@ export class ContractTransactionRepository
             $sum: {
               $cond: [{ $eq: ['$status', 'withdrawal_approved'] }, '$amount', 0],
             },
-          }
-        }
+          },
+        },
       },
       {
         $project: {
-          pendingRequests: "$pendingRequests",
-          totalPendingAmount: "$totalPendingAmount",
-          totalWithdrawn: "$totalWithdrawn"
-        }
-      }
-    ])
+          pendingRequests: '$pendingRequests',
+          totalPendingAmount: '$totalPendingAmount',
+          totalWithdrawn: '$totalWithdrawn',
+        },
+      },
+    ]);
 
-    const { pendingRequests, totalPendingAmount, totalWithdrawn } = result.length > 0 ? result[0]:{}
+    const { pendingRequests, totalPendingAmount, totalWithdrawn } =
+      result.length > 0 ? result[0] : {};
 
     return {
-      pendingRequests:pendingRequests||0,
-      totalPendingAmount:totalPendingAmount||0,
-      totalWithdrawn:totalWithdrawn||0
-    }
+      pendingRequests: pendingRequests || 0,
+      totalPendingAmount: totalPendingAmount || 0,
+      totalWithdrawn: totalWithdrawn || 0,
+    };
   }
 
   async findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null> {
     return await this.model
       .findById(withdrawalId)
       .populate('clientId', 'firstName lastName email avatar phone isVerified isClientBlocked')
-      .populate('freelancerId', 'firstName lastName email avatar phone isVerified isFreelancerBlocked freelancerProfile')
+      .populate(
+        'freelancerId',
+        'firstName lastName email avatar phone isVerified isFreelancerBlocked freelancerProfile',
+      )
       .lean();
   }
 
-  async updateWithdrawalStatus(withdrawalId: string, status: string): Promise<IContractTransaction | null> {
-    return await this.model
-      .findByIdAndUpdate(
-        withdrawalId,
-        { status },
-        { new: true }
-      )
-      .lean();
+  async updateWithdrawalStatus(
+    withdrawalId: string,
+    status: string,
+  ): Promise<IContractTransaction | null> {
+    return await this.model.findByIdAndUpdate(withdrawalId, { status }, { new: true }).lean();
   }
 
   async findCommissionTransactionsWithPagination(
@@ -961,9 +962,7 @@ export class ContractTransactionRepository
     };
   }
 
-  async getRevenueChartData(): Promise<
-    { month: string; revenue: number; transactions: number }[]
-  > {
+  async getRevenueChartData(): Promise<{ month: string; revenue: number; transactions: number }[]> {
     const currentDate = new Date();
     const sixMonthsAgo = new Date();
     sixMonthsAgo.setMonth(currentDate.getMonth() - 5);
@@ -990,7 +989,20 @@ export class ContractTransactionRepository
       { $sort: { '_id.year': 1, '_id.month': 1 } },
     ]);
 
-    const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const monthNames = [
+      'Jan',
+      'Feb',
+      'Mar',
+      'Apr',
+      'May',
+      'Jun',
+      'Jul',
+      'Aug',
+      'Sep',
+      'Oct',
+      'Nov',
+      'Dec',
+    ];
     const chartData: { month: string; revenue: number; transactions: number }[] = [];
 
     for (let i = 0; i < 6; i++) {
@@ -1069,5 +1081,4 @@ export class ContractTransactionRepository
 
     return result.length > 0 ? result[0].totalRevenue : 0;
   }
-
 }

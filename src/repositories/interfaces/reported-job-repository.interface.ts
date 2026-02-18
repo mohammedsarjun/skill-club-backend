@@ -1,5 +1,5 @@
 import BaseRepository from '../baseRepositories/base-repository';
-import { IReportedJob } from '../../models/interfaces/reported-job.model.interface';
+import { IHighReportedJob, IReportedJob } from '../../models/interfaces/reported-job.model.interface';
 
 export interface IReportedJobRepository extends BaseRepository<IReportedJob> {
   findByFreelancerAndJob(freelancerId: string, jobId: string): Promise<IReportedJob | null>;
@@ -8,6 +8,7 @@ export interface IReportedJobRepository extends BaseRepository<IReportedJob> {
   findByJobId(jobId: string): Promise<IReportedJob[]>;
   getAllReported(skip: number, limit: number): Promise<IReportedJob[]>;
   countAllReported(): Promise<number>;
+  getHighReportedJobs(): Promise<IHighReportedJob[]>;
 }
 
 export default IReportedJobRepository;

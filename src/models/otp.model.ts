@@ -1,6 +1,6 @@
 import mongoose, { Model, Schema } from 'mongoose';
 import { IOtp } from './interfaces/otp.model.interface';
-const otpExpiry=Number(process.env.OTP_EXPIRY)
+const otpExpiry = Number(process.env.OTP_EXPIRY);
 const otpSchema = new Schema({
   email: {
     type: String,

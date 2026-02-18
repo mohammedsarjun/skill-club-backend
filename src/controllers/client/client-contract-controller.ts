@@ -3,7 +3,9 @@ import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IClientContractController } from './interfaces/client-contract-controller.interface';
 import { IClientContractService } from '../../services/clientServices/interfaces/client-contract-service.interface';
+import { IContractActivityService } from '../../services/commonServices/interfaces/contract-activity-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
 import {
   ApproveDeliverableDTO,
@@ -20,9 +22,14 @@ import { RespondToContractExtensionDTO } from '../../dto/clientDTO/client-contra
 @injectable()
 export class ClientContractController implements IClientContractController {
   private _clientContractService: IClientContractService;
+  private _contractActivityService: IContractActivityService;
 
-  constructor(@inject('IClientContractService') clientContractService: IClientContractService) {
+  constructor(
+    @inject('IClientContractService') clientContractService: IClientContractService,
+    @inject('IContractActivityService') contractActivityService: IContractActivityService
+  ) {
     this._clientContractService = clientContractService;
+    this._contractActivityService = contractActivityService;
   }
 
   async getContracts(req: Request, res: Response): Promise<void> {
@@ -42,7 +49,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contracts fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -52,10 +59,9 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
 
     const result = await this._clientContractService.getContractDetail(clientId, contractId);
-
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract detail fetched successfully',
+      message: MESSAGES.CONTRACT.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -65,9 +71,13 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const { cancelContractReason } = req.body;
 
-    const result = await this._clientContractService.cancelContract(clientId, contractId, cancelContractReason);
+    const result = await this._clientContractService.cancelContract(
+      clientId,
+      contractId,
+      cancelContractReason,
+    );
 
-    res.status(HttpStatus.OK).json({ success: true, message: 'Contract cancelled', data: result });
+    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.CONTRACT.CANCELLED, data: result });
   }
 
   async approveDeliverable(req: Request, res: Response): Promise<void> {
@@ -79,7 +89,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Deliverable approved successfully',
+      message: MESSAGES.CONTRACT.DELIVERABLE_APPROVED,
       data: result,
     });
   }
@@ -97,7 +107,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Changes requested successfully',
+      message: MESSAGES.CONTRACT.CHANGES_REQUESTED,
       data: result,
     });
   }
@@ -115,7 +125,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Milestone deliverable approved successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_DELIVERABLE_APPROVED,
       data: result,
     });
   }
@@ -133,7 +143,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Milestone changes requested successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_CHANGES_REQUESTED,
       data: result,
     });
   }
@@ -156,15 +166,18 @@ export class ClientContractController implements IClientContractController {
     });
   }
 
-
   async getMilestoneDetail(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
-    const { contractId, milestoneId } = req.params; 
-    const result = await this._clientContractService.getMilestoneDetail(clientId, contractId, milestoneId);
+    const { contractId, milestoneId } = req.params;
+    const result = await this._clientContractService.getMilestoneDetail(
+      clientId,
+      contractId,
+      milestoneId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Milestone detail fetched successfully',
+      message: MESSAGES.CONTRACT.MILESTONE_DETAIL_FETCHED,
       data: result,
     });
   }
@@ -202,20 +215,18 @@ export class ClientContractController implements IClientContractController {
     res.setHeader('Content-Disposition', `attachment; filename=deliverable-files.zip`);
 
     zipArchive.pipe(res);
-
   }
 
   async downloadMilestoneDeliverableFiles(req: Request, res: Response): Promise<void> {
     const clientId = req.user?.userId as string;
     const { contractId, milestoneId } = req.params;
-        const data: DownloadDeliverableDTO = req.body;
+    const data: DownloadDeliverableDTO = req.body;
 
-  
     const zipArchive = await this._clientContractService.downloadMilestoneDeliverableFiles(
       clientId,
       contractId,
       milestoneId,
-      data
+      data,
     );
 
     res.setHeader('Content-Type', 'application/zip');
@@ -232,7 +243,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Hourly contract activated successfully',
+      message: MESSAGES.CONTRACT.HOURLY_ACTIVATED,
       data: result,
     });
   }
@@ -253,11 +264,15 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const data = req.body;
 
-    const result = await this._clientContractService.createCancellationRequest(clientId, contractId, data);
+    const result = await this._clientContractService.createCancellationRequest(
+      clientId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Cancellation request created successfully',
+      message: MESSAGES.CONTRACT.CANCELLATION_REQUEST_CREATED,
       data: result,
     });
   }
@@ -270,7 +285,7 @@ export class ClientContractController implements IClientContractController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Cancellation request fetched successfully',
+      message: MESSAGES.CONTRACT.CANCELLATION_REQUEST_FETCHED,
       data: result,
     });
   }
@@ -280,7 +295,11 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const data = req.body;
 
-    const result = await this._clientContractService.acceptCancellationRequest(clientId, contractId, data);
+    const result = await this._clientContractService.acceptCancellationRequest(
+      clientId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -294,11 +313,28 @@ export class ClientContractController implements IClientContractController {
     const { contractId } = req.params;
     const { notes } = req.body;
 
-    const result = await this._clientContractService.raiseCancellationDispute(clientId, contractId, notes);
+    const result = await this._clientContractService.raiseCancellationDispute(
+      clientId,
+      contractId,
+      notes,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
       message: result.message,
+      data: result,
+    });
+  }
+
+  async getContractTimeline(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+
+    const result = await this._contractActivityService.getContractTimeline(contractId, clientId, 'client');
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.CONTRACT.TIMELINE_FETCHED,
       data: result,
     });
   }

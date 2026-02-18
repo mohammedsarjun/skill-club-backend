@@ -61,7 +61,7 @@ export class ChatRepository extends BaseRepository<IMessageDocument> implements 
       .sort({ sentAt: -1 })
       .limit(limit)
       .lean();
-    
+
     return messages as IMessage[];
   }
 }

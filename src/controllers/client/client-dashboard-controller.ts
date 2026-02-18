@@ -2,6 +2,7 @@ import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import { IClientDashboardController } from './interfaces/client-dashboard-controller.interface';
 import { IClientDashboardService } from '../../services/clientServices/interfaces/client-dashboard-service.interface';
 
@@ -18,7 +19,7 @@ export class ClientDashboardController implements IClientDashboardController {
     const result = await this._clientDashboardService.getDashboardData(clientId!);
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Dashboard data fetched successfully',
+      message: MESSAGES.DASHBOARD.FETCH_SUCCESS,
       data: result,
     });
   }

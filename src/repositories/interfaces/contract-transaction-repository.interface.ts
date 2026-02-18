@@ -81,7 +81,7 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   getTotalFundedByClientId(clientId: string): Promise<number>;
   findTotalRefundByClientId(clientId: string): Promise<number>;
   findTotalWithdrawalByClientId(clientId: string): Promise<number>;
-  
+
   findWithdrawalsByClientIdWithPagination(
     clientId: string,
     page: number,
@@ -108,19 +108,28 @@ export interface IContractTransactionRepository extends BaseRepository<IContract
   getWithdrawStatsForAdmin(): Promise<AdminWithdrawalStatsDTO>;
   countWithdrawalsForAdmin(role?: string, status?: string): Promise<number>;
   findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null>;
-  updateWithdrawalStatus(withdrawalId: string, status: string): Promise<IContractTransaction | null>;
-  
+  updateWithdrawalStatus(
+    withdrawalId: string,
+    status: string,
+  ): Promise<IContractTransaction | null>;
+
   findCommissionTransactionsWithPagination(
     startDate?: Date,
     endDate?: Date,
   ): Promise<IContractTransaction[]>;
-  getRevenueStats(startDate?: Date, endDate?: Date): Promise<{
+  getRevenueStats(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{
     totalRevenue: number;
     totalCommissions: number;
     totalTransactions: number;
     averageCommission: number;
   }>;
   getRevenueChartData(): Promise<{ month: string; revenue: number; transactions: number }[]>;
-  getRevenueCategoryData(startDate?: Date, endDate?: Date): Promise<{ category: string; revenue: number }[]>;
+  getRevenueCategoryData(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<{ category: string; revenue: number }[]>;
   getPreviousPeriodRevenue(startDate: Date, endDate: Date): Promise<number>;
 }

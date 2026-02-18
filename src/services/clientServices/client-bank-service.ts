@@ -18,7 +18,7 @@ export class ClientBankService implements IClientBankService {
   async getBankDetails(clientId: string): Promise<UserBankDTO | null> {
     const bank = await this._bankRepository.findByUserId(clientId);
     if (!bank) return null;
-    return mapBankToDTO(bank as any);
+    return mapBankToDTO(bank);
   }
 
   async saveBankDetails(clientId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO> {
@@ -33,8 +33,8 @@ export class ClientBankService implements IClientBankService {
       ifscCode: data.ifscCode,
       accountType: data.accountType,
       verified: false,
-    } as any);
+    });
 
-    return mapBankToDTO(saved as any);
+    return mapBankToDTO(saved);
   }
 }

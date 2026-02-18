@@ -1,58 +1,68 @@
 import { Request, Response, NextFunction } from 'express';
+import { container } from 'tsyringe';
 import { jwtService } from '../utils/jwt';
 import { HttpStatus } from '../enums/http-status.enum';
+import { ERROR_MESSAGES } from '../contants/error-constants';
+import type { IBlacklistedTokenService } from '../services/commonServices/interfaces/blacklisted-token-service.interface';
+import '../config/container';
 
-// Extend Express Request to include user
 declare module 'express-serve-static-core' {
   interface Request {
     user?: {
       userId: string;
-      roles: string[];
-      activeRole: string;
-      isClientBlocked: boolean;
-      isFreelancerBlocked: boolean;
-      clientProfile?: string | undefined;
-      freelancerProfile?: string | undefined;
-      preferredCurrency?: 'USD' | 'EUR' | 'GBP' | 'INR' | 'AUD' | 'CAD' | 'SGD' | 'JPY';
+      activeRole?: string;
+      roles?: string[];
     };
   }
 }
 
-export function authMiddleware(req: Request, res: Response, next: NextFunction): void | Response {
+export async function authMiddleware(
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void | Response> {
   try {
-    const token = req.cookies.accessToken; // or get from headers if you prefer
+    const token = req.cookies.accessToken;
     if (!token) {
       return res
         .status(HttpStatus.UNAUTHORIZED)
         .json({ code: 'TOKEN_EXPIRED', message: 'Unauthorized: No token provided' });
     }
 
-    // Verify token
+    // Check blacklist first using service
+    const blacklistedTokenService = container.resolve<IBlacklistedTokenService>(
+      'IBlacklistedTokenService',
+    );
+    const isBlacklisted = await blacklistedTokenService.findBlacklistedToken(token);
+
+    if (isBlacklisted) {
+      return res.status(HttpStatus.UNAUTHORIZED).json({ message: 'Token invalidated' });
+    }
+
     const decoded = jwtService.verifyToken<{
       userId: string;
-      roles: string[];
-      activeRole: string;
-      isClientBlocked: boolean;
-      isFreelancerBlocked: boolean;
+      activeRole?: string;
+      roles?: string[];
     }>(token);
 
-    // Attach to request object
-    req.user = decoded;
+    req.user = { userId: decoded.userId, activeRole: decoded.activeRole, roles: decoded.roles };
     next();
   } catch (err) {
     console.error('Auth Middleware Error:', err);
     return res
-      .status(HttpStatus.FORBIDDEN)
-      .json({ message: 'Forbidden: Invalid or expired token' });
+      .status(HttpStatus.UNAUTHORIZED)
+      .json({ code: 'TOKEN_EXPIRED', message: 'Unauthorized: Invalid or expired token' });
   }
 }
 
-// Optional Role Guard Middleware
 export function roleGuard(requiredRole: string) {
   return (req: Request, res: Response, next: NextFunction): void | Response => {
-    if (!req.user?.roles?.includes(requiredRole)) {
-      return res.status(HttpStatus.FORBIDDEN).json({ message: 'Forbidden: Insufficient role' });
+    if (req.user?.activeRole === requiredRole) {
+      return next();
     }
-    next();
+    if (req.user?.roles && req.user.roles.includes(requiredRole)) {
+      return next();
+    }
+    return res.status(HttpStatus.FORBIDDEN).json({ message: ERROR_MESSAGES.AUTH.UNAUTHORIZED });
   };
 }

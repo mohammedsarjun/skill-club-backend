@@ -20,7 +20,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     this._deliverableChangeStrategyFactory = deliverableChangeStrategyFactory;
   }
 
-  async createContract(data: Partial<IContract>,session?: ClientSession): Promise<IContract> {
+  async createContract(data: Partial<IContract>, session?: ClientSession): Promise<IContract> {
     return await super.create(data, session);
   }
 
@@ -61,7 +61,16 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     cancelContractReason: string,
     session?: ClientSession,
   ): Promise<IContract | null> {
-    return await this.updateById(contractId, { status: 'cancelled', cancelledBy, cancellingReason:cancelContractReason, cancelledAt: new Date() }, session);
+    return await this.updateById(
+      contractId,
+      {
+        status: 'cancelled',
+        cancelledBy,
+        cancellingReason: cancelContractReason,
+        cancelledAt: new Date(),
+      },
+      session,
+    );
   }
 
   async findAllForClient(
@@ -244,7 +253,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     deliverableId: string,
     message?: string,
   ): Promise<IContract | null> {
-    const updateFields: any = {
+    const updateFields: Record<string, unknown> = {
       'deliverables.$[elem].status': 'approved',
       'deliverables.$[elem].approvedAt': new Date(),
     };
@@ -588,18 +597,17 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return contract.milestones.every((milestone) => milestone.status === 'paid');
   }
 
-  async activateHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null> {
-    return await this.updateById(
-      contractId,
-      { status: 'active' },
-      session
-    );
+  async activateHourlyContract(
+    contractId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
+    return await this.updateById(contractId, { status: 'active' }, session);
   }
 
   async getTotalSpendByClientId(clientId: string): Promise<number> {
     const result = await this.model.aggregate([
       { $match: { clientId: clientId } },
-      { $group: { _id: null, total: { $sum: '$totalPaid' } } }
+      { $group: { _id: null, total: { $sum: '$totalPaid' } } },
     ]);
     return result.length > 0 ? result[0].total : 0;
   }
@@ -607,7 +615,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
   async getContractIdsByClientId(clientId: string): Promise<string[]> {
     const contracts = await this.model.find({ clientId }).select('_id').lean();
 
-    return contracts.map(contract => contract._id.toString());
+    return contracts.map((contract) => contract._id.toString());
   }
 
   async hasPendingDeliverables(contractId: string): Promise<boolean> {
@@ -615,7 +623,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     if (!contract || !contract.deliverables || contract.deliverables.length === 0) {
       return false;
     }
-    return contract.deliverables.some(d => d.status === 'submitted');
+    return contract.deliverables.some((d) => d.status === 'submitted');
   }
 
   async hasAnyDeliverables(contractId: string): Promise<boolean> {
@@ -623,7 +631,10 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return !!(contract && contract.deliverables && contract.deliverables.length > 0);
   }
 
-  async markContractCancellationPending(contractId: string, session?: ClientSession): Promise<IContract | null> {
+  async markContractCancellationPending(
+    contractId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
     return await this.updateById(contractId, { status: 'refunded' as ContractStatus }, session);
   }
 
@@ -639,9 +650,9 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
 
   async getRecentActiveContractsByClientId(clientId: string, limit: number): Promise<IContract[]> {
     return await this.model
-      .find({ 
-        clientId, 
-        status: { $in: ['active', 'held'] as ContractStatus[] }
+      .find({
+        clientId,
+        status: { $in: ['active', 'held'] as ContractStatus[] },
       })
       .sort({ createdAt: -1 })
       .limit(limit)
@@ -665,24 +676,21 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     contractId: string,
     deliverableId: string,
   ): Promise<IContract | null> {
-    return (await this.model
-      .findByIdAndUpdate(
-        contractId,
-        {
-          $set: {
-            'deliverables.$[elem].status': 'change_request_approved',
-          },
+    return (await this.model.findByIdAndUpdate(
+      contractId,
+      {
+        $set: {
+          'deliverables.$[elem].status': 'change_request_approved',
         },
-        {
-          new: true,
-          arrayFilters: [{ 'elem._id': deliverableId }],
-        },
-
-      )
-    ) as IContract | null;
+      },
+      {
+        new: true,
+        arrayFilters: [{ 'elem._id': deliverableId }],
+      },
+    )) as IContract | null;
   }
 
- async updateMilestoneFundedAmount(
+  async updateMilestoneFundedAmount(
     contractId: string,
     milestoneId: string,
     session?: ClientSession,
@@ -703,11 +711,14 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return (await query.exec()) as IContract | null;
   }
 
-  async markAllMilestonesAsCancelled(contractId: string, session?: ClientSession): Promise<IContract | null> {
+  async markAllMilestonesAsCancelled(
+    contractId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
     const query = this.model.findByIdAndUpdate(
       contractId,
       { $set: { 'milestones.$[].status': 'cancelled' } },
-      { new: true }
+      { new: true },
     );
 
     if (session) {
@@ -717,7 +728,11 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return (await query.exec()) as IContract | null;
   }
 
-  async markMilestoneAsCancelled(contractId: string, milestoneId: string, session?: ClientSession): Promise<IContract | null> {
+  async markMilestoneAsCancelled(
+    contractId: string,
+    milestoneId: string,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
     const query = this.model.findByIdAndUpdate(
       contractId,
       { $set: { 'milestones.$[milestone].status': 'cancelled' } },
@@ -732,10 +747,20 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return (await query.exec()) as IContract | null;
   }
 
-  async markMilestoneAsDisputeEligible(contractId: string, milestoneId: string,disputeWindowEndsAt:Date, session?: ClientSession): Promise<IContract | null> {
+  async markMilestoneAsDisputeEligible(
+    contractId: string,
+    milestoneId: string,
+    disputeWindowEndsAt: Date,
+    session?: ClientSession,
+  ): Promise<IContract | null> {
     const query = this.model.findByIdAndUpdate(
       contractId,
-      { $set: { 'milestones.$[milestone].disputeEligible': true, 'milestones.$[milestone].disputeWindowEndsAt': disputeWindowEndsAt } },
+      {
+        $set: {
+          'milestones.$[milestone].disputeEligible': true,
+          'milestones.$[milestone].disputeWindowEndsAt': disputeWindowEndsAt,
+        },
+      },
       {
         new: true,
         arrayFilters: [{ 'milestone._id': milestoneId }],
@@ -743,7 +768,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     );
     if (session) {
       query.session(session);
-    } 
+    }
     return (await query.exec()) as IContract | null;
   }
   async endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null> {

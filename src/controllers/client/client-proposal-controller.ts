@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IClientProposalController } from './interfaces/client-proposal-controller.interface';
 import { IClientProposalService } from '../../services/clientServices/interfaces/client-proposal-service.interface';
 
@@ -14,7 +15,6 @@ export class ClientProposalController implements IClientProposalController {
     const userId = req.user?.userId;
     const jobId = req.params.jobId;
     const queryFilters = req.query as unknown as Record<string, unknown>;
-    console.log(queryFilters);
     const result = await this._clientProposalService.getAllProposal(
       userId as string,
       jobId as string,
@@ -22,7 +22,7 @@ export class ClientProposalController implements IClientProposalController {
     );
     res.status(200).json({
       success: true,
-      message: 'Proposals fetched successfully',
+      message: MESSAGES.PROPOSAL.FETCH_ALL_SUCCESS,
       data: result,
     });
   }
@@ -32,7 +32,7 @@ export class ClientProposalController implements IClientProposalController {
     const result = await this._clientProposalService.getProposalDetail(proposalId);
     res.status(200).json({
       success: true,
-      message: 'Proposal detail fetched successfully',
+      message: MESSAGES.PROPOSAL.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -43,6 +43,6 @@ export class ClientProposalController implements IClientProposalController {
     const result = await this._clientProposalService.rejectProposal(clientId, proposalId);
     res
       .status(200)
-      .json({ success: true, message: 'Proposal rejected successfully', data: result });
+      .json({ success: true, message: MESSAGES.PROPOSAL.REJECTED, data: result });
   }
 }

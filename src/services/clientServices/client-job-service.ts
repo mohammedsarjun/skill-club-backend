@@ -27,9 +27,9 @@ import { ISkillRepository } from '../../repositories/interfaces/skill-repository
 import { Types } from 'mongoose';
 import { ISpecialityRepository } from '../../repositories/interfaces/speciality-repository.interface';
 import { ICategoryRepository } from '../../repositories/interfaces/category-repository.interface';
+import { IProposalRepository } from '../../repositories/interfaces/proposal-repository.interface';
 import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
 import { mapJobQuery } from '../../mapper/commonMapper/common-job-mapper';
-
 
 @injectable()
 export class ClientJobService implements IClientJobService {
@@ -38,6 +38,7 @@ export class ClientJobService implements IClientJobService {
   private _skillRepository: ISkillRepository;
   private _specialityRespository: ISpecialityRepository;
   private _categoryRepository: ICategoryRepository;
+  private _proposalRepository: IProposalRepository;
 
   constructor(
     @inject('IJobRepository') jobRepository: IJobRepository,
@@ -45,14 +46,14 @@ export class ClientJobService implements IClientJobService {
     @inject('ISkillRepository') skillRepository: ISkillRepository,
     @inject('ISpecialityRepository') specialityRespository: ISpecialityRepository,
     @inject('ICategoryRepository') categoryRepository: ICategoryRepository,
-
+    @inject('IProposalRepository') proposalRepository: IProposalRepository,
   ) {
     this._jobRepository = jobRepository;
     this._clientRepository = clientRepository;
     this._skillRepository = skillRepository;
     this._specialityRespository = specialityRespository;
     this._categoryRepository = categoryRepository;
-
+    this._proposalRepository = proposalRepository;
   }
 
   async createJob(clientId: string, jobData: CreateJobDto): Promise<ClientJobDetailResponseDTO> {
@@ -100,7 +101,13 @@ export class ClientJobService implements IClientJobService {
 
     const job = await this._jobRepository.getJobById(createdJob?._id as string);
 
-    const responseJobData = mapJobModelToClientJobDetailResponseDTO(job as IJobDetail);
+    const proposalCount = await this._proposalRepository.countProposalsByJobId(
+      job?._id?.toString()!,
+    );
+    const responseJobData = mapJobModelToClientJobDetailResponseDTO(
+      job as IJobDetail,
+      proposalCount,
+    );
 
     return responseJobData;
   }
@@ -140,8 +147,8 @@ export class ClientJobService implements IClientJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-
-    const responseJobData = mapJobModelToClientJobDetailResponseDTO(job);
+    const proposalCount = await this._proposalRepository.countProposalsByJobId(jobId);
+    const responseJobData = mapJobModelToClientJobDetailResponseDTO(job, proposalCount);
     return responseJobData;
   }
 
@@ -167,7 +174,11 @@ export class ClientJobService implements IClientJobService {
 
     const jobModelDto = await this._jobRepository.getJobById(jobId);
 
-    const responseJobData = mapJobModelToClientJobDetailResponseDTO(jobModelDto as IJobDetail);
+    const proposalCount = await this._proposalRepository.countProposalsByJobId(jobId);
+    const responseJobData = mapJobModelToClientJobDetailResponseDTO(
+      jobModelDto as IJobDetail,
+      proposalCount,
+    );
 
     return responseJobData;
   }

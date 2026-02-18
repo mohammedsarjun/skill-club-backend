@@ -59,7 +59,10 @@ export class TransactionRepository
     super(Transaction);
   }
 
-  async createTransaction(data: Partial<ITransaction>, session?: ClientSession): Promise<ITransaction> {
+  async createTransaction(
+    data: Partial<ITransaction>,
+    session?: ClientSession,
+  ): Promise<ITransaction> {
     return await this.create(data, session);
   }
 
@@ -81,13 +84,23 @@ export class EscrowRepository extends BaseRepository<IEscrow> implements IEscrow
     return await this.model.find({ contractId }).sort({ createdAt: -1 }).exec();
   }
 
-  async findOneByContractIdAndStatus(contractId: string, status: IEscrow['status']): Promise<IEscrow | null> {
-    console.log("contract and status:",contractId, status);
+  async findOneByContractIdAndStatus(
+    contractId: string,
+    status: IEscrow['status'],
+  ): Promise<IEscrow | null> {
     return await this.model.findOne({ contractId, status }).exec();
   }
 
-  async findByContractAndMilestone(contractId: string, milestoneId: string): Promise<IEscrow | null> {
-    return await this.model.findOne({ contractId:new Types.ObjectId(contractId), milestoneId: new Types.ObjectId(milestoneId) }).exec();
+  async findByContractAndMilestone(
+    contractId: string,
+    milestoneId: string,
+  ): Promise<IEscrow | null> {
+    return await this.model
+      .findOne({
+        contractId: new Types.ObjectId(contractId),
+        milestoneId: new Types.ObjectId(milestoneId),
+      })
+      .exec();
   }
 
   async updateEscrowStatus(escrowId: string, status: IEscrow['status']): Promise<IEscrow | null> {
@@ -103,10 +116,8 @@ export class EscrowRepository extends BaseRepository<IEscrow> implements IEscrow
   }
 
   async releaseEscrow(escrowId: string): Promise<IEscrow | null> {
-    return await this.model.findOneAndUpdate(
-      { escrowId },
-      { status: 'released', releasedAt: new Date() },
-      { new: true }
-    ).exec();
+    return await this.model
+      .findOneAndUpdate({ escrowId }, { status: 'released', releasedAt: new Date() }, { new: true })
+      .exec();
   }
 }

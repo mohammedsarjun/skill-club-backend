@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IAdminReviewController } from './interfaces/admin-review-controller.interface';
 import { IAdminReviewService } from '../../services/interfaces/admin-review-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -18,7 +19,12 @@ export class AdminReviewController implements IAdminReviewController {
     const page = parseInt(req.query.page as string) || 1;
     const limit = parseInt(req.query.limit as string) || 10;
     const reviewerRole = req.query.reviewerRole as 'client' | 'freelancer' | undefined;
-    const isHideByAdmin = req.query.isHideByAdmin === 'true' ? true : req.query.isHideByAdmin === 'false' ? false : undefined;
+    const isHideByAdmin =
+      req.query.isHideByAdmin === 'true'
+        ? true
+        : req.query.isHideByAdmin === 'false'
+          ? false
+          : undefined;
 
     const query: AdminReviewQueryDTO = {
       page,
@@ -31,7 +37,7 @@ export class AdminReviewController implements IAdminReviewController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reviews retrieved successfully',
+      message: MESSAGES.REVIEW.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -43,7 +49,7 @@ export class AdminReviewController implements IAdminReviewController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Review visibility toggled successfully',
+      message: MESSAGES.REVIEW.VISIBILITY_TOGGLED,
       data: result,
     });
   }

@@ -27,7 +27,7 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     toString?: () => string;
   }>;
   const jobPop = offer.jobId as unknown as Partial<{ title?: string }>;
-  console.log((offer as unknown as { rejectedReason?: string }).rejectedReason);
+
   return {
     offerId: rawId,
     title: offer.title,
@@ -62,8 +62,12 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     category:
       typeof offer.categoryId === 'object' && offer.categoryId !== null
         ? {
-            categoryId: (offer.categoryId as unknown as { _id?: Types.ObjectId; name?: string })?._id?.toString() || '',
-            categoryName: (offer.categoryId as unknown as { _id?: Types.ObjectId; name?: string })?.name || '',
+            categoryId:
+              (
+                offer.categoryId as unknown as { _id?: Types.ObjectId; name?: string }
+              )?._id?.toString() || '',
+            categoryName:
+              (offer.categoryId as unknown as { _id?: Types.ObjectId; name?: string })?.name || '',
           }
         : undefined,
     reporting: offer.reporting

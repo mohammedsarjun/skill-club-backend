@@ -2,7 +2,7 @@ import { SupportedCurrency } from '../contants/currency.constants';
 
 export const getCurrencySymbol = (currency?: string): string => {
   if (!currency) return '₹';
-  
+
   const currencyMap: Record<SupportedCurrency, string> = {
     USD: '$',
     EUR: '€',

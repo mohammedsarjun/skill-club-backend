@@ -30,6 +30,7 @@ export const ERROR_MESSAGES = {
   OTP: {
     EXPIRED: 'OTP has expired',
     INCORRECT_OTP: 'Enter otp is incorrect',
+    UNKNOWN_PURPOSE: 'Unknown OTP purpose',
   },
   CLIENT: {
     FAILED_CREATE: 'Failed to create client profile',
@@ -67,6 +68,9 @@ export const ERROR_MESSAGES = {
     ALREADY_EXIST: 'Proposal already sent',
     NOT_FOUND: 'Proposal Not Found',
   },
+  OFFER: {
+    NOT_FOUND: 'Offer not found',
+  },
   CONTRACT: {
     NOT_FOUND: 'Contract not found',
     UNAUTHORIZED_ACCESS: 'You are not authorized to access this contract',
@@ -81,7 +85,8 @@ export const ERROR_MESSAGES = {
     NOT_HOURLY: 'This operation is only valid for hourly contracts',
     ALREADY_CANCELLED: 'Contract is already cancelled',
     INVALID_PAYMENT_TYPE: 'This operation is only valid for fixed payment contracts',
-    PENDING_DELIVERABLES: 'Please approve or reject all pending deliverables before cancelling the contract',
+    PENDING_DELIVERABLES:
+      'Please approve or reject all pending deliverables before cancelling the contract',
     CANCELLATION_IN_PROGRESS: 'Contract cancellation is already in progress',
     INVALID_END_STATUS: 'Contract must be active to be ended',
     PENDING_WORKLOGS: 'Please approve or reject all pending worklogs before ending the contract',
@@ -125,6 +130,16 @@ export const ERROR_MESSAGES = {
     INVALID_STATUS: 'Invalid meeting status for this action',
     REJECT_FAILED: 'Failed to reject meeting',
     UPDATE_FAILED: 'Failed to update meeting',
+    SCHEDULED_TIME_REQUIRED: 'Meeting scheduled time is required',
+    INVALID_DURATION: 'Duration must be 15, 30, 45, or 60 minutes',
+    AGENDA_TOO_SHORT: 'Agenda must be at least 10 characters',
+    AGENDA_TOO_LONG: 'Agenda must not exceed 500 characters',
+    MUST_BE_FUTURE: 'Meeting must be scheduled in the future',
+    ALREADY_ACTIVE: 'An active meeting request already exists for this freelancer',
+    TIME_CONFLICT: 'A meeting is already scheduled during this time slot',
+    FREELANCER_NOT_FOUND: 'Freelancer not found',
+    USER_NOT_FREELANCER: 'User is not a freelancer',
+    INVALID_FREELANCER_ID: 'Invalid freelancer ID',
   },
   FINANCE: {
     INSUFFICIENT_BALANCE: 'Insufficient balance for withdrawal',
@@ -140,5 +155,8 @@ export const ERROR_MESSAGES = {
   NOTIFICATION: {
     NOT_FOUND: 'Notification not found',
     UNAUTHORIZED: 'You are not authorized to access this notification',
+  },
+  FILE_UPLOAD: {
+    NO_FILE: 'No file provided',
   },
 };

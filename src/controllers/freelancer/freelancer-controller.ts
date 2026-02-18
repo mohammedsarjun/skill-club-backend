@@ -45,7 +45,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Language Deleted Successfully',
+      message: MESSAGES.FREELANCER_PROFILE.LANGUAGE_DELETED,
     });
   }
 
@@ -56,7 +56,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Portfolio Created',
+      message: MESSAGES.PORTFOLIO.CREATED,
     });
   }
 
@@ -70,7 +70,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Portfolio Deleted Successfully',
+      message: MESSAGES.PORTFOLIO.DELETED,
     });
   }
 
@@ -81,7 +81,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Portfolio Fetched Succcessfully',
+      message: MESSAGES.PORTFOLIO.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -96,7 +96,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Portfolio Fetched Succcessfully',
+      message: MESSAGES.PORTFOLIO.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -111,7 +111,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Freelancer Description Update Succcessfully',
+      message: MESSAGES.FREELANCER_PROFILE.DESCRIPTION_UPDATED,
       data: result,
     });
   }
@@ -126,7 +126,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Freelancer Professional Role Update Succcessfully',
+      message: MESSAGES.FREELANCER_PROFILE.ROLE_UPDATED,
       data: result,
     });
   }
@@ -142,7 +142,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Freelancer Hourly Rate Update Succcessfully',
+      message: MESSAGES.FREELANCER_PROFILE.HOURLY_RATE_UPDATED,
       data: result,
     });
   }
@@ -157,7 +157,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Freelancer Education Update Succcessfully',
+      message: MESSAGES.FREELANCER_PROFILE.EDUCATION_UPDATED,
       data: result,
     });
   }
@@ -172,7 +172,7 @@ export class FreelancerController implements IFreelancerController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Freelancer Education Deleted Succcessfully',
+      message: MESSAGES.FREELANCER_PROFILE.EDUCATION_DELETED,
       data: result,
     });
   }

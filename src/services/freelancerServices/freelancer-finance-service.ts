@@ -7,7 +7,10 @@ import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { Types } from 'mongoose';
 import { IBankDetailsRepository } from '../../repositories/interfaces/bank-details-repository.interface';
 import { mapContractTransactionToFreelancerTransactionItemDTO } from '../../mapper/freelancerMapper/freelancer-earnings.mapper';
-import { mapContractTransactionToFreelancerWithdrawalListItemDTO, mapContractTransactionToFreelancerWithdrawalDetailDTO } from '../../mapper/freelancerMapper/freelancer-withdrawal.mapper';
+import {
+  mapContractTransactionToFreelancerWithdrawalListItemDTO,
+  mapContractTransactionToFreelancerWithdrawalDetailDTO,
+} from '../../mapper/freelancerMapper/freelancer-withdrawal.mapper';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { FreelancerWithdrawalDetailDTO } from '../../dto/freelancerDTO/freelancer-withdrawal.dto';
@@ -26,7 +29,7 @@ export class FreelancerFinanceService implements IFreelancerFinanceService {
     this._bankRepository = bankRepository;
   }
 
-  async requestWithdrawal(freelancerId: string, amount: number, note?: string): Promise<any> {
+  async requestWithdrawal(freelancerId: string, amount: number, note?: string): Promise<unknown> {
     if (!amount || amount <= 0) {
       throw new AppError(ERROR_MESSAGES.FINANCE.INVALID_AMOUNT, 400);
     }
@@ -81,14 +84,19 @@ export class FreelancerFinanceService implements IFreelancerFinanceService {
     return { items: dtos, total, pages };
   }
 
-  async getWithdrawalDetail(freelancerId: string, withdrawalId: string): Promise<FreelancerWithdrawalDetailDTO> {
+  async getWithdrawalDetail(
+    freelancerId: string,
+    withdrawalId: string,
+  ): Promise<FreelancerWithdrawalDetailDTO> {
     const transaction = await this._contractTransactionRepository.findById(withdrawalId);
 
     if (!transaction) {
       throw new AppError(ERROR_MESSAGES.GENERAL.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const txFreelancerId = (transaction.freelancerId as unknown as { toString(): string }).toString();
+    const txFreelancerId = (
+      transaction.freelancerId as unknown as { toString(): string }
+    ).toString();
     if (txFreelancerId !== freelancerId) {
       throw new AppError(ERROR_MESSAGES.AUTH.UNAUTHORIZED, HttpStatus.FORBIDDEN);
     }

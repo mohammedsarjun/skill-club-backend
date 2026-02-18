@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IClientChatController } from './interfaces/client-chat-controller.interface';
 import { IClientChatService } from '../../services/clientServices/interfaces/client-chat-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -25,7 +26,7 @@ export class ClientChatController implements IClientChatController {
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Message sent successfully',
+      message: MESSAGES.CHAT.SENT,
       data: result,
     });
   }
@@ -43,7 +44,7 @@ export class ClientChatController implements IClientChatController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Messages fetched successfully',
+      message: MESSAGES.CHAT.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -56,7 +57,7 @@ export class ClientChatController implements IClientChatController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Messages marked as read',
+      message: MESSAGES.CHAT.MARKED_AS_READ,
     });
   }
 
@@ -68,7 +69,7 @@ export class ClientChatController implements IClientChatController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Unread count fetched successfully',
+      message: MESSAGES.CHAT.UNREAD_COUNT_FETCHED,
       data: { count },
     });
   }

@@ -13,12 +13,12 @@ export class ClientDeliverableMapper {
       if (contract.paymentType === 'fixed_with_milestones' && contract.milestones) {
         const idx = Math.max(0, (deliverable.version || 1) - 1);
         const milestone = contract.milestones[idx];
-        if (milestone && typeof (milestone as any).revisionsAllowed === 'number') {
-          revisionsAllowed = (milestone as any).revisionsAllowed;
+        if (milestone && typeof milestone.revisionsAllowed === 'number') {
+          revisionsAllowed = milestone.revisionsAllowed;
         }
       }
-      if (!revisionsAllowed && typeof (contract as any).revisions === 'number') {
-        revisionsAllowed = (contract as any).revisions || 0;
+      if (!revisionsAllowed && typeof contract.revisions === 'number') {
+        revisionsAllowed = contract.revisions || 0;
       }
     }
 

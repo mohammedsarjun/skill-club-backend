@@ -65,14 +65,13 @@ export class FreelancerDashboardServices implements IFreelancerDashboardServices
 
   async getEarnings(freelancerId: string): Promise<FreelancerEarningsDto> {
     const wallet = await this._walletRepository.findByFreelancerId(freelancerId);
-    
+
     if (!wallet) {
       throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const pendingPayment = await this._transactionRepository.findPendingEarningsByFreelancerId(
-      freelancerId,
-    );
+    const pendingPayment =
+      await this._transactionRepository.findPendingEarningsByFreelancerId(freelancerId);
 
     return mapToEarningsDto(
       wallet.totalEarned,
@@ -83,12 +82,13 @@ export class FreelancerDashboardServices implements IFreelancerDashboardServices
   }
 
   async getMeetings(freelancerId: string): Promise<FreelancerMeetingDto[]> {
-    const contracts = await this._contractRepository.findAllForFreelancer(
-      freelancerId,
-      { page: 1, limit: 1000, filters: { status: 'active' } }
-    );
+    const contracts = await this._contractRepository.findAllForFreelancer(freelancerId, {
+      page: 1,
+      limit: 1000,
+      filters: { status: 'active' },
+    });
 
-    const contractIds = contracts.map((contract) => (contract._id as any).toString());
+    const contractIds = contracts.map((contract) => contract._id?.toString() || '');
 
     if (contractIds.length === 0) {
       return [];
@@ -96,7 +96,9 @@ export class FreelancerDashboardServices implements IFreelancerDashboardServices
 
     const meetings = await this._meetingRepository.findUpcomingMeetingsByFreelancerId(contractIds);
 
-    return meetings.map(mapToMeetingDto);
+    return meetings.map((m) =>
+      mapToMeetingDto(m as unknown as Parameters<typeof mapToMeetingDto>[0]),
+    );
   }
 
   async getReviewStats(freelancerId: string): Promise<FreelancerReviewStatsDto> {
@@ -107,7 +109,9 @@ export class FreelancerDashboardServices implements IFreelancerDashboardServices
       3,
     );
 
-    const recentDtos = recentReviews.map(mapToReviewDto);
+    const recentDtos = recentReviews.map((r) =>
+      mapToReviewDto(r as unknown as Parameters<typeof mapToReviewDto>[0]),
+    );
 
     return mapToReviewStatsDto(averageRating, total, recentDtos);
   }

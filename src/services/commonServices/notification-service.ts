@@ -14,8 +14,11 @@ export class NotificationService implements INotificationService {
     this._notificationRepository = notificationRepository;
   }
 
-    async createAndEmitNotification(userId: string, notificationData: Partial<CreateNotificationInputDto>): Promise<void> {
-        const notification = await this._notificationRepository.createNotification(notificationData);
-        emitNotification(userId, notification);
-    }
+  async createAndEmitNotification(
+    userId: string,
+    notificationData: Partial<CreateNotificationInputDto>,
+  ): Promise<void> {
+    const notification = await this._notificationRepository.createNotification(notificationData);
+    emitNotification(userId, notification);
+  }
 }

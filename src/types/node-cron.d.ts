@@ -6,7 +6,11 @@ declare module 'node-cron' {
     running: boolean;
   };
 
-  export function schedule(expression: string, func: () => void | Promise<void>, options?: { scheduled?: boolean; timezone?: string }): ScheduledTask;
+  export function schedule(
+    expression: string,
+    func: () => void | Promise<void>,
+    options?: { scheduled?: boolean; timezone?: string },
+  ): ScheduledTask;
 
   const _default: {
     schedule: typeof schedule;

@@ -28,7 +28,10 @@ export class MeetingStatusService implements IMeetingStatusService {
     const now = new Date();
     const fifteenMinutesLater = new Date(now.getTime() + 15 * 60 * 1000);
     const sixteenMinutesLater = new Date(now.getTime() + 16 * 60 * 1000);
-    return await this._meetingRepository.findMeetingsStartingSoon(fifteenMinutesLater, sixteenMinutesLater);
+    return await this._meetingRepository.findMeetingsStartingSoon(
+      fifteenMinutesLater,
+      sixteenMinutesLater,
+    );
   }
 
   async findMeetingsGoingLive(): Promise<IMeeting[]> {

@@ -5,7 +5,7 @@ export interface IClientWallet extends Document {
   balance: number;
   totalFunded: number;
   totalRefunded: number;
-  
+
   createdAt?: Date;
   updatedAt?: Date;
 }

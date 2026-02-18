@@ -11,4 +11,5 @@ export interface IAdminJobService {
   rejectJob(jobId: string, rejectedReason: string): Promise<AdminJobDetailResponseDTO>;
   suspendJob(jobId: string, suspendedReason: string): Promise<AdminJobDetailResponseDTO>;
   getJobStats(): Promise<{ activeJobs: number; rejectedJobs: number; pendingJobs: number }>;
+  
 }

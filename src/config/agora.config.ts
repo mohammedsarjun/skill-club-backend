@@ -1,1 +1,1 @@
-export const AGORA_TOKEN_EXPIRE = 3600
+export const AGORA_TOKEN_EXPIRE = 3600;

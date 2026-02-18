@@ -31,7 +31,7 @@ export class GetRatesService implements IGetRatesService {
       if (!data || !data.rates) {
         data = null;
       }
-    } catch (err) {
+    } catch {
       // swallow and try fallback
       data = null;
     }
@@ -45,7 +45,7 @@ export class GetRatesService implements IGetRatesService {
         if (fallbackData && fallbackData.rates) {
           data = fallbackData;
         }
-      } catch (err) {
+      } catch {
         data = null;
       }
     }

@@ -291,6 +291,14 @@ freelancerRouter.get(
   freelancerContractController.getContractDetail.bind(freelancerContractController),
 );
 
+freelancerRouter.get(
+  '/contracts/:contractId/timeline',
+  authMiddleware,
+  roleGuard('freelancer'),
+  freelancerBlockMiddleware,
+  freelancerContractController.getContractTimeline.bind(freelancerContractController),
+);
+
 freelancerRouter.post(
   '/contracts/:contractId/deliverables',
   authMiddleware,
@@ -306,8 +314,6 @@ freelancerRouter.post(
   freelancerBlockMiddleware,
   freelancerContractController.approveChangeRequest.bind(freelancerContractController),
 );
-
-
 
 freelancerRouter.post(
   '/contracts/:contractId/milestones/deliverables',
@@ -706,7 +712,9 @@ freelancerRouter.patch(
   authMiddleware,
   roleGuard('freelancer'),
   freelancerBlockMiddleware,
-  freelancerNotificationController.markAllNotificationsAsRead.bind(freelancerNotificationController),
+  freelancerNotificationController.markAllNotificationsAsRead.bind(
+    freelancerNotificationController,
+  ),
 );
 
 export default freelancerRouter;

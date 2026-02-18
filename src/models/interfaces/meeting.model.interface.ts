@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document, Types } from 'mongoose';
 
 /* ---------------- Attendance ---------------- */
 export interface MeetingAttendance {
@@ -18,9 +18,9 @@ export interface MeetingNotes {
 export interface MeetingLog {
   action: string;
   userId?: Types.ObjectId;
-  role: "client" | "freelancer" | "system";
+  role: 'client' | 'freelancer' | 'system';
   timestamp: Date;
-  details?: Record<string, any>;
+  details?: Record<string, unknown>;
 }
 
 /* ---------------- Main Meeting Interface ---------------- */
@@ -36,23 +36,23 @@ export interface IMeeting extends Document {
   durationMinutes: number;
   agenda: string;
 
-   agora: {
-    channelName: String,
-    createdAt: Date
-  },
+  agora: {
+    channelName: String;
+    createdAt: Date;
+  };
   status:
-    | "proposed"
-    | "accepted"
-    | "completed"
-    | "missed"
-    | "partial_missed"
-    | "reschedule_requested"
-    | "ongoing";
-    meetingType:"pre-contract" | "post-contract";
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested'
+    | 'ongoing';
+  meetingType: 'pre-contract' | 'post-contract';
   attendance: MeetingAttendance;
-  rescheduleRequestedBy: "freelancer" | "client" | null;
+  rescheduleRequestedBy: 'freelancer' | 'client' | null;
   rescheduleProposedTime?: Date | null;
-  requestedBy?: "freelancer" | "client" | null;
+  requestedBy?: 'freelancer' | 'client' | null;
   notes?: MeetingNotes;
 
   logs: MeetingLog[];

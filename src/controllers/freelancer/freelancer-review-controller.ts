@@ -1,6 +1,7 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IFreelancerReviewController } from './interfaces/freelancer-review-controller.interface';
 import { IFreelancerReviewService } from '../../services/interfaces/freelancer-review-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -11,7 +12,9 @@ import { FreelancerReviewListQueryDTO } from '../../dto/freelancerDTO/freelancer
 export class FreelancerReviewController implements IFreelancerReviewController {
   private _freelancerReviewService: IFreelancerReviewService;
 
-  constructor(@inject('IFreelancerReviewService') freelancerReviewService: IFreelancerReviewService) {
+  constructor(
+    @inject('IFreelancerReviewService') freelancerReviewService: IFreelancerReviewService,
+  ) {
     this._freelancerReviewService = freelancerReviewService;
   }
 
@@ -24,7 +27,7 @@ export class FreelancerReviewController implements IFreelancerReviewController {
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Review submitted successfully',
+      message: MESSAGES.REVIEW.SUBMITTED,
       data: result,
     });
   }
@@ -49,7 +52,7 @@ export class FreelancerReviewController implements IFreelancerReviewController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Reviews retrieved successfully',
+      message: MESSAGES.REVIEW.FETCH_SUCCESS,
       data: result,
     });
   }

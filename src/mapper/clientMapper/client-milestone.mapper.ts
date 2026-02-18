@@ -46,15 +46,15 @@ export class ClientMilestoneMapper {
     };
   }
 
-  static toClientMilestoneDetailDTO(
-    milestone: ContractMilestone,
-  ): ClientMilestonesDetailDTO {
+  static toClientMilestoneDetailDTO(milestone: ContractMilestone): ClientMilestonesDetailDTO {
     return {
       id: milestone._id?.toString() || '',
       title: milestone.title,
       amount: milestone.amount,
-      amountBaseUSD: (milestone as any).amountBaseUSD,
-      expectedDelivery: milestone.expectedDelivery?.toISOString ? milestone.expectedDelivery.toISOString() : String(milestone.expectedDelivery),
+      amountBaseUSD: milestone.amountBaseUSD,
+      expectedDelivery: milestone.expectedDelivery?.toISOString
+        ? milestone.expectedDelivery.toISOString()
+        : String(milestone.expectedDelivery),
       status: milestone.status,
       submittedAt: milestone.submittedAt?.toISOString?.(),
       approvedAt: milestone.approvedAt?.toISOString?.(),

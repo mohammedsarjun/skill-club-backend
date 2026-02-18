@@ -26,7 +26,7 @@ import { IProposalRepository } from '../../repositories/interfaces/proposal-repo
 export class FreelancerJobService implements IFreelancerJobService {
   private _jobRepository: IJobRepository;
   private _clientRepository: IClientRepository;
-  private _proposalRepository:IProposalRepository
+  private _proposalRepository: IProposalRepository;
   constructor(
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IClientRepository') clientRepository: IClientRepository,
@@ -34,7 +34,7 @@ export class FreelancerJobService implements IFreelancerJobService {
   ) {
     this._jobRepository = jobRepository;
     this._clientRepository = clientRepository;
-    this._proposalRepository=proposalRepository
+    this._proposalRepository = proposalRepository;
   }
 
   async getAllJobs(
@@ -77,9 +77,17 @@ export class FreelancerJobService implements IFreelancerJobService {
     const userData = await this._clientRepository.getClientById(clientId._id);
     const totalJobsPosted = await this._jobRepository.countAllJobsByClientId(clientId._id);
     const clientMinimalData = mapuserModelToFreelancerClientMinimalDTO(userData!, totalJobsPosted);
-    const isProposalAlreadySent=await this._proposalRepository.findProposalByFreelancerAndJobId(freelancerUserId,jobId)
+    const isProposalAlreadySent = await this._proposalRepository.findProposalByFreelancerAndJobId(
+      freelancerUserId,
+      jobId,
+    );
     const proposalCount = await this._proposalRepository.countProposalsByJobId(jobId);
-    const jobDetailData = mapJobModelToFreelancerJobDetailResponseDTO(jobData, clientMinimalData,isProposalAlreadySent?true:false, proposalCount);
+    const jobDetailData = mapJobModelToFreelancerJobDetailResponseDTO(
+      jobData,
+      clientMinimalData,
+      isProposalAlreadySent ? true : false,
+      proposalCount,
+    );
 
     return jobDetailData;
   }

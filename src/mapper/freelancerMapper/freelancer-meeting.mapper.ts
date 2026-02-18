@@ -1,6 +1,10 @@
 import { IMeeting } from '../../models/interfaces/meeting.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
-import { FreelancerMeetingListItemDTO, FreelancerMeetingDetailDTO, FreelancerMeetingProposalResponseDTO } from '../../dto/freelancerDTO/freelancer-meeting.dto';
+import {
+  FreelancerMeetingListItemDTO,
+  FreelancerMeetingDetailDTO,
+  FreelancerMeetingProposalResponseDTO,
+} from '../../dto/freelancerDTO/freelancer-meeting.dto';
 import { IUser } from '../../models/interfaces/user.model.interface';
 import { Types } from 'mongoose';
 
@@ -9,7 +13,7 @@ function docIdToString(id: unknown): string | undefined {
   if (typeof id === 'string') return id;
   if (id instanceof Types.ObjectId) return id.toString();
   if (typeof id === 'object' && id !== null && '_id' in id) {
-    return docIdToString((id as any)._id);
+    return docIdToString((id as { _id: unknown })._id);
   }
   return undefined;
 }
@@ -22,16 +26,16 @@ export function mapMeetingToFreelancerListItemDTO(
   meeting: IMeeting,
   contract: IContract,
 ): FreelancerMeetingListItemDTO {
-
-  const clientData = contract.clientId && isPopulatedUser(contract.clientId)
-    ? {
-        clientId: contract.clientId._id?.toString() || '',
-        firstName: contract.clientId.firstName,
-        lastName: contract.clientId.lastName,
-        companyName: contract.clientId.clientProfile?.companyName,
-        logo: contract.clientId.clientProfile?.logo,
-      }
-    : undefined;
+  const clientData =
+    contract.clientId && isPopulatedUser(contract.clientId)
+      ? {
+          clientId: contract.clientId._id?.toString() || '',
+          firstName: contract.clientId.firstName,
+          lastName: contract.clientId.lastName,
+          companyName: contract.clientId.clientProfile?.companyName,
+          logo: contract.clientId.clientProfile?.logo,
+        }
+      : undefined;
 
   return {
     meetingId: meeting._id?.toString() || '',
@@ -43,16 +47,20 @@ export function mapMeetingToFreelancerListItemDTO(
     meetingType: meeting.meetingType,
     status: meeting.status,
     client: clientData,
-    agora: meeting.agora ? {
-      channelName: meeting.agora.channelName as string,
-      createdAt: meeting.agora.createdAt,
-    } : undefined,
-    attendance: meeting.attendance ? {
-      clientJoined: meeting.attendance.clientJoined,
-      clientLeftAt: meeting.attendance.clientLeftAt || undefined,
-      freelancerJoined: meeting.attendance.freelancerJoined,
-      freelancerLeftAt: meeting.attendance.freelancerLeftAt || undefined,
-    } : undefined,
+    agora: meeting.agora
+      ? {
+          channelName: meeting.agora.channelName as string,
+          createdAt: meeting.agora.createdAt,
+        }
+      : undefined,
+    attendance: meeting.attendance
+      ? {
+          clientJoined: meeting.attendance.clientJoined,
+          clientLeftAt: meeting.attendance.clientLeftAt || undefined,
+          freelancerJoined: meeting.attendance.freelancerJoined,
+          freelancerLeftAt: meeting.attendance.freelancerLeftAt || undefined,
+        }
+      : undefined,
     notes: meeting.notes,
     rescheduleRequestedBy: meeting.rescheduleRequestedBy || undefined,
     rescheduleProposedTime: meeting.rescheduleProposedTime || undefined,
@@ -65,7 +73,6 @@ export function mapPreContractMeetingToFreelancerListItemDTO(
   meeting: IMeeting,
   clientUser: IUser | null,
 ): FreelancerMeetingListItemDTO {
-
   const clientData = clientUser
     ? {
         clientId: clientUser._id?.toString() || '',
@@ -86,16 +93,20 @@ export function mapPreContractMeetingToFreelancerListItemDTO(
     meetingType: meeting.meetingType,
     status: meeting.status,
     client: clientData,
-    agora: meeting.agora ? {
-      channelName: meeting.agora.channelName as string,
-      createdAt: meeting.agora.createdAt,
-    } : undefined,
-    attendance: meeting.attendance ? {
-      clientJoined: meeting.attendance.clientJoined,
-      clientLeftAt: meeting.attendance.clientLeftAt || undefined,
-      freelancerJoined: meeting.attendance.freelancerJoined,
-      freelancerLeftAt: meeting.attendance.freelancerLeftAt || undefined,
-    } : undefined,
+    agora: meeting.agora
+      ? {
+          channelName: meeting.agora.channelName as string,
+          createdAt: meeting.agora.createdAt,
+        }
+      : undefined,
+    attendance: meeting.attendance
+      ? {
+          clientJoined: meeting.attendance.clientJoined,
+          clientLeftAt: meeting.attendance.clientLeftAt || undefined,
+          freelancerJoined: meeting.attendance.freelancerJoined,
+          freelancerLeftAt: meeting.attendance.freelancerLeftAt || undefined,
+        }
+      : undefined,
     notes: meeting.notes,
     rescheduleRequestedBy: meeting.rescheduleRequestedBy || undefined,
     rescheduleProposedTime: meeting.rescheduleProposedTime || undefined,
@@ -108,23 +119,26 @@ export function mapMeetingToFreelancerDetailDTO(
   meeting: IMeeting,
   contract: IContract,
 ): FreelancerMeetingDetailDTO {
-  const milestone = meeting.milestoneId && contract.milestones
-    ? contract.milestones.find((m) => m._id?.toString() === meeting.milestoneId?.toString())
-    : undefined;
+  const milestone =
+    meeting.milestoneId && contract.milestones
+      ? contract.milestones.find((m) => m._id?.toString() === meeting.milestoneId?.toString())
+      : undefined;
 
-  const deliverable = meeting.deliverablesId && contract.deliverables
-    ? contract.deliverables.find((d) => d._id?.toString() === meeting.deliverablesId?.toString())
-    : undefined;
+  const deliverable =
+    meeting.deliverablesId && contract.deliverables
+      ? contract.deliverables.find((d) => d._id?.toString() === meeting.deliverablesId?.toString())
+      : undefined;
 
-  const clientData = contract.clientId && isPopulatedUser(contract.clientId)
-    ? {
-        clientId: contract.clientId._id?.toString() || '',
-        firstName: contract.clientId.firstName,
-        lastName: contract.clientId.lastName,
-        companyName: contract.clientId.clientProfile?.companyName,
-        logo: contract.clientId.clientProfile?.logo,
-      }
-    : undefined;
+  const clientData =
+    contract.clientId && isPopulatedUser(contract.clientId)
+      ? {
+          clientId: contract.clientId._id?.toString() || '',
+          firstName: contract.clientId.firstName,
+          lastName: contract.clientId.lastName,
+          companyName: contract.clientId.clientProfile?.companyName,
+          logo: contract.clientId.clientProfile?.logo,
+        }
+      : undefined;
 
   return {
     meetingId: meeting._id?.toString() || '',
@@ -151,7 +165,9 @@ export function mapMeetingToFreelancerDetailDTO(
   };
 }
 
-export const mapMeetingToFreelancerMeetingProposalResponseDTO = (meeting: IMeeting): FreelancerMeetingProposalResponseDTO => {
+export const mapMeetingToFreelancerMeetingProposalResponseDTO = (
+  meeting: IMeeting,
+): FreelancerMeetingProposalResponseDTO => {
   const rawObj = meeting as unknown as Record<string, unknown>;
   const rawId = docIdToString(rawObj._id) || docIdToString(rawObj.id) || '';
 

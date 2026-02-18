@@ -7,8 +7,11 @@ import { IClientWalletRepository } from '../repositories/interfaces/client-walle
 import { Types } from 'mongoose';
 import { Contract } from '../models/contract.model';
 
-const contractTransactionRepository = container.resolve<IContractTransactionRepository>('IContractTransactionRepository');
-const clientWalletRepository = container.resolve<IClientWalletRepository>('IClientWalletRepository');
+const contractTransactionRepository = container.resolve<IContractTransactionRepository>(
+  'IContractTransactionRepository',
+);
+const clientWalletRepository =
+  container.resolve<IClientWalletRepository>('IClientWalletRepository');
 
 async function processContractRefunds() {
   try {
@@ -17,13 +20,15 @@ async function processContractRefunds() {
 
     const contracts = await Contract.find({
       status: 'refunded',
-      updatedAt: { $lte: fourDaysAgo }
+      updatedAt: { $lte: fourDaysAgo },
     }).lean();
 
     for (const contract of contracts) {
       try {
-        const fundingTransactions = await contractTransactionRepository.findByContractId(contract._id.toString());
-        const fundingTransaction = fundingTransactions.find(t => t.purpose === 'funding');
+        const fundingTransactions = await contractTransactionRepository.findByContractId(
+          contract._id.toString(),
+        );
+        const fundingTransaction = fundingTransactions.find((t) => t.purpose === 'funding');
 
         if (!fundingTransaction) {
           console.error(`No funding transaction found for contract ${contract.contractId}`);
@@ -48,12 +53,12 @@ async function processContractRefunds() {
         });
 
         await clientWalletRepository.updateBalance(contract.clientId.toString(), refundAmount);
-        await clientWalletRepository.incrementTotalRefunded(contract.clientId.toString(), refundAmount);
-
-        await Contract.updateOne(
-          { _id: contract._id },
-          { status: 'cancelled' }
+        await clientWalletRepository.incrementTotalRefunded(
+          contract.clientId.toString(),
+          refundAmount,
         );
+
+        await Contract.updateOne({ _id: contract._id }, { status: 'cancelled' });
 
         console.log(`Successfully processed refund for contract ${contract.contractId}`);
       } catch (error) {

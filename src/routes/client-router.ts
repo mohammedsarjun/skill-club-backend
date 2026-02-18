@@ -85,8 +85,6 @@ clientRouter.get(
   clientFinanceController.getWithdrawals.bind(clientFinanceController),
 );
 
-
-
 clientRouter.patch(
   '/update',
   authMiddleware,
@@ -289,13 +287,20 @@ clientRouter.get(
 );
 
 clientRouter.get(
+  '/contracts/:contractId/timeline',
+  authMiddleware,
+  roleGuard('client'),
+  clientBlockMiddleware,
+  clientContractController.getContractTimeline.bind(clientContractController),
+);
+
+clientRouter.get(
   '/contracts/:contractId/milestones/:milestoneId',
   authMiddleware,
   roleGuard('client'),
   clientBlockMiddleware,
   clientContractController.getMilestoneDetail.bind(clientContractController),
 );
-
 
 clientRouter.post(
   '/contracts/:contractId/cancel',
@@ -441,7 +446,8 @@ clientRouter.post(
   clientContractController.activateHourlyContract.bind(clientContractController),
 );
 
-clientRouter.post('/contracts/:contractId/end',
+clientRouter.post(
+  '/contracts/:contractId/end',
   authMiddleware,
   roleGuard('client'),
   clientBlockMiddleware,

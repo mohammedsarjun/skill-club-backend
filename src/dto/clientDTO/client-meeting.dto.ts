@@ -28,7 +28,17 @@ export interface ClientMeetingListItemDTO {
   agenda: string;
   type?: 'recurring' | 'milestone' | 'fixed';
   meetingType: 'pre-contract' | 'post-contract';
-  status: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested';
+  status:
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested'
+    | 'cancelled'
+    | 'rejected'
+    | 'ongoing'
+    | 'rescheduled_requested';
   freelancer?: {
     freelancerId: string;
     firstName?: string;
@@ -66,7 +76,17 @@ export interface ClientMeetingListResultDTO {
 export interface ClientMeetingQueryParamsDTO {
   page?: number;
   limit?: number;
-  status?: 'proposed' | 'accepted' | 'completed' | 'missed' | 'partial_missed' | 'reschedule_requested' | 'cancelled' | 'rejected' | 'ongoing' | 'rescheduled_requested';
+  status?:
+    | 'proposed'
+    | 'accepted'
+    | 'completed'
+    | 'missed'
+    | 'partial_missed'
+    | 'reschedule_requested'
+    | 'cancelled'
+    | 'rejected'
+    | 'ongoing'
+    | 'rescheduled_requested';
   meetingType?: 'pre-contract' | 'post-contract';
   requestedBy?: 'client' | 'freelancer';
   rescheduleRequestedBy?: 'client' | 'freelancer';

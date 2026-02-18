@@ -54,7 +54,6 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
-    console.log(query)
 
     const normalizedQuery: FreelancerMeetingQueryParamsDTO = {
       page: query.page && query.page > 0 ? query.page : 1,
@@ -87,8 +86,8 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       });
     }
 
-    allMeetings.sort((a, b) => 
-      new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime()
+    allMeetings.sort(
+      (a, b) => new Date(b.scheduledAt).getTime() - new Date(a.scheduledAt).getTime(),
     );
 
     const startIndex = (normalizedQuery.page! - 1) * normalizedQuery.limit!;
@@ -154,11 +153,14 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       return [];
     }
 
-    const meetings = await this._meetingRepository.findPreContractMeetingsForFreelancer(freelancerId, query);
+    const meetings = await this._meetingRepository.findPreContractMeetingsForFreelancer(
+      freelancerId,
+      query,
+    );
 
     const items = await Promise.all(
       meetings.map(async (meeting) => {
-        const clientUser = meeting.clientId 
+        const clientUser = meeting.clientId
           ? await this._userRepository.findById(meeting.clientId.toString())
           : null;
 
@@ -169,7 +171,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
     return items;
   }
 
-  async getMeetingDetail(freelancerId: string, meetingId: string): Promise<FreelancerMeetingDetailDTO> {
+  async getMeetingDetail(
+    freelancerId: string,
+    meetingId: string,
+  ): Promise<FreelancerMeetingDetailDTO> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -190,7 +195,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       throw new AppError('No contracts found for freelancer', HttpStatus.NOT_FOUND);
     }
 
-    const meeting = await this._meetingRepository.findDetailByIdForFreelancer(meetingId, contractIds);
+    const meeting = await this._meetingRepository.findDetailByIdForFreelancer(
+      meetingId,
+      contractIds,
+    );
 
     if (!meeting) {
       throw new AppError('Meeting not found', HttpStatus.NOT_FOUND);
@@ -205,7 +213,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
     return mapMeetingToFreelancerDetailDTO(meeting, contract);
   }
 
-  async getContractMeetings(freelancerId: string, contractId: string): Promise<FreelancerMeetingListItemDTO[]> {
+  async getContractMeetings(
+    freelancerId: string,
+    contractId: string,
+  ): Promise<FreelancerMeetingListItemDTO[]> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -268,9 +279,11 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       throw new AppError('Failed to accept meeting', HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const clientId = meeting.clientId || (meeting.contractId
-      ? (await this._contractRepository.findById(meeting.contractId.toString()))?.clientId
-      : null);
+    const clientId =
+      meeting.clientId ||
+      (meeting.contractId
+        ? (await this._contractRepository.findById(meeting.contractId.toString()))?.clientId
+        : null);
     if (clientId) {
       const notification = buildMeetingNotification(
         clientId,
@@ -300,17 +313,26 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
 
     const contractIds = contracts.map((c) => c._id?.toString()).filter((id): id is string => !!id);
 
-    const meeting = await this._meetingRepository.findDetailByIdForFreelancer(data.meetingId, contractIds);
+    const meeting = await this._meetingRepository.findDetailByIdForFreelancer(
+      data.meetingId,
+      contractIds,
+    );
 
     if (!meeting) {
       throw new AppError('Meeting not found', HttpStatus.NOT_FOUND);
     }
 
     if (meeting.status !== 'proposed' && meeting.status !== 'accepted') {
-      throw new AppError('Only proposed or accepted meetings can be rescheduled', HttpStatus.BAD_REQUEST);
+      throw new AppError(
+        'Only proposed or accepted meetings can be rescheduled',
+        HttpStatus.BAD_REQUEST,
+      );
     }
 
-    const updatedMeeting = await this._meetingRepository.requestReschedule(data.meetingId, data.proposedTime);
+    const updatedMeeting = await this._meetingRepository.requestReschedule(
+      data.meetingId,
+      data.proposedTime,
+    );
 
     if (!updatedMeeting) {
       throw new AppError('Failed to request reschedule', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -326,12 +348,18 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
           `The freelancer has requested to reschedule the meeting "${meeting.agenda}"`,
           data.meetingId,
         );
-        await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+        await this._notificationService.createAndEmitNotification(
+          contract.clientId.toString(),
+          notification,
+        );
       }
     }
   }
 
-  async rejectMeeting(freelancerId: string, data: { meetingId: string; reason: string }): Promise<void> {
+  async rejectMeeting(
+    freelancerId: string,
+    data: { meetingId: string; reason: string },
+  ): Promise<void> {
     if (!Types.ObjectId.isValid(freelancerId)) {
       throw new AppError('Invalid freelancerId', HttpStatus.BAD_REQUEST);
     }
@@ -365,15 +393,21 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       throw new AppError(ERROR_MESSAGES.MEETING.INVALID_STATUS, HttpStatus.BAD_REQUEST);
     }
 
-    const updated = await this._meetingRepository.rejectMeeting(data.meetingId, freelancerId, data.reason);
+    const updated = await this._meetingRepository.rejectMeeting(
+      data.meetingId,
+      freelancerId,
+      data.reason,
+    );
 
     if (!updated) {
       throw new AppError(ERROR_MESSAGES.MEETING.REJECT_FAILED, HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    const clientId = meeting.clientId || (meeting.contractId
-      ? (await this._contractRepository.findById(meeting.contractId.toString()))?.clientId
-      : null);
+    const clientId =
+      meeting.clientId ||
+      (meeting.contractId
+        ? (await this._contractRepository.findById(meeting.contractId.toString()))?.clientId
+        : null);
     if (clientId) {
       const notification = buildMeetingNotification(
         clientId,
@@ -399,11 +433,19 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       throw new AppError('Invalid contractId', HttpStatus.BAD_REQUEST);
     }
 
-    if (!meetingData.durationMinutes || meetingData.durationMinutes < 15 || meetingData.durationMinutes > 240) {
+    if (
+      !meetingData.durationMinutes ||
+      meetingData.durationMinutes < 15 ||
+      meetingData.durationMinutes > 240
+    ) {
       throw new AppError('Duration must be between 15 and 240 minutes', HttpStatus.BAD_REQUEST);
     }
 
-    if (!meetingData.agenda || meetingData.agenda.trim().length < 10 || meetingData.agenda.trim().length > 500) {
+    if (
+      !meetingData.agenda ||
+      meetingData.agenda.trim().length < 10 ||
+      meetingData.agenda.trim().length > 500
+    ) {
       throw new AppError('Agenda must be between 10 and 500 characters', HttpStatus.BAD_REQUEST);
     }
 
@@ -426,29 +468,29 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       throw new AppError('Meeting must be scheduled in the future', HttpStatus.BAD_REQUEST);
     }
 
-      const isMeetingAlreadyProposed = await this._meetingRepository.isMeetingAlreadyProposed(
-        contractId,
-        meetingData.milestoneId,
-        meetingData.deliverableId
-      );
+    const isMeetingAlreadyProposed = await this._meetingRepository.isMeetingAlreadyProposed(
+      contractId,
+      meetingData.milestoneId,
+      meetingData.deliverableId,
+    );
 
     if (isMeetingAlreadyProposed) {
       throw new AppError(
         'A meeting has already been proposed for this contract',
-        HttpStatus.CONFLICT
+        HttpStatus.CONFLICT,
       );
     }
 
     const conflicts = await this._meetingRepository.findConflictingMeetings(
       contractId,
       scheduledAt,
-      meetingData.durationMinutes
+      meetingData.durationMinutes,
     );
 
     if (conflicts.length > 0) {
       throw new AppError(
         'A meeting is already scheduled during this time slot',
-        HttpStatus.CONFLICT
+        HttpStatus.CONFLICT,
       );
     }
 
@@ -485,7 +527,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
         `A freelancer has proposed a meeting: "${meetingData.agenda}"`,
         meeting.id,
       );
-      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.clientId.toString(),
+        notification,
+      );
     }
 
     return mapMeetingToFreelancerMeetingProposalResponseDTO(meeting);
@@ -543,7 +588,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
         `Your reschedule request for "${meeting.agenda}" has been approved by the freelancer`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.clientId.toString(),
+        notification,
+      );
     }
   }
 
@@ -607,7 +655,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
         `Your reschedule request for "${meeting.agenda}" has been declined by the freelancer`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.clientId.toString(),
+        notification,
+      );
     }
   }
 
@@ -676,7 +727,10 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
         `The freelancer has proposed a new time for the meeting "${meeting.agenda}"`,
         data.meetingId,
       );
-      await this._notificationService.createAndEmitNotification(contract.clientId.toString(), notification);
+      await this._notificationService.createAndEmitNotification(
+        contract.clientId.toString(),
+        notification,
+      );
     }
   }
 
@@ -706,7 +760,7 @@ export class FreelancerMeetingService implements IFreelancerMeetingService {
       token,
       channelName: meetingId,
       appId: process.env.AGORA_APP_ID!,
-      uid: 0 as unknown as string, 
+      uid: 0 as unknown as string,
     };
   }
 }

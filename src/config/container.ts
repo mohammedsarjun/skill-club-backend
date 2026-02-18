@@ -65,12 +65,17 @@ container.register<IClientRepository>('IClientRepository', { useClass: ClientRep
 container.register<IProposalRepository>('IProposalRepository', { useClass: ProposalRepository });
 container.register<IOfferRepository>('IOfferRepository', { useClass: OfferRepository });
 container.register<IContractRepository>('IContractRepository', { useClass: ContractRepository });
+import { IContractActivityRepository } from '../repositories/interfaces/contract-activity-repository.interface';
+import { ContractActivityRepository } from '../repositories/contract-activity-repository';
+container.register<IContractActivityRepository>('IContractActivityRepository', { useClass: ContractActivityRepository });
 import { IDisputeRepository } from '../repositories/interfaces/dispute-repository.interface';
 import { DisputeRepository } from '../repositories/dispute-repository';
 container.register<IDisputeRepository>('IDisputeRepository', { useClass: DisputeRepository });
 import { ICancellationRequestRepository } from '../repositories/interfaces/cancellation-request-repository.interface';
 import { CancellationRequestRepository } from '../repositories/cancellation-request-repository';
-container.register<ICancellationRequestRepository>('ICancellationRequestRepository', { useClass: CancellationRequestRepository });
+container.register<ICancellationRequestRepository>('ICancellationRequestRepository', {
+  useClass: CancellationRequestRepository,
+});
 container.register<IPaymentRepository>('IPaymentRepository', { useClass: PaymentRepository });
 container.register<ITransactionRepository>('ITransactionRepository', {
   useClass: TransactionRepository,
@@ -94,8 +99,29 @@ container.register<IFreelancerWalletRepository>('IFreelancerWalletRepository', {
 container.register<IFileUploadService>('IFileUploadService', { useClass: FileUploadService });
 container.register<IGetRatesService>('IGetRatesService', { useClass: GetRatesService });
 container.register<IFileDownloadService>('IFileDownloadService', { useClass: FileDownloadService });
+container.register<IMeetingStatusService>('IMeetingStatusService', {
+  useClass: MeetingStatusService,
+});
+container.register<IWorklogTransactionService>('IWorklogTransactionService', {
+  useClass: WorklogTransactionService,
+});
+
+// Blacklisted Token
+import { IBlacklistedTokenRepository } from '../repositories/interfaces/blacklisted-token-repository.interface';
+import { BlacklistedTokenRepository } from '../repositories/blacklisted-token-repository';
+import { IBlacklistedTokenService } from '../services/commonServices/interfaces/blacklisted-token-service.interface';
+import { BlacklistedTokenService } from '../services/commonServices/blacklisted-token-service';
+container.register<IBlacklistedTokenRepository>('IBlacklistedTokenRepository', {
+  useClass: BlacklistedTokenRepository,
+});
+container.register<IBlacklistedTokenService>('IBlacklistedTokenService', {
+  useClass: BlacklistedTokenService,
+});
 container.register<IMeetingStatusService>('IMeetingStatusService', { useClass: MeetingStatusService });
 container.register<IWorklogTransactionService>('IWorklogTransactionService', { useClass: WorklogTransactionService });
+import { IContractActivityService } from '../services/commonServices/interfaces/contract-activity-service.interface';
+import { ContractActivityService } from '../services/commonServices/contract-activity-service';
+container.register<IContractActivityService>('IContractActivityService', { useClass: ContractActivityService });
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';
@@ -222,7 +248,9 @@ import { BankDetailsRepository } from '../repositories/bank-details-repository';
 import { IClientBankService } from '../services/clientServices/interfaces/client-bank-service.interface';
 import { ClientBankService } from '../services/clientServices/client-bank-service';
 
-container.register<IBankDetailsRepository>('IBankDetailsRepository', { useClass: BankDetailsRepository });
+container.register<IBankDetailsRepository>('IBankDetailsRepository', {
+  useClass: BankDetailsRepository,
+});
 container.register<IClientBankService>('IClientBankService', { useClass: ClientBankService });
 
 //user category ,speciality,skills
@@ -479,7 +507,6 @@ import { ClientChatService } from '../services/clientServices/client-chat-servic
 import { IFreelancerChatService } from '../services/freelancerServices/interfaces/freelancer-chat-service.interface';
 import { FreelancerChatService } from '../services/freelancerServices/freelancer-chat-service';
 
-
 container.register<ISavedFreelancerRepository>('ISavedFreelancerRepository', {
   useClass: SavedFreelancerRepository,
 });
@@ -495,7 +522,6 @@ container.register<IFreelancerChatService>('IFreelancerChatService', {
   useClass: FreelancerChatService,
 });
 
-
 // payment strategies
 import { HourlyPaymentStrategy } from '../services/clientServices/strategies/paymentStrategies/HourlyPaymentStrategy';
 import { FixedPaymentStrategy } from '../services/clientServices/strategies/paymentStrategies/FixedPaymentStrategy';
@@ -503,20 +529,20 @@ import { FixedPaymentStrategy } from '../services/clientServices/strategies/paym
 import { IPaymentAmountStrategy } from '../services/clientServices/strategies/paymentStrategies/interfaces/IPaymentAmountStrategy';
 import { MilestonePaymentStrategy } from '../services/clientServices/strategies/paymentStrategies/MIlestonePaymentStrategy';
 
-container.register<IPaymentAmountStrategy>("IPaymentAmountStrategy", {
+container.register<IPaymentAmountStrategy>('IPaymentAmountStrategy', {
   useClass: HourlyPaymentStrategy,
 });
 
-container.register<IPaymentAmountStrategy>("IPaymentAmountStrategy", {
+container.register<IPaymentAmountStrategy>('IPaymentAmountStrategy', {
   useClass: FixedPaymentStrategy,
 });
-container.register<IPaymentAmountStrategy>("IPaymentAmountStrategy", {
+container.register<IPaymentAmountStrategy>('IPaymentAmountStrategy', {
   useClass: MilestonePaymentStrategy,
 });
 
 //payment factory
 import { PaymentAmountStrategyFactory } from '../services/clientServices/factories/paymentFactories/PaymentAmountStrategyFactory';
-container.register("PaymentAmountStrategyFactory", {
+container.register('PaymentAmountStrategyFactory', {
   useClass: PaymentAmountStrategyFactory,
 });
 
@@ -524,15 +550,15 @@ container.register("PaymentAmountStrategyFactory", {
 import { MilestoneDeliverableChangeStrategy } from '../services/clientServices/strategies/deliverableStrategies/MilestoneDeliverableChangeStrategy';
 import { DefaultDeliverableChangeStrategy } from '../services/clientServices/strategies/deliverableStrategies/DefaultDeliverableChangeStrategy';
 import { IDeliverableChangeStrategy } from '../services/clientServices/strategies/deliverableStrategies/IDeliverableChangeStrategy';
-container.register<IDeliverableChangeStrategy>("IDeliverableChangeStrategy", {
+container.register<IDeliverableChangeStrategy>('IDeliverableChangeStrategy', {
   useClass: MilestoneDeliverableChangeStrategy,
 });
-container.register<IDeliverableChangeStrategy>("IDeliverableChangeStrategy", {
+container.register<IDeliverableChangeStrategy>('IDeliverableChangeStrategy', {
   useClass: DefaultDeliverableChangeStrategy,
 });
 
 import { DeliverableChangeStrategyFactory } from '../services/clientServices/factories/deliverableFactories/DeliverableChangeStrategyFactory';
-container.register("DeliverableChangeStrategyFactory", {
+container.register('DeliverableChangeStrategyFactory', {
   useClass: DeliverableChangeStrategyFactory,
 });
 
@@ -540,21 +566,20 @@ import { IContractCancellationStrategy } from '../services/clientServices/strate
 import { FixedContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/fixedContractCancellationStrategy';
 import { HourlyContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/hourlyContractCancellationStrategy';
 import { MilestoneContractCancellationStrategy } from '../services/clientServices/strategies/cancellationStrategies/milestoneContractCancellationStrategy';
-container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+container.register<IContractCancellationStrategy>('IContractCancellationStrategy', {
   useClass: FixedContractCancellationStrategy,
 });
-container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+container.register<IContractCancellationStrategy>('IContractCancellationStrategy', {
   useClass: HourlyContractCancellationStrategy,
 });
-container.register<IContractCancellationStrategy>("IContractCancellationStrategy", {
+container.register<IContractCancellationStrategy>('IContractCancellationStrategy', {
   useClass: MilestoneContractCancellationStrategy,
 });
 
 import { ContractCancellationStrategyFactory } from '../services/clientServices/factories/cancellationFactories/ContractCancellationStrategyFactory';
-container.register("ContractCancellationStrategyFactory", {
+container.register('ContractCancellationStrategyFactory', {
   useClass: ContractCancellationStrategyFactory,
 });
-
 
 //meeting service
 import { IClientMeetingService } from '../services/clientServices/interfaces/client-meeting-service.interface';
@@ -586,17 +611,13 @@ container.register<IDeliverablesChangeQueryStrategy>('IDeliverablesChangeQuerySt
 // deliverable change strategy factory (repository-level)
 import { DeliverableChangeQueryStrategyFactory } from '../repositories/factories/interfaces/deliverable-change.strategy.interface';
 
-container.register("DeliverableChangeQueryStrategyFactory", {
+container.register('DeliverableChangeQueryStrategyFactory', {
   useClass: DeliverableChangeQueryStrategyFactory,
 });
 
-
-
 //withdrawal
 import { AdminWithdrawalServices } from '../services/adminServices/admin-withdrawal-service';
-container.register("IAdminWithdrawalServices",
-  {useClass:AdminWithdrawalServices}
-)
+container.register('IAdminWithdrawalServices', { useClass: AdminWithdrawalServices });
 
 import { IAdminRevenueService } from '../services/adminServices/interfaces/admin-revenue-service.interface';
 import { AdminRevenueService } from '../services/adminServices/admin-revenue-service';
@@ -604,7 +625,6 @@ import { AdminRevenueService } from '../services/adminServices/admin-revenue-ser
 container.register<IAdminRevenueService>('IAdminRevenueService', {
   useClass: AdminRevenueService,
 });
-
 
 //notification
 

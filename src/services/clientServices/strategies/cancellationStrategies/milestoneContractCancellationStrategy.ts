@@ -19,10 +19,12 @@ export class MilestoneContractCancellationStrategy implements IContractCancellat
       };
     }
 
-    const hasPaidMilestones = contract.milestones?.some(m => m.status === 'paid');
-    const hasFundedMilestones = contract.milestones?.some(m => m.status === 'funded');
+    const hasPaidMilestones = contract.milestones?.some((m) => m.status === 'paid');
+    const hasFundedMilestones = contract.milestones?.some((m) => m.status === 'funded');
     const hasSubmittedMilestones = contract.milestones?.some(
-      m => m.deliverables && m.deliverables.some(d => d.status === 'submitted' || d.status === 'approved')
+      (m) =>
+        m.deliverables &&
+        m.deliverables.some((d) => d.status === 'submitted' || d.status === 'approved'),
     );
 
     if (hasPaidMilestones || hasSubmittedMilestones) {

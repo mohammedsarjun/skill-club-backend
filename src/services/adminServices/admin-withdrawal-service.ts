@@ -9,6 +9,7 @@ import { mapContractTransactionToAdminWithdrawDTO } from '../../mapper/adminMapp
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { extractObjectId } from '../../utils/extract-object-id';
 
 @injectable()
 export class AdminWithdrawalServices implements IAdminWithdrawalServices {
@@ -34,67 +35,69 @@ export class AdminWithdrawalServices implements IAdminWithdrawalServices {
     return await this._contractTransactionRepository.getWithdrawStatsForAdmin();
   }
 
-  async getWithdrawals(page: number, limit: number, role?: string, status?: string): Promise<{ items: AdminWithdrawDTO[]; total: number }> {
+  async getWithdrawals(
+    page: number,
+    limit: number,
+    role?: string,
+    status?: string,
+  ): Promise<{ items: AdminWithdrawDTO[]; total: number }> {
     try {
-      const transactions = await this._contractTransactionRepository.findWithdrawalsForAdmin(page, limit, role, status);
-      const total = await this._contractTransactionRepository.countWithdrawalsForAdmin(role, status);
+      const transactions = await this._contractTransactionRepository.findWithdrawalsForAdmin(
+        page,
+        limit,
+        role,
+        status,
+      );
+      const total = await this._contractTransactionRepository.countWithdrawalsForAdmin(
+        role,
+        status,
+      );
 
       const results: AdminWithdrawDTO[] = [];
 
       for (const tx of transactions) {
-        const fidAny = (tx.freelancerId as any) || null;
-        let freelancerId: string | undefined;
-
-        if (fidAny) {
-          if (typeof fidAny === 'string') {
-            freelancerId = fidAny;
-          } else if (fidAny._id) {
-            freelancerId = fidAny._id.toString();
-          } else if (typeof fidAny.toString === 'function') {
-            const s = fidAny.toString();
-            if (/^[a-fA-F0-9]{24}$/.test(s)) freelancerId = s;
-          }
-        }
+        const freelancerId = extractObjectId(tx.freelancerId);
 
         const freelancer = freelancerId ? await this._userRepository.findById(freelancerId) : null;
-        const bankDetails = freelancerId ? await this._bankDetailsRepository.findByUserId(freelancerId) : null;
+        const bankDetails = freelancerId
+          ? await this._bankDetailsRepository.findByUserId(freelancerId)
+          : null;
 
-        const dto = mapContractTransactionToAdminWithdrawDTO(tx, freelancer || null, bankDetails || null);
+        const dto = mapContractTransactionToAdminWithdrawDTO(
+          tx,
+          freelancer || null,
+          bankDetails || null,
+        );
         results.push(dto);
       }
 
       return { items: results, total };
-    } catch (err) {
+    } catch {
       throw new AppError(ERROR_MESSAGES.GENERAL.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
   async getWithdrawalDetail(withdrawalId: string): Promise<AdminWithdrawDTO> {
     try {
-      const transaction = await this._contractTransactionRepository.findWithdrawalById(withdrawalId);
+      const transaction =
+        await this._contractTransactionRepository.findWithdrawalById(withdrawalId);
 
       if (!transaction) {
         throw new AppError(ERROR_MESSAGES.GENERAL.NOT_FOUND, HttpStatus.NOT_FOUND);
       }
 
-      const fidAny = (transaction.freelancerId as any) || null;
-      let freelancerId: string | undefined;
-
-      if (fidAny) {
-        if (typeof fidAny === 'string') {
-          freelancerId = fidAny;
-        } else if (fidAny._id) {
-          freelancerId = fidAny._id.toString();
-        } else if (typeof fidAny.toString === 'function') {
-          const s = fidAny.toString();
-          if (/^[a-fA-F0-9]{24}$/.test(s)) freelancerId = s;
-        }
-      }
+      const freelancerId = extractObjectId(transaction.freelancerId);
 
       const freelancer = freelancerId ? await this._userRepository.findById(freelancerId) : null;
-      const bankDetails = freelancerId ? await this._bankDetailsRepository.findByUserId(freelancerId) : null;
+      const bankDetails = freelancerId
+        ? await this._bankDetailsRepository.findByUserId(freelancerId)
+        : null;
 
-      return mapContractTransactionToAdminWithdrawDTO(transaction, freelancer || null, bankDetails || null);
+      return mapContractTransactionToAdminWithdrawDTO(
+        transaction,
+        freelancer || null,
+        bankDetails || null,
+      );
     } catch (err) {
       if (err instanceof AppError) throw err;
       throw new AppError(ERROR_MESSAGES.GENERAL.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -103,7 +106,8 @@ export class AdminWithdrawalServices implements IAdminWithdrawalServices {
 
   async approveWithdrawal(withdrawalId: string): Promise<void> {
     try {
-      const transaction = await this._contractTransactionRepository.findWithdrawalById(withdrawalId);
+      const transaction =
+        await this._contractTransactionRepository.findWithdrawalById(withdrawalId);
 
       if (!transaction) {
         throw new AppError(ERROR_MESSAGES.GENERAL.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -113,24 +117,18 @@ export class AdminWithdrawalServices implements IAdminWithdrawalServices {
         throw new AppError('Withdrawal cannot be approved', HttpStatus.BAD_REQUEST);
       }
 
-      await this._contractTransactionRepository.updateWithdrawalStatus(withdrawalId, 'withdrawal_approved');
+      await this._contractTransactionRepository.updateWithdrawalStatus(
+        withdrawalId,
+        'withdrawal_approved',
+      );
 
-      const fidAny = (transaction.freelancerId as any) || null;
-      let freelancerId: string | undefined;
-
-      if (fidAny) {
-        if (typeof fidAny === 'string') {
-          freelancerId = fidAny;
-        } else if (fidAny._id) {
-          freelancerId = fidAny._id.toString();
-        } else if (typeof fidAny.toString === 'function') {
-          const s = fidAny.toString();
-          if (/^[a-fA-F0-9]{24}$/.test(s)) freelancerId = s;
-        }
-      }
+      const freelancerId = extractObjectId(transaction.freelancerId);
 
       if (freelancerId) {
-        await this._freelancerWalletRepository.incrementTotalWithdrawn(freelancerId, transaction.amount);
+        await this._freelancerWalletRepository.incrementTotalWithdrawn(
+          freelancerId,
+          transaction.amount,
+        );
         await this._freelancerWalletRepository.updateBalance(freelancerId, -transaction.amount);
       }
     } catch (err) {
@@ -141,7 +139,8 @@ export class AdminWithdrawalServices implements IAdminWithdrawalServices {
 
   async rejectWithdrawal(withdrawalId: string, _reason: string): Promise<void> {
     try {
-      const transaction = await this._contractTransactionRepository.findWithdrawalById(withdrawalId);
+      const transaction =
+        await this._contractTransactionRepository.findWithdrawalById(withdrawalId);
 
       if (!transaction) {
         throw new AppError(ERROR_MESSAGES.GENERAL.NOT_FOUND, HttpStatus.NOT_FOUND);
@@ -153,19 +152,7 @@ export class AdminWithdrawalServices implements IAdminWithdrawalServices {
 
       await this._contractTransactionRepository.updateWithdrawalStatus(withdrawalId, 'rejected');
 
-      const fidAny = (transaction.freelancerId as any) || null;
-      let freelancerId: string | undefined;
-
-      if (fidAny) {
-        if (typeof fidAny === 'string') {
-          freelancerId = fidAny;
-        } else if (fidAny._id) {
-          freelancerId = fidAny._id.toString();
-        } else if (typeof fidAny.toString === 'function') {
-          const s = fidAny.toString();
-          if (/^[a-fA-F0-9]{24}$/.test(s)) freelancerId = s;
-        }
-      }
+      const freelancerId = extractObjectId(transaction.freelancerId);
 
       if (freelancerId) {
         await this._freelancerWalletRepository.updateBalance(freelancerId, transaction.amount);

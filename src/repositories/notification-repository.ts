@@ -4,13 +4,18 @@ import { INotificationRepository } from './interfaces/notification-repository.in
 import { INotification } from '../models/interfaces/notification.model.interface';
 import { ClientSession, Types } from 'mongoose';
 
-
-export class NotificationRepository extends BaseRepository<INotification> implements INotificationRepository {
+export class NotificationRepository
+  extends BaseRepository<INotification>
+  implements INotificationRepository
+{
   constructor() {
     super(notificationModel);
   }
 
-  async createNotification(notificationData: Partial<INotification>, session?: ClientSession): Promise<INotification> {
+  async createNotification(
+    notificationData: Partial<INotification>,
+    session?: ClientSession,
+  ): Promise<INotification> {
     return await super.create(notificationData, session);
   }
 
@@ -25,7 +30,7 @@ export class NotificationRepository extends BaseRepository<INotification> implem
   async markAllAsRead(userId: Types.ObjectId, role: string): Promise<number> {
     const result = await this.model.updateMany(
       { userId, role, isRead: false },
-      { $set: { isRead: true } }
+      { $set: { isRead: true } },
     );
     return result.modifiedCount;
   }
@@ -33,6 +38,4 @@ export class NotificationRepository extends BaseRepository<INotification> implem
   async getUnreadCount(userId: Types.ObjectId, role: string): Promise<number> {
     return await this.count({ userId, role, isRead: false });
   }
-
 }
-

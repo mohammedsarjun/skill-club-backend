@@ -1,6 +1,12 @@
 import { Document, Types } from 'mongoose';
 
-export type ContractTransactionPurpose = 'funding' | 'release' | 'commission' | 'refund' | 'hold' | 'withdrawal';
+export type ContractTransactionPurpose =
+  | 'funding'
+  | 'release'
+  | 'commission'
+  | 'refund'
+  | 'hold'
+  | 'withdrawal';
 
 export interface IContractTransaction extends Document {
   transactionId: string;
@@ -11,7 +17,7 @@ export interface IContractTransaction extends Document {
 
   clientId: Types.ObjectId;
   freelancerId: Types.ObjectId;
-role  :'client'|'freelancer'|null
+  role: 'client' | 'freelancer' | null;
   amount: number;
   purpose: ContractTransactionPurpose;
   status:

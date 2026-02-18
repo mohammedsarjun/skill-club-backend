@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { MESSAGES } from '../../contants/contants';
 import { IAdminNotificationService } from '../../services/adminServices/interfaces/admin-notification-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
 
@@ -8,9 +9,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 export class AdminNotificationController {
   private _notificationService: IAdminNotificationService;
 
-  constructor(
-    @inject('IAdminNotificationService') notificationService: IAdminNotificationService
-  ) {
+  constructor(@inject('IAdminNotificationService') notificationService: IAdminNotificationService) {
     this._notificationService = notificationService;
   }
 
@@ -27,16 +26,22 @@ export class AdminNotificationController {
     try {
       const { notificationId } = req.params;
       await this._notificationService.markNotificationAsRead(notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Notification marked as read' });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }
   }
 
-  async markAllNotificationsAsRead(_req: Request, res: Response, next: NextFunction): Promise<void> {
+  async markAllNotificationsAsRead(
+    _req: Request,
+    res: Response,
+    next: NextFunction,
+  ): Promise<void> {
     try {
       await this._notificationService.markAllNotificationsAsRead();
-      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications marked as read' });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.NOTIFICATION.ALL_MARKED_AS_READ });
     } catch (error) {
       next(error);
     }

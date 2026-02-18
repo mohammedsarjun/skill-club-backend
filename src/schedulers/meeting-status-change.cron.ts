@@ -19,7 +19,10 @@ cron.schedule('* * * * *', async () => {
         `Your meeting "${meeting.agenda}" starts in 15 minutes`,
         meeting._id?.toString() || '',
       );
-      await notificationService.createAndEmitNotification(meeting.clientId.toString(), clientNotification);
+      await notificationService.createAndEmitNotification(
+        meeting.clientId.toString(),
+        clientNotification,
+      );
     }
     if (meeting.freelancerId) {
       const freelancerNotification = buildMeetingNotification(
@@ -29,7 +32,10 @@ cron.schedule('* * * * *', async () => {
         `Your meeting "${meeting.agenda}" starts in 15 minutes`,
         meeting._id?.toString() || '',
       );
-      await notificationService.createAndEmitNotification(meeting.freelancerId.toString(), freelancerNotification);
+      await notificationService.createAndEmitNotification(
+        meeting.freelancerId.toString(),
+        freelancerNotification,
+      );
     }
   }
 
@@ -43,7 +49,10 @@ cron.schedule('* * * * *', async () => {
         `Your meeting "${meeting.agenda}" is now live. Join now!`,
         meeting._id?.toString() || '',
       );
-      await notificationService.createAndEmitNotification(meeting.clientId.toString(), clientNotification);
+      await notificationService.createAndEmitNotification(
+        meeting.clientId.toString(),
+        clientNotification,
+      );
     }
     if (meeting.freelancerId) {
       const freelancerNotification = buildMeetingNotification(
@@ -53,7 +62,10 @@ cron.schedule('* * * * *', async () => {
         `Your meeting "${meeting.agenda}" is now live. Join now!`,
         meeting._id?.toString() || '',
       );
-      await notificationService.createAndEmitNotification(meeting.freelancerId.toString(), freelancerNotification);
+      await notificationService.createAndEmitNotification(
+        meeting.freelancerId.toString(),
+        freelancerNotification,
+      );
     }
   }
 

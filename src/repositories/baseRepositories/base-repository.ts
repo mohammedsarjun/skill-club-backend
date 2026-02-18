@@ -1,4 +1,11 @@
-import { Model, Document, FilterQuery, UpdateQuery, PopulateOptions, ClientSession } from 'mongoose';
+import {
+  Model,
+  Document,
+  FilterQuery,
+  UpdateQuery,
+  PopulateOptions,
+  ClientSession,
+} from 'mongoose';
 import { IBaseRepository } from './interfaces/base-repository.interface';
 export default class BaseRepository<T extends Document> implements IBaseRepository<T> {
   protected model: Model<T>;
@@ -60,7 +67,11 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
     return (await query.exec()) as unknown as R[];
   }
 
-  async updateById<R = T>(id: string, data: UpdateQuery<T>, session?: ClientSession): Promise<R | null> {
+  async updateById<R = T>(
+    id: string,
+    data: UpdateQuery<T>,
+    session?: ClientSession,
+  ): Promise<R | null> {
     const query = this.model.findByIdAndUpdate(id, data, { new: true });
     if (session) {
       query.session(session);
@@ -68,7 +79,11 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
     return (await query.exec()) as unknown as R | null;
   }
 
-  async update(filter: FilterQuery<T>, data?: UpdateQuery<T>, session?: ClientSession): Promise<T | null> {
+  async update(
+    filter: FilterQuery<T>,
+    data?: UpdateQuery<T>,
+    session?: ClientSession,
+  ): Promise<T | null> {
     const query = this.model.findOneAndUpdate(filter, data, { new: true });
     if (session) {
       query.session(session);

@@ -10,13 +10,10 @@ import { HttpStatus } from '../../enums/http-status.enum';
 
 @injectable()
 export class FileDownloadService implements IFileDownloadService {
-
-
-    getDeliverablesZip(files: FileDownloadInput[]): archiver.Archiver {
-    if (!files.length) throw new AppError("No files to download",HttpStatus.NOT_FOUND);
+  getDeliverablesZip(files: FileDownloadInput[]): archiver.Archiver {
+    if (!files.length) throw new AppError('No files to download', HttpStatus.NOT_FOUND);
     const mappedFiles = mapFilesToZip(files);
 
-
     return createZipStream(mappedFiles);
-    }
+  }
 }

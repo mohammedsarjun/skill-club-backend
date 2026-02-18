@@ -9,7 +9,6 @@ export const validate =
       req.body = schema.parse(req.body);
     } catch (err) {
       if (err instanceof ZodError) {
-        console.log(err);
         return res.status(400).json({
           success: false,
           message: 'Validation failed',

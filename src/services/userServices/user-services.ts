@@ -34,16 +34,16 @@ import { mapBankToDTO } from '../../mapper/clientMapper/client-bank.mapper';
 export class userServices implements IUserServices {
   private _userRepository: IUserRepository;
   private _actionVerificationRepository: IActionVerificationRepository;
-  private _bankDetailsRepository:IBankDetailsRepository
+  private _bankDetailsRepository: IBankDetailsRepository;
   constructor(
     @inject('IUserRepository') userRepository: IUserRepository,
     @inject('IActionVerificationRepository')
     actionVerificationRepository: IActionVerificationRepository,
-    @inject('IBankDetailsRepository') bankDetailsRepository:IBankDetailsRepository 
+    @inject('IBankDetailsRepository') bankDetailsRepository: IBankDetailsRepository,
   ) {
     this._userRepository = userRepository;
     this._actionVerificationRepository = actionVerificationRepository;
-    this._bankDetailsRepository=bankDetailsRepository
+    this._bankDetailsRepository = bankDetailsRepository;
   }
 
   async getProfile(userId: string): Promise<UserProfileDto> {
@@ -98,8 +98,7 @@ export class userServices implements IUserServices {
       }
 
       return updatedUser;
-    } catch (error: unknown) {
-      console.log(error);
+    } catch {
       throw new AppError(ERROR_MESSAGES.FREELANCER.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -122,7 +121,7 @@ export class userServices implements IUserServices {
 
       const clientResponseDto = mapUserModelToClientProfileUpdateResponseDto(updatedUser);
       return clientResponseDto;
-    } catch (error) {
+    } catch {
       throw new AppError(ERROR_MESSAGES.CLIENT.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
@@ -220,33 +219,31 @@ export class userServices implements IUserServices {
       }
 
       return updatedUser;
-    } catch (error: unknown) {
-      console.log(error);
+    } catch {
       throw new AppError(ERROR_MESSAGES.FREELANCER.FAILED_CREATE, HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
 
+  async getBankDetails(clientId: string): Promise<UserBankDTO | null> {
+    const bank = await this._bankDetailsRepository.findByUserId(clientId);
+    if (!bank) return null;
+    return mapBankToDTO(bank);
+  }
 
-    async getBankDetails(clientId: string): Promise<UserBankDTO | null> {
-      const bank = await this._bankDetailsRepository.findByUserId(clientId);
-      if (!bank) return null;
-      return mapBankToDTO(bank as any);
+  async saveBankDetails(clientId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO> {
+    if (!data.accountHolderName || !data.bankName || !data.accountNumber || !data.ifscCode) {
+      throw new AppError(ERROR_MESSAGES.BANK.INVALID_DETAILS, 400);
     }
-  
-    async saveBankDetails(clientId: string, data: Partial<UserBankDTO>): Promise<UserBankDTO> {
-      if (!data.accountHolderName || !data.bankName || !data.accountNumber || !data.ifscCode) {
-        throw new AppError(ERROR_MESSAGES.BANK.INVALID_DETAILS, 400);
-      }
-  
-      const saved = await this._bankDetailsRepository.createOrUpdateByUser(clientId, {
-        accountHolderName: data.accountHolderName,
-        bankName: data.bankName,
-        accountNumber: data.accountNumber,
-        ifscCode: data.ifscCode,
-        accountType: data.accountType,
-        verified: false,
-      } as any);
-  
-      return mapBankToDTO(saved as any);
-    }
+
+    const saved = await this._bankDetailsRepository.createOrUpdateByUser(clientId, {
+      accountHolderName: data.accountHolderName,
+      bankName: data.bankName,
+      accountNumber: data.accountNumber,
+      ifscCode: data.ifscCode,
+      accountType: data.accountType,
+      verified: false,
+    });
+
+    return mapBankToDTO(saved);
+  }
 }

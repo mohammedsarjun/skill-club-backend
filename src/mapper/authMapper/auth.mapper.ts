@@ -9,8 +9,6 @@ export const mapCreateUserDtoToUserModel = (
 > & {
   agreement: boolean;
 } => {
-  console.log('Mapping CreateUserDTO to UserModel:');
-  console.log(dto);
   return {
     firstName: dto.firstName,
     lastName: dto.lastName,

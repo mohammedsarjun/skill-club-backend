@@ -10,10 +10,7 @@ import {
 } from '../utils/validationSchemas/auth-validations';
 import { OtpController } from '../controllers/auth/otp-controller';
 import { GoogleAuthController } from '../controllers/auth/google-auth-controller';
-import { jwtService } from '../utils/jwt';
 import { authMiddleware } from '../middlewares/auth-middleware';
-import { HttpStatus } from '../enums/http-status.enum';
-import { jwtConfig } from '../config/jwt.config';
 
 const authRouter = express.Router();
 
@@ -70,29 +67,8 @@ authRouter.post('/google', googleAuthController.googleLogin.bind(googleAuthContr
 
 authRouter.post('/logout', authController.logout.bind(authController));
 
-authRouter.post('/refresh-token', (req, res) => {
-  const refreshToken = req.cookies.refreshToken;
-  console.log('dsahu');
-  console.log(refreshToken);
-  try {
-    const decoded = jwtService.verifyToken(refreshToken);
+authRouter.get('/me', authMiddleware, authController.me.bind(authController));
 
-    const { iat, exp, nbf, ...payload } = decoded;
-
-    const newAccessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
-
-    res.cookie('accessToken', newAccessToken, {
-      httpOnly: process.env.NODE_ENV === 'production',
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'none',
-      path: '/',
-      maxAge: jwtConfig.accessTokenMaxAge * 1000,
-    });
-
-    res.json({ message: 'Access token refreshed' });
-  } catch (err) {
-    res.sendStatus(HttpStatus.FORBIDDEN);
-  }
-});
+authRouter.post('/refresh-token', authController.refreshToken.bind(authController));
 
 export default authRouter;

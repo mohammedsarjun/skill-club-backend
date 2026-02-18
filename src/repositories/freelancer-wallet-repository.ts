@@ -20,40 +20,62 @@ export class FreelancerWalletRepository
 
   async createWallet(freelancerId: string, session?: ClientSession): Promise<IFreelancerWallet> {
     return await super.create(
-      { freelancerId: new Types.ObjectId(freelancerId), balance: 0, totalEarned: 0, totalWithdrawn: 0, totalCommissionPaid: 0 } as Partial<IFreelancerWallet>,
-      session
+      {
+        freelancerId: new Types.ObjectId(freelancerId),
+        balance: 0,
+        totalEarned: 0,
+        totalWithdrawn: 0,
+        totalCommissionPaid: 0,
+      } as Partial<IFreelancerWallet>,
+      session,
     );
   }
 
-  async updateBalance(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null> {
+  async updateBalance(
+    freelancerId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IFreelancerWallet | null> {
     return await super.update(
       { freelancerId: new Types.ObjectId(freelancerId) },
       { $inc: { balance: amount } },
-      session
+      session,
     );
   }
 
-  async incrementTotalEarned(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null> {
+  async incrementTotalEarned(
+    freelancerId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IFreelancerWallet | null> {
     return await super.update(
       { freelancerId: new Types.ObjectId(freelancerId) },
       { $inc: { totalEarned: amount } },
-      session
+      session,
     );
   }
 
-  async incrementTotalCommissionPaid(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null> {
+  async incrementTotalCommissionPaid(
+    freelancerId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IFreelancerWallet | null> {
     return await super.update(
       { freelancerId: new Types.ObjectId(freelancerId) },
       { $inc: { totalCommissionPaid: amount } },
-      session
+      session,
     );
   }
 
-  async incrementTotalWithdrawn(freelancerId: string, amount: number, session?: ClientSession): Promise<IFreelancerWallet | null> {
+  async incrementTotalWithdrawn(
+    freelancerId: string,
+    amount: number,
+    session?: ClientSession,
+  ): Promise<IFreelancerWallet | null> {
     return await super.update(
       { freelancerId: new Types.ObjectId(freelancerId) },
       { $inc: { totalWithdrawn: amount } },
-      session
+      session,
     );
   }
 }

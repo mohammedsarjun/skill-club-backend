@@ -31,7 +31,6 @@ export class ProposalRepository extends BaseRepository<IProposal> implements IPr
     proposalFilterQuery: ProposalQueryParamsDTO,
     skip: number,
   ): Promise<ProposalDetailWithFreelancerDetail[] | null> {
-    console.log(jobId, proposalFilterQuery);
     const status: ProposalQueryParamsDTO['status'] | undefined = proposalFilterQuery?.status;
     const query: Partial<{
       jobId: string;
@@ -64,13 +63,12 @@ export class ProposalRepository extends BaseRepository<IProposal> implements IPr
     proposalFilterQuery: ProposalQueryParamsDTO,
     skip: number,
   ): Promise<ProposalDetailWithJobDetail[] | null> {
-    console.log(jobId);
     const status: ProposalQueryParamsDTO['status'] | undefined = proposalFilterQuery?.status;
     const query: Partial<{
       jobId: string;
       freelancerId: string;
       status: ProposalQueryParamsDTO['status'];
-    }> = { freelancerId: freelancerId };
+    }> = { freelancerId: freelancerId, jobId: jobId };
     if (status) query.status = status;
 
     const proposals = await super.findAll(query, {
@@ -117,25 +115,30 @@ export class ProposalRepository extends BaseRepository<IProposal> implements IPr
     return await super.updateById(proposalId, { $set: { status } });
   }
 
-  async findProposalByFreelancerAndJobId(freelancerId:string,jobId:string): Promise<IProposal | null>{
-    return await super.findOne({freelancerId,jobId})
+  async findProposalByFreelancerAndJobId(
+    freelancerId: string,
+    jobId: string,
+  ): Promise<IProposal | null> {
+    return await super.findOne({ freelancerId, jobId });
   }
 
   async countPendingProposalsByClientId(clientId: string): Promise<number> {
     const jobIds = await this.model.distinct('jobId', {}).exec();
-    const jobs = await this.model.aggregate([
-      { $match: { jobId: { $in: jobIds } } },
-      {
-        $lookup: {
-          from: 'jobs',
-          localField: 'jobId',
-          foreignField: '_id',
-          as: 'job'
-        }
-      },
-      { $unwind: '$job' },
-      { $match: { 'job.clientId': clientId, status: 'pending_verification' } }
-    ]).exec();
+    const jobs = await this.model
+      .aggregate([
+        { $match: { jobId: { $in: jobIds } } },
+        {
+          $lookup: {
+            from: 'jobs',
+            localField: 'jobId',
+            foreignField: '_id',
+            as: 'job',
+          },
+        },
+        { $unwind: '$job' },
+        { $match: { 'job.clientId': clientId, status: 'pending_verification' } },
+      ])
+      .exec();
     return jobs.length;
   }
 

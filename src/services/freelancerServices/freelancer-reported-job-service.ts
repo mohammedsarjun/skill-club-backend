@@ -4,7 +4,10 @@ import '../../config/container';
 import IFreelancerReportedJobService from './interfaces/freelancer-reported-job-service.interface';
 import { IReportedJobRepository } from '../../repositories/interfaces/reported-job-repository.interface';
 import { IJobRepository } from '../../repositories/interfaces/job-repository.interface';
-import { ReportJobDTO, ReportJobResponseDTO } from '../../dto/freelancerDTO/freelancer-reported-job.dto';
+import {
+  ReportJobDTO,
+  ReportJobResponseDTO,
+} from '../../dto/freelancerDTO/freelancer-reported-job.dto';
 import { mapToReportJobResponseDTO } from '../../mapper/freelancerMapper/freelancer-reported-job.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -33,10 +36,7 @@ export class FreelancerReportedJobService implements IFreelancerReportedJobServi
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
-    const existing = await this._reportedJobRepository.findByFreelancerAndJob(
-      freelancerId,
-      jobId,
-    );
+    const existing = await this._reportedJobRepository.findByFreelancerAndJob(freelancerId, jobId);
     if (existing) {
       throw new AppError(ERROR_MESSAGES.JOB.ALREADY_REPORTED, HttpStatus.BAD_REQUEST);
     }
@@ -51,10 +51,7 @@ export class FreelancerReportedJobService implements IFreelancerReportedJobServi
   }
 
   async isJobReported(freelancerId: string, jobId: string): Promise<boolean> {
-    const existing = await this._reportedJobRepository.findByFreelancerAndJob(
-      freelancerId,
-      jobId,
-    );
+    const existing = await this._reportedJobRepository.findByFreelancerAndJob(freelancerId, jobId);
     return !!existing;
   }
 }

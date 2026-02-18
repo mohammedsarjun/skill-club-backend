@@ -136,7 +136,6 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
     queryFilter: freelancerParams,
   ): Promise<IFreelancerData[] | null> {
     const mongoQuery = mapClientQueryToFreelancerModelQuery(clientUserId, queryFilter);
-    console.log(mongoQuery);
 
     const page = Number(queryFilter.page) || 1;
     const limit = 5;
@@ -243,10 +242,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
               if: { $eq: ['$totalContracts', 0] },
               then: 0,
               else: {
-                $multiply: [
-                  { $divide: ['$completedContracts', '$totalContracts'] },
-                  100,
-                ],
+                $multiply: [{ $divide: ['$completedContracts', '$totalContracts'] }, 100],
               },
             },
           },
@@ -303,7 +299,6 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
   }
 
   async getFreelacerByIdForClient(freelancerId: string): Promise<IFreelancerDetailData | null> {
-    console.log(freelancerId);
     const [freelancer] = await this.model.aggregate([
       { $match: { _id: new Types.ObjectId(freelancerId) } },
       {
@@ -374,10 +369,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
               if: { $eq: ['$totalContracts', 0] },
               then: 0,
               else: {
-                $multiply: [
-                  { $divide: ['$completedContracts', '$totalContracts'] },
-                  100,
-                ],
+                $multiply: [{ $divide: ['$completedContracts', '$totalContracts'] }, 100],
               },
             },
           },

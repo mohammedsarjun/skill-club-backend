@@ -1,5 +1,9 @@
 import { IWorklog } from '../../models/interfaces/worklog.model.interface';
-import { WorklogResponseDTO, WorklogListItemDTO, WorklogDetailDTO } from '../../dto/freelancerDTO/freelancer-worklog.dto';
+import {
+  WorklogResponseDTO,
+  WorklogListItemDTO,
+  WorklogDetailDTO,
+} from '../../dto/freelancerDTO/freelancer-worklog.dto';
 
 export function mapWorklogToResponseDTO(worklog: IWorklog): WorklogResponseDTO {
   return {
@@ -30,7 +34,10 @@ export function mapWorklogToListItemDTO(worklog: IWorklog): WorklogListItemDTO {
   };
 }
 
-export function mapWorklogToDetailDTO(worklog: IWorklog, disputeRaisedBy?: string): WorklogDetailDTO {
+export function mapWorklogToDetailDTO(
+  worklog: IWorklog,
+  disputeRaisedBy?: string,
+): WorklogDetailDTO {
   return {
     worklogId: worklog.worklogId,
     contractId: worklog.contractId.toString(),

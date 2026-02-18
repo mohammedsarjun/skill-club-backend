@@ -3,6 +3,7 @@ import { injectable, inject } from 'tsyringe';
 import { IClientDisputeController } from './interfaces/client-dispute-controller.interface';
 import { IClientDisputeService } from '../../services/clientServices/interfaces/client-dispute-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
+import { MESSAGES } from '../../contants/contants';
 import { CreateDisputeRequestDTO } from '../../dto/clientDTO/client-dispute.dto';
 
 @injectable()
@@ -21,7 +22,7 @@ export class ClientDisputeController implements IClientDisputeController {
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Dispute created successfully',
+      message: MESSAGES.DISPUTE.CREATED,
       data: result,
     });
   }
@@ -34,7 +35,7 @@ export class ClientDisputeController implements IClientDisputeController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Dispute fetched successfully',
+      message: MESSAGES.DISPUTE.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -47,7 +48,7 @@ export class ClientDisputeController implements IClientDisputeController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Disputes fetched successfully',
+      message: MESSAGES.DISPUTE.FETCH_ALL_SUCCESS,
       data: result,
     });
   }
@@ -66,7 +67,7 @@ export class ClientDisputeController implements IClientDisputeController {
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract cancelled and dispute created',
+      message: MESSAGES.DISPUTE.CONTRACT_CANCELLED_AND_CREATED,
       data: result,
     });
   }

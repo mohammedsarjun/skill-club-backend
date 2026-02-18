@@ -74,12 +74,15 @@ export class AdminRevenueService implements IAdminRevenueService {
     );
   }
 
-
-  private async getTransactions(startDate?: Date, endDate?: Date): Promise<RevenueTransactionDto[]> {
-    const transactions = await this._contractTransactionRepository.findCommissionTransactionsWithPagination(
-      startDate,
-      endDate,
-    );
+  private async getTransactions(
+    startDate?: Date,
+    endDate?: Date,
+  ): Promise<RevenueTransactionDto[]> {
+    const transactions =
+      await this._contractTransactionRepository.findCommissionTransactionsWithPagination(
+        startDate,
+        endDate,
+      );
     return transactions.map((transaction) => mapToRevenueTransactionDto(transaction));
   }
 

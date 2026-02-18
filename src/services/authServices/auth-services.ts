@@ -17,6 +17,8 @@ import sendEmailOtp from '../../utils/send-otp';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { IActionVerificationRepository } from '../../repositories/interfaces/action-verification-repository.interface';
 import { IOtpServices } from './interfaces/i-otp-services.interface';
+import { jwtService } from '../../utils/jwt';
+import { jwtConfig } from '../../config/jwt.config';
 
 import { mapChangeEmailRequestToActionVerification } from '../../mapper/action-verification.mapper';
 
@@ -242,5 +244,58 @@ export class AuthService implements IAuthService {
     const { expiresAt } = await this._otpService.createOtp(newEmail as string, 'changeEmail');
 
     return { expiresAt };
+  }
+
+  async me(userId: string): Promise<UserDto | null> {
+    const user = await this._userRepository.findById(userId);
+    if (!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    return user ? mapUserModelToUserDto(user) : null;
+  }
+
+  async refreshToken(
+    token: string,
+  ): Promise<{ accessToken: string; newRefreshToken: string }> {
+    const decoded = jwtService.verifyToken<{
+      userId: string;
+      roles: string[];
+      activeRole: string;
+    }>(token);
+
+    // Handle hardcoded admin user
+    if (decoded.userId === 'admin_1') {
+      const payload = {
+        userId: 'admin_1',
+        roles: ['admin'],
+        activeRole: 'admin',
+      };
+      const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+      const newRefreshToken = jwtService.createToken(
+        payload,
+        jwtConfig.refreshTokenMaxAge,
+      );
+      return { accessToken, newRefreshToken };
+    }
+
+    const user = await this._userRepository.findById(decoded.userId);
+
+    if (!user) {
+      throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+
+    const payload = {
+      userId: user._id.toString(),
+      activeRole: user.activeRole,
+      roles: user.roles,
+    };
+
+    const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+    const newRefreshToken = jwtService.createToken(
+      payload,
+      jwtConfig.refreshTokenMaxAge,
+    );
+
+    return { accessToken, newRefreshToken };
   }
 }

@@ -6,6 +6,9 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import type { IUserServices } from '../../services/userServices/interfaces/user-services.interface';
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
+import { MESSAGES } from '../../contants/contants';
+import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { domain } from 'src/config/cookies_constants';
 
 @injectable()
 export class OtpController implements IOtpController {
@@ -24,7 +27,7 @@ export class OtpController implements IOtpController {
     const otpResponse = await this._otpServices.createOtp(email, purpose);
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Otp Sent Successfully',
+      message: MESSAGES.AUTH.OTP_SENT,
       data: otpResponse,
       purpose,
     });
@@ -39,23 +42,17 @@ export class OtpController implements IOtpController {
         await this._userServices.markUserVerified(userId);
 
         // 🔹 Create tokens
-        const payload = {
-          userId: userId,
-          roles: null,
-          activeRole: null,
-          isOnboardingCompleted: false,
-          clientProfile: null,
-          freelancerProfile: null,
-        };
+        const payload = { userId: userId };
         const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
         const refreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
         res.cookie('accessToken', accessToken, {
           httpOnly: process.env.NODE_ENV === 'production',
           secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-           sameSite: 'none',
-      path: '/',
+          sameSite: 'none',
+          path: '/',
           maxAge: jwtConfig.accessTokenMaxAge * 1000,
+          domain:domain
         });
 
         res.cookie('refreshToken', refreshToken, {
@@ -63,6 +60,7 @@ export class OtpController implements IOtpController {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+          domain:domain
         });
 
         break;
@@ -71,12 +69,12 @@ export class OtpController implements IOtpController {
         // await otpService.markOtpUsed(otpRecord.email);
         break;
       default:
-        throw new Error('Unknown OTP purpose');
+        throw new Error(ERROR_MESSAGES.OTP.UNKNOWN_PURPOSE);
     }
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Otp Verfied Successfully',
+      message: MESSAGES.AUTH.OTP_VERIFIED,
       data: response,
     });
   }

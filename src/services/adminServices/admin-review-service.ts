@@ -30,11 +30,11 @@ export class AdminReviewService implements IAdminReviewService {
     const { page, limit, reviewerRole, isHideByAdmin } = query;
 
     const filters: { reviewerRole?: 'client' | 'freelancer'; isHideByAdmin?: boolean } = {};
-    
+
     if (reviewerRole) {
       filters.reviewerRole = reviewerRole;
     }
-    
+
     if (isHideByAdmin !== undefined) {
       filters.isHideByAdmin = isHideByAdmin;
     }

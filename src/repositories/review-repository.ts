@@ -12,22 +12,25 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
   }
 
   async createReview(data: Partial<IReview>): Promise<IReviewDocument> {
-    return await super.create(data) as IReviewDocument;
+    return (await super.create(data)) as IReviewDocument;
   }
 
   async findByContractId(contractId: string): Promise<IReviewDocument | null> {
-    return await super.findOne({ contractId: new Types.ObjectId(contractId), isDeleted: false }) as IReviewDocument | null;
+    return (await super.findOne({
+      contractId: new Types.ObjectId(contractId),
+      isDeleted: false,
+    })) as IReviewDocument | null;
   }
 
   async findByContractIdAndReviewerId(
     contractId: string,
     reviewerId: string,
   ): Promise<IReviewDocument | null> {
-    return await super.findOne({
+    return (await super.findOne({
       contractId: new Types.ObjectId(contractId),
       reviewerId: new Types.ObjectId(reviewerId),
       isDeleted: false,
-    }) as IReviewDocument | null;
+    })) as IReviewDocument | null;
   }
 
   async findReviewsByFreelancerId(
@@ -36,7 +39,7 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
     limit: number,
   ): Promise<{ reviews: IReviewDocument[]; total: number }> {
     const skip = (page - 1) * limit;
-    
+
     const sortedReviews = await Review.find({
       revieweeId: new Types.ObjectId(freelancerId),
       reviewerRole: 'client',
@@ -81,25 +84,21 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
   async getAllReviews(
     page: number,
     limit: number,
-    filters?: { reviewerRole?: 'client' | 'freelancer'; isHideByAdmin?: boolean }
+    filters?: { reviewerRole?: 'client' | 'freelancer'; isHideByAdmin?: boolean },
   ): Promise<{ reviews: IReviewDocument[]; total: number }> {
     const skip = (page - 1) * limit;
-    
+
     const query: Record<string, unknown> = { isDeleted: false };
-    
+
     if (filters?.reviewerRole) {
       query.reviewerRole = filters.reviewerRole;
     }
-    
+
     if (filters?.isHideByAdmin !== undefined) {
       query.isHideByAdmin = filters.isHideByAdmin;
     }
 
-    const reviews = await Review.find(query)
-      .sort({ createdAt: -1 })
-      .skip(skip)
-      .limit(limit)
-      .exec();
+    const reviews = await Review.find(query).sort({ createdAt: -1 }).skip(skip).limit(limit).exec();
 
     const total = await super.count(query);
 
@@ -108,7 +107,7 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
 
   async toggleHideReview(reviewId: string): Promise<IReviewDocument | null> {
     const review = await super.findById(reviewId);
-    
+
     if (!review) {
       return null;
     }
@@ -121,18 +120,21 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
   }
 
   async getRecentReviews(limit: number): Promise<IReviewDocument[]> {
-    return await this.model
+    return (await this.model
       .find({ isDeleted: false })
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate('reviewerId', 'firstName lastName')
       .populate('revieweeId', 'firstName lastName')
-      .lean() as IReviewDocument[];
+      .lean()) as IReviewDocument[];
   }
 
-  async getRecentReviewsForFreelancer(freelancerId: string, limit: number): Promise<IReviewDocument[]> {
-    return await this.model
-      .find({ 
+  async getRecentReviewsForFreelancer(
+    freelancerId: string,
+    limit: number,
+  ): Promise<IReviewDocument[]> {
+    return (await this.model
+      .find({
         revieweeId: freelancerId,
         isDeleted: false,
         isHideByAdmin: false,
@@ -141,6 +143,6 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
       .limit(limit)
       .populate('reviewerId', 'firstName lastName')
       .populate('contractId', 'title')
-      .lean() as IReviewDocument[];
+      .lean()) as IReviewDocument[];
   }
 }

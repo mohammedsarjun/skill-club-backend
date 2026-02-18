@@ -34,7 +34,6 @@ export class FreelancerJobController implements IFreelancerJobController {
     const userId = req.user?.userId;
     const { jobId } = req.params;
 
-    console.log(userId == jobId);
     const result = await this._freelancerJobService.getJobDetail(userId as string, jobId);
     res.status(HttpStatus.OK).json({
       success: true,

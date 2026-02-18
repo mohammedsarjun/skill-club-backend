@@ -7,16 +7,21 @@ import type { IAdminAuthServices } from '../../services/adminServices/interfaces
 import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
+import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
 
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
   private _adminAuthServices: IAdminAuthServices;
+  private _blacklistedTokenService: IBlacklistedTokenService;
 
   constructor(
     @inject('IAdminAuthServices')
     adminAuthServices: IAdminAuthServices,
+    @inject('IBlacklistedTokenService')
+    blacklistedTokenService: IBlacklistedTokenService,
   ) {
     this._adminAuthServices = adminAuthServices;
+    this._blacklistedTokenService = blacklistedTokenService;
   }
 
   async login(req: Request, res: Response): Promise<void> {
@@ -47,7 +52,7 @@ export class AdminAuthController implements IAdminAuthController {
     });
   }
 
-  async logout(_req: Request, res: Response): Promise<void> {
+  async logout(req: Request, res: Response): Promise<void> {
     const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -57,6 +62,20 @@ export class AdminAuthController implements IAdminAuthController {
         | 'strict',
       path: '/',
     };
+
+    // Add tokens to blacklist
+    const accessToken = req.cookies.accessToken;
+    const refreshToken = req.cookies.refreshToken;
+
+    if (accessToken) {
+      const accessTokenExpiry = new Date(Date.now() + jwtConfig.accessTokenMaxAge * 1000);
+      await this._blacklistedTokenService.addTokenToBlacklist(accessToken, accessTokenExpiry);
+    }
+
+    if (refreshToken) {
+      const refreshTokenExpiry = new Date(Date.now() + jwtConfig.refreshTokenMaxAge * 1000);
+      await this._blacklistedTokenService.addTokenToBlacklist(refreshToken, refreshTokenExpiry);
+    }
 
     // Clear both cookies
     res.clearCookie('accessToken', cookieOptions);
@@ -70,8 +89,18 @@ export class AdminAuthController implements IAdminAuthController {
   }
 
   async me(req: Request, res: Response): Promise<void> {
-    const payload = { userId: 'admin_1', roles: ['admin'], activeRole: 'admin' };
-    const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
+    const adminData = {
+      userId: req.user!.userId,
+      roles: ['admin'] as string[],
+      activeRole: 'admin',
+      isOnboardingCompleted: true,
+      isFreelancerOnboarded: false,
+      isClientOnboarded: false,
+      isFreelancerBlocked: false,
+      isClientBlocked: false,
+    };
+    const tokenPayload = { userId: adminData.userId, activeRole: 'admin', roles: ['admin'] };
+    const accessToken = jwtService.createToken(tokenPayload, jwtConfig.accessTokenMaxAge);
 
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
@@ -83,7 +112,7 @@ export class AdminAuthController implements IAdminAuthController {
     res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.ADMIN.VERIFIED,
-      data: req.user,
+      data: adminData,
     });
   }
 }

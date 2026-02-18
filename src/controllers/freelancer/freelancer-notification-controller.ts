@@ -1,4 +1,5 @@
 import { Request, Response, NextFunction } from 'express';
+import { MESSAGES } from '../../contants/contants';
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
 import { IFreelancerNotificationService } from '../../services/freelancerServices/interfaces/freelancer-notification-service.interface';
@@ -9,7 +10,7 @@ export class FreelancerNotificationController {
   private _notificationService: IFreelancerNotificationService;
 
   constructor(
-    @inject('IFreelancerNotificationService') notificationService: IFreelancerNotificationService
+    @inject('IFreelancerNotificationService') notificationService: IFreelancerNotificationService,
   ) {
     this._notificationService = notificationService;
   }
@@ -18,7 +19,7 @@ export class FreelancerNotificationController {
     try {
       const freelancerId = req.user?.userId;
       if (!freelancerId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
@@ -35,12 +36,12 @@ export class FreelancerNotificationController {
       const { notificationId } = req.params;
 
       if (!freelancerId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
       await this._notificationService.markNotificationAsRead(freelancerId, notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'Notification marked as read' });
+      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }
@@ -50,12 +51,14 @@ export class FreelancerNotificationController {
     try {
       const freelancerId = req.user?.userId;
       if (!freelancerId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: 'Unauthorized' });
+        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
       await this._notificationService.markAllNotificationsAsRead(freelancerId);
-      res.status(HttpStatus.OK).json({ success: true, message: 'All notifications marked as read' });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.NOTIFICATION.ALL_MARKED_AS_READ });
     } catch (error) {
       next(error);
     }

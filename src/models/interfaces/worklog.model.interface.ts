@@ -1,7 +1,7 @@
 import { Document, Types } from 'mongoose';
 
 export interface IWorklog extends Document {
-  _id:Types.ObjectId;
+  _id: Types.ObjectId;
   worklogId: string;
   contractId: Types.ObjectId;
   milestoneId?: Types.ObjectId;

@@ -33,6 +33,10 @@ export interface IOfferRepository extends BaseRepository<IOffer> {
   findOneForClient(clientId: string, offerId: string): Promise<IOffer | null>;
   findAllForClient(clientId: string, query: ClientOfferQueryParamsDTO): Promise<IOffer[]>;
   countForClient(clientId: string, query: ClientOfferQueryParamsDTO): Promise<number>;
-  updateStatusById(offerId: string, status: string,session?: ClientSession): Promise<IOffer | null>;
+  updateStatusById(
+    offerId: string,
+    status: string,
+    session?: ClientSession,
+  ): Promise<IOffer | null>;
   updateStatusWithReason(offerId: string, status: string, reason?: string): Promise<IOffer | null>;
 }

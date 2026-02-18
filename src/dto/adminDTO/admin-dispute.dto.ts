@@ -1,4 +1,4 @@
-import { IWorklog } from "src/models/interfaces/worklog.model.interface";
+import { IWorklog } from 'src/models/interfaces/worklog.model.interface';
 
 export interface AdminDisputeQueryParamsDTO {
   search?: string;
@@ -103,5 +103,5 @@ export interface AdminDisputeDetailDTO {
     submittedAt: string;
     approvedAt?: string;
   }>;
-  workLog?:Partial<IWorklog>;
+  workLog?: Partial<IWorklog>;
 }

@@ -181,8 +181,7 @@ export class AdminDashboardServices implements IAdminDashboardServices {
 
     const yearlyData: RevenueDataPoint[] = [];
     for (let i = startYear; i <= currentYear; i++) {
-      const yearRevenue =
-        revenueData.find((d) => d.date.getFullYear() === i)?.revenue || 0;
+      const yearRevenue = revenueData.find((d) => d.date.getFullYear() === i)?.revenue || 0;
 
       yearlyData.push(mapToRevenueDataPoint(String(i), yearRevenue));
     }
@@ -261,7 +260,11 @@ export class AdminDashboardServices implements IAdminDashboardServices {
       });
 
       monthlyData.push(
-        mapToUserGrowthDataPoint(monthNames[i], monthData?.freelancers || 0, monthData?.clients || 0),
+        mapToUserGrowthDataPoint(
+          monthNames[i],
+          monthData?.freelancers || 0,
+          monthData?.clients || 0,
+        ),
       );
     }
 
@@ -294,11 +297,15 @@ export class AdminDashboardServices implements IAdminDashboardServices {
 
   async getRecentContracts(limit: number = 5): Promise<RecentContractDto[]> {
     const contracts = await this._contractRepository.getRecentContracts(limit);
-    return contracts.map(mapToRecentContractDto);
+    return contracts.map((c) =>
+      mapToRecentContractDto(c as unknown as Parameters<typeof mapToRecentContractDto>[0]),
+    );
   }
 
   async getRecentReviews(limit: number = 5): Promise<RecentReviewDto[]> {
     const reviews = await this._reviewRepository.getRecentReviews(limit);
-    return reviews.map(mapToRecentReviewDto);
+    return reviews.map((r) =>
+      mapToRecentReviewDto(r as unknown as Parameters<typeof mapToRecentReviewDto>[0]),
+    );
   }
 }

@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
+import { MESSAGES } from '../../contants/contants';
 import { IFreelancerWorklogController } from './interfaces/freelancer-worklog-controller.interface';
 import { IFreelancerWorklogService } from '../../services/freelancerServices/interfaces/freelancer-worklog-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -11,7 +12,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
   private _freelancerWorklogService: IFreelancerWorklogService;
 
   constructor(
-    @inject('IFreelancerWorklogService') freelancerWorklogService: IFreelancerWorklogService
+    @inject('IFreelancerWorklogService') freelancerWorklogService: IFreelancerWorklogService,
   ) {
     this._freelancerWorklogService = freelancerWorklogService;
   }
@@ -24,7 +25,7 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Worklog submitted successfully',
+      message: MESSAGES.WORKLOG.SUBMITTED,
       data: result,
     });
   }
@@ -33,11 +34,14 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._freelancerWorklogService.getWorklogsByContract(freelancerId, contractId);
+    const result = await this._freelancerWorklogService.getWorklogsByContract(
+      freelancerId,
+      contractId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklogs fetched successfully',
+      message: MESSAGES.WORKLOG.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -54,12 +58,12 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
       contractId,
       page,
       limit,
-      status
+      status,
     );
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklogs list fetched successfully',
+      message: MESSAGES.WORKLOG.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -68,11 +72,15 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
     const freelancerId = req.user?.userId as string;
     const { contractId, worklogId } = req.params;
 
-    const result = await this._freelancerWorklogService.getWorklogDetail(freelancerId, contractId, worklogId);
+    const result = await this._freelancerWorklogService.getWorklogDetail(
+      freelancerId,
+      contractId,
+      worklogId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklog detail fetched successfully',
+      message: MESSAGES.WORKLOG.FETCH_DETAIL_SUCCESS,
       data: result,
     });
   }
@@ -81,11 +89,14 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._freelancerWorklogService.checkWorklogValidation(freelancerId, contractId);
+    const result = await this._freelancerWorklogService.checkWorklogValidation(
+      freelancerId,
+      contractId,
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Worklog validation checked successfully',
+      message: MESSAGES.WORKLOG.VALIDATION_SUCCESS,
       data: result,
     });
   }
@@ -95,11 +106,15 @@ export class FreelancerWorklogController implements IFreelancerWorklogController
     const { contractId } = req.params;
     const data: RaiseWorklogDisputeDTO = req.body;
 
-    const result = await this._freelancerWorklogService.raiseWorklogDispute(freelancerId, contractId, data);
+    const result = await this._freelancerWorklogService.raiseWorklogDispute(
+      freelancerId,
+      contractId,
+      data,
+    );
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Worklog dispute raised successfully',
+      message: MESSAGES.DISPUTE.RAISED,
       data: result,
     });
   }

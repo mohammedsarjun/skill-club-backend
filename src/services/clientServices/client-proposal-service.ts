@@ -34,7 +34,6 @@ export class ClientProposalService implements IClientProposalService {
     jobId: string,
     queryFilters: Record<string, unknown>,
   ): Promise<ClientProposalResponseDTO[] | null> {
-    console.log(queryFilters);
     const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
 
     const skip =

@@ -1,9 +1,13 @@
 import { Request, Response } from 'express';
 import { injectable, inject } from 'tsyringe';
+import { MESSAGES } from '../../contants/contants';
 import { IFreelancerDisputeController } from './interfaces/freelancer-dispute-controller.interface';
 import { IFreelancerDisputeService } from '../../services/freelancerServices/interfaces/freelancer-dispute-service.interface';
 import { HttpStatus } from '../../enums/http-status.enum';
-import { CreateDisputeRequestDTO, RaiseDisputeForCancelledContractDTO } from '../../dto/freelancerDTO/freelancer-dispute.dto';
+import {
+  CreateDisputeRequestDTO,
+  RaiseDisputeForCancelledContractDTO,
+} from '../../dto/freelancerDTO/freelancer-dispute.dto';
 
 @injectable()
 export class FreelancerDisputeController implements IFreelancerDisputeController {
@@ -23,7 +27,7 @@ export class FreelancerDisputeController implements IFreelancerDisputeController
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Dispute created successfully',
+      message: MESSAGES.DISPUTE.CREATED,
       data: result,
     });
   }
@@ -36,7 +40,7 @@ export class FreelancerDisputeController implements IFreelancerDisputeController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Dispute fetched successfully',
+      message: MESSAGES.DISPUTE.FETCH_SUCCESS,
       data: result,
     });
   }
@@ -52,7 +56,7 @@ export class FreelancerDisputeController implements IFreelancerDisputeController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Disputes fetched successfully',
+      message: MESSAGES.DISPUTE.FETCH_ALL_SUCCESS,
       data: result,
     });
   }
@@ -70,7 +74,7 @@ export class FreelancerDisputeController implements IFreelancerDisputeController
 
     res.status(HttpStatus.CREATED).json({
       success: true,
-      message: 'Dispute raised successfully',
+      message: MESSAGES.DISPUTE.RAISED,
       data: result,
     });
   }
@@ -89,7 +93,7 @@ export class FreelancerDisputeController implements IFreelancerDisputeController
 
     res.status(HttpStatus.OK).json({
       success: true,
-      message: 'Contract cancelled and dispute created',
+      message: MESSAGES.DISPUTE.CONTRACT_CANCELLED_AND_CREATED,
       data: result,
     });
   }
