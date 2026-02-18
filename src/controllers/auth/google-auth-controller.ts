@@ -9,6 +9,7 @@ import type { IUserServices } from '../../services/userServices/interfaces/user-
 import { UserDto } from '../../dto/user.dto';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
+import { domain } from 'src/config/cookies_constants';
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ export class GoogleAuthController implements IGoogleAuthController {
       secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
       sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      domain:domain
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -46,6 +48,7 @@ export class GoogleAuthController implements IGoogleAuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+      domain:domain
     });
 
     res.status(HttpStatus.OK).json({

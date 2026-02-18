@@ -12,7 +12,6 @@ pipeline {
        stage('Build & Restart') {
     steps {
         sh '''
-        npm install
         npm run build
         pm2 restart skillclub || pm2 start dist/index.js --name skillclub
         '''

@@ -8,6 +8,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { domain } from 'src/config/cookies_constants';
 
 @injectable()
 export class OtpController implements IOtpController {
@@ -51,6 +52,7 @@ export class OtpController implements IOtpController {
           sameSite: 'none',
           path: '/',
           maxAge: jwtConfig.accessTokenMaxAge * 1000,
+          domain:domain
         });
 
         res.cookie('refreshToken', refreshToken, {
@@ -58,6 +60,7 @@ export class OtpController implements IOtpController {
           secure: process.env.NODE_ENV === 'production',
           sameSite: 'lax',
           maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+          domain:domain
         });
 
         break;
