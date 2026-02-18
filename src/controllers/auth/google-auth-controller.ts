@@ -9,7 +9,7 @@ import type { IUserServices } from '../../services/userServices/interfaces/user-
 import { UserDto } from '../../dto/user.dto';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
-import { domain } from 'src/config/cookies_constants';
+import { domain } from '../../config/cookies_constants';
 
 dotenv.config();
 
