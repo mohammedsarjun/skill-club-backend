@@ -7,6 +7,7 @@ import type { IUserServices } from '../../services/userServices/interfaces/user-
 import { jwtService } from '../../utils/jwt';
 import { MESSAGES } from '../../contants/contants';
 import { jwtConfig } from '../../config/jwt.config';
+import { domain } from 'src/contants/cookies_constants';
 
 @injectable()
 export class UserController implements IUserController {
@@ -31,6 +32,9 @@ export class UserController implements IUserController {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      path: '/',
+      sameSite: 'none',
+      domain: domain,
     });
 
     res.status(HttpStatus.OK).json({
@@ -53,8 +57,10 @@ export class UserController implements IUserController {
     res.cookie('accessToken', accessToken, {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-      sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+      sameSite: 'none',
+      path: '/',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      domain: domain,
     });
 
     res.status(HttpStatus.OK).json({
@@ -101,15 +107,19 @@ export class UserController implements IUserController {
     res.cookie('accessToken', accessToken, {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
-      sameSite: 'lax', // 🔹 "strict" blocks cross-site cookies
+      sameSite: 'none',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      path: '/',
+      domain: domain,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+      path: '/',
+      domain: domain,
     });
 
     res.status(HttpStatus.OK).json({
@@ -179,13 +189,17 @@ export class UserController implements IUserController {
   async getBankDetails(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const data = await this._userService.getBankDetails(userId!);
-    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.USER.BANK_DETAILS_FETCHED, data });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: MESSAGES.USER.BANK_DETAILS_FETCHED, data });
   }
 
   async saveBankDetails(req: Request, res: Response): Promise<void> {
     const userId = req.user?.userId;
     const payload = req.body;
     const data = await this._userService.saveBankDetails(userId!, payload);
-    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.USER.BANK_DETAILS_SAVED, data });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: MESSAGES.USER.BANK_DETAILS_SAVED, data });
   }
 }

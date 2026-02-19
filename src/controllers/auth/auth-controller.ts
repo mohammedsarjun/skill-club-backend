@@ -10,7 +10,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
-import { domain } from '../..//config/cookies_constants';
+import { domain } from '../../contants/cookies_constants';
 
 @injectable()
 export class AuthController implements IAuthController {
@@ -85,6 +85,7 @@ export class AuthController implements IAuthController {
         | 'lax'
         | 'strict',
       path: '/',
+       domain:domain
     };
 
     // Add tokens to blacklist
