@@ -8,6 +8,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
+import { domain } from 'src/contants/cookies_constants';
 
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
@@ -34,14 +35,17 @@ export class AdminAuthController implements IAdminAuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
-      sameSite: 'lax',
+
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      sameSite: 'none',
+      domain: domain,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
+      domain: domain,
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
     });
 
@@ -60,6 +64,7 @@ export class AdminAuthController implements IAdminAuthController {
         | 'none'
         | 'lax'
         | 'strict',
+      domain: domain,
       path: '/',
     };
 
@@ -105,7 +110,8 @@ export class AdminAuthController implements IAdminAuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
-      sameSite: 'lax',
+      sameSite: 'none',
+      domain: domain,
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
     });
 

@@ -8,7 +8,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
-import { domain } from '../../config/cookies_constants';
+import { domain } from '../../contants/cookies_constants';
 
 @injectable()
 export class OtpController implements IOtpController {
