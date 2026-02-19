@@ -58,8 +58,9 @@ export class OtpController implements IOtpController {
         res.cookie('refreshToken', refreshToken, {
           httpOnly: process.env.NODE_ENV === 'production',
           secure: process.env.NODE_ENV === 'production',
-          sameSite: 'lax',
+          sameSite: 'none',
           maxAge: jwtConfig.refreshTokenMaxAge * 1000,
+           path: '/',
           domain:domain
         });
 

@@ -32,6 +32,7 @@ export class UserController implements IUserController {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      path: '/',
       sameSite: 'none',
       domain: domain,
     });
@@ -57,6 +58,7 @@ export class UserController implements IUserController {
       httpOnly: process.env.NODE_ENV === 'production',
       secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
       sameSite: 'none',
+      path: '/',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
       domain: domain,
     });
@@ -107,6 +109,7 @@ export class UserController implements IUserController {
       secure: process.env.NODE_ENV === 'production', // 🔹 must be false on localhost (no HTTPS)
       sameSite: 'none',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      path: '/',
       domain: domain,
     });
 
@@ -115,7 +118,8 @@ export class UserController implements IUserController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
-      domain:domain
+      path: '/',
+      domain: domain,
     });
 
     res.status(HttpStatus.OK).json({

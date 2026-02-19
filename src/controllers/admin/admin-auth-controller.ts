@@ -35,7 +35,7 @@ export class AdminAuthController implements IAdminAuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
-
+      path:"/",
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
       sameSite: 'none',
       domain: domain,
@@ -45,6 +45,7 @@ export class AdminAuthController implements IAdminAuthController {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
       sameSite: 'none',
+      path:"/",
       domain: domain,
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
     });
@@ -113,6 +114,7 @@ export class AdminAuthController implements IAdminAuthController {
       sameSite: 'none',
       domain: domain,
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
+      path:"/",
     });
 
     res.status(HttpStatus.OK).json({
