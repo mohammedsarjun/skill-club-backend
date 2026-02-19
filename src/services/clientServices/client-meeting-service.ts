@@ -470,7 +470,7 @@ export class ClientMeetingService implements IClientMeetingService {
 
     const normalizedQuery: ClientMeetingQueryParamsDTO = {
       page: query.page && query.page > 0 ? query.page : 1,
-      limit: query.limit && query.limit > 0 ? query.limit : 10,
+      limit: query.limit && query.limit > 0 ? query.limit : 1000,
       status: query.status,
       meetingType: query.meetingType,
       requestedBy: query.requestedBy,
@@ -482,6 +482,7 @@ export class ClientMeetingService implements IClientMeetingService {
     const repositoryQuery = { ...normalizedQuery };
     if (normalizedQuery.isExpired !== undefined) {
       repositoryQuery.status = 'proposed';
+
     }
 
     const [postContractMeetings, preContractMeetings] = await Promise.all([
@@ -698,6 +699,8 @@ export class ClientMeetingService implements IClientMeetingService {
       `A client has proposed a pre-contract meeting: "${meetingData.agenda}"`,
       meeting.id,
     );
+
+    console.log("notifcation build")
     await this._notificationService.createAndEmitNotification(freelancerId, notification);
 
     return {
