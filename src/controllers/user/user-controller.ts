@@ -7,7 +7,7 @@ import type { IUserServices } from '../../services/userServices/interfaces/user-
 import { jwtService } from '../../utils/jwt';
 import { MESSAGES } from '../../contants/contants';
 import { jwtConfig } from '../../config/jwt.config';
-import { domain } from 'src/contants/cookies_constants';
+import { domain } from '../../contants/cookies_constants';
 
 @injectable()
 export class UserController implements IUserController {

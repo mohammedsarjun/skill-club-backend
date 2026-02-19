@@ -8,7 +8,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
-import { domain } from 'src/contants/cookies_constants';
+import { domain } from '../../contants/cookies_constants';
 
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
