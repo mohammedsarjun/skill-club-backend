@@ -1,3 +1,4 @@
+import { IDispute } from 'src/models/interfaces/dispute.model.interface';
 import { ContractStatus } from '../../models/interfaces/contract.model.interface';
 
 export interface FreelancerContractQueryParamsDTO {
@@ -133,6 +134,7 @@ export interface FreelancerContractDetailDTO {
     dueDayOfMonth?: number;
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
+      disputeDetail:Partial<IDispute>
 
   status:
     | 'pending_funding'

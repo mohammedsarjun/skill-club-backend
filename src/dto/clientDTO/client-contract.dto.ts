@@ -1,3 +1,4 @@
+import { IDispute } from 'src/models/interfaces/dispute.model.interface';
 import { ContractStatus } from '../../models/interfaces/contract.model.interface';
 
 export interface ClientContractQueryParamsDTO {
@@ -129,6 +130,7 @@ export interface ClientContractDetailDTO {
     | 'refunded'
     | 'disputed'
     | 'cancellation_requested';
+    disputeDetail:Partial<IDispute>
   totalFunded: number;
   totalPaidToFreelancer: number;
   totalCommissionPaid: number;

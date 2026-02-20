@@ -5,6 +5,7 @@ import { Dispute } from '../models/dispute.model';
 import { IDisputeRepository } from './interfaces/dispute-repository.interface';
 import { AdminDisputeQueryParamsDTO } from '../dto/adminDTO/admin-dispute.dto';
 
+
 @injectable()
 export class DisputeRepository extends BaseRepository<IDispute> implements IDisputeRepository {
   constructor() {
@@ -118,5 +119,10 @@ export class DisputeRepository extends BaseRepository<IDispute> implements IDisp
     status: 'open' | 'under_review' | 'resolved' | 'rejected',
   ): Promise<IDispute | null> {
     return await super.update({ disputeId }, { status });
+  }
+
+  async updateResolutionByDispute(disputeId:string,resolutionDetails:Partial<IDispute>){
+
+    await super.updateById(disputeId,{resolution:resolutionDetails.resolution})
   }
 }

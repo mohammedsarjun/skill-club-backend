@@ -4,6 +4,7 @@ import {
   ClientContractDetailDTO,
   EndHourlyContractResponseDTO,
 } from '../../dto/clientDTO/client-contract.dto';
+import { IDispute } from '../../models/interfaces/dispute.model.interface';
 
 function docIdToString(id: unknown): string | undefined {
   if (!id) return undefined;
@@ -29,6 +30,7 @@ export const mapContractModelToClientContractDetailDTO = (
     totalRefund: number;
     availableContractBalance: number;
   },
+  disputeDetail?:IDispute
 ): ClientContractDetailDTO => {
   const rawObj = contract as unknown as Record<string, unknown>;
 
@@ -177,6 +179,15 @@ export const mapContractModelToClientContractDetailDTO = (
           format: contract.reporting.format,
         }
       : undefined,
+
+      disputeDetail:{
+        raisedBy:disputeDetail?.raisedBy,
+        scope:disputeDetail?.scope,
+        reasonCode:disputeDetail?.reasonCode,
+        description:disputeDetail?.description,
+        status:disputeDetail?.status,
+        resolution:disputeDetail?.resolution
+      },
 
     status: contract.status,
     totalFunded: financialSummary.totalFunded,
