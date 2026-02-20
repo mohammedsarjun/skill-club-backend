@@ -1,1 +1,1 @@
-export const domain=''
+export const domain='.sarjun.online'
