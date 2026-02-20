@@ -41,11 +41,20 @@ export class FreelancerReportedJobService implements IFreelancerReportedJobServi
       throw new AppError(ERROR_MESSAGES.JOB.ALREADY_REPORTED, HttpStatus.BAD_REQUEST);
     }
 
+    const jobTotalReportCount = await this._reportedJobRepository.countByJobId(jobId);
+
     await this._reportedJobRepository.create({
       freelancerId: new mongoose.Types.ObjectId(freelancerId),
       jobId: new mongoose.Types.ObjectId(jobId),
       reason: data.reason,
     });
+
+    if (jobTotalReportCount >= 20) {
+      await this._jobRepository.suspendJob(
+        jobId,
+        'The job has been suspended due to receiving a high number of reports.',
+      );
+    }
 
     return mapToReportJobResponseDTO(true);
   }

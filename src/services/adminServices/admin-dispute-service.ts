@@ -21,6 +21,7 @@ import { HttpStatus } from '../../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { Types } from 'mongoose';
 import { IWorklogRepository } from 'src/repositories/interfaces/worklog-repository.interface';
+import { IDispute } from 'src/models/interfaces/dispute.model.interface';
 
 @injectable()
 export class AdminDisputeService implements IAdminDisputeService {
@@ -147,6 +148,16 @@ export class AdminDisputeService implements IAdminDisputeService {
 
     await this._disputeRepository.updateDisputeStatus(disputeId, 'resolved');
 
+
+
+    const disputeResolution:IDispute["resolution"] = {
+      outcome:'split',
+      clientAmount:clientRefundAmount,
+      freelancerAmount:freelancerReleaseAmount,
+      decidedBy:"admin",
+      decidedAt:new Date()
+    } 
+    await this._disputeRepository.updateResolutionByDispute(disputeId,{resolution:disputeResolution})
     return {
       success: true,
       message: 'Funds have been split successfully',

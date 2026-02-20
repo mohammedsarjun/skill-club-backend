@@ -9,6 +9,7 @@ export interface IReportedJobRepository extends BaseRepository<IReportedJob> {
   getAllReported(skip: number, limit: number): Promise<IReportedJob[]>;
   countAllReported(): Promise<number>;
   getHighReportedJobs(): Promise<IHighReportedJob[]>;
+  countByJobId(jobId:string):Promise<number>
 }
 
 export default IReportedJobRepository;

@@ -200,6 +200,10 @@ export const MESSAGES = {
     UNSAVED: 'Job unsaved',
     FETCH_SUCCESS: 'Saved jobs fetched successfully',
   },
+  CONTENT: {
+    FETCH_SUCCESS: 'Content fetched successfully',
+    UPDATED: 'Content updated successfully',
+  },
   FREELANCER_PROFILE: {
     LANGUAGE_DELETED: 'Language Deleted Successfully',
     DESCRIPTION_UPDATED: 'Freelancer Description Update Succcessfully',

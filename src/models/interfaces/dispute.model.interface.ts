@@ -15,9 +15,10 @@ export interface IDispute extends Document {
     clientAmount: number;
     freelancerAmount: number;
     decidedBy: 'admin' | 'system';
-    decidedAt?: Date;
+    decidedAt: Date;
   };
   disputeId: string;
   createdAt: Date;
   updatedAt: Date;
 }
+

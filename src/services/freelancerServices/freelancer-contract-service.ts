@@ -129,7 +129,14 @@ export class FreelancerContractService implements IFreelancerContractService {
     const financialSummary =
       await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
 
-    return mapContractToFreelancerDetailDTO(contract, financialSummary);
+    const disputeDetail = (await this._disputeRepository.findDisputesByContractId(contractId))?.[0];
+    console.log(disputeDetail);
+
+    return mapContractToFreelancerDetailDTO(
+      contract,
+      financialSummary,
+      disputeDetail ? disputeDetail : undefined,
+    );
   }
 
   async submitDeliverable(
@@ -212,7 +219,11 @@ export class FreelancerContractService implements IFreelancerContractService {
       new Types.ObjectId(freelancerId),
       'Deliverable Submitted',
       `Freelancer submitted deliverable (Version ${latestDeliverable.version}) with ${data.files.length} file(s)`,
-      { deliverableId: latestDeliverable._id?.toString(), version: latestDeliverable.version, filesCount: data.files.length },
+      {
+        deliverableId: latestDeliverable._id?.toString(),
+        version: latestDeliverable.version,
+        filesCount: data.files.length,
+      },
     );
 
     return FreelancerDeliverableMapper.toDeliverableResponseDTO(latestDeliverable, updatedContract);
@@ -357,7 +368,12 @@ export class FreelancerContractService implements IFreelancerContractService {
       new Types.ObjectId(freelancerId),
       'Milestone Deliverable Submitted',
       `Freelancer submitted deliverable for milestone "${milestone.title}" (Version ${latestDeliverable.version}) with ${data.files.length} file(s)`,
-      { milestoneId: data.milestoneId, deliverableId: latestDeliverable._id?.toString(), version: latestDeliverable.version, filesCount: data.files.length },
+      {
+        milestoneId: data.milestoneId,
+        deliverableId: latestDeliverable._id?.toString(),
+        version: latestDeliverable.version,
+        filesCount: data.files.length,
+      },
     );
 
     return FreelancerMilestoneMapper.toMilestoneDeliverableResponseDTO(

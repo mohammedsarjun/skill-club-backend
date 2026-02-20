@@ -1,5 +1,6 @@
 import { IContract } from '../../models/interfaces/contract.model.interface';
 import { FreelancerContractDetailDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
+import { IDispute } from 'src/models/interfaces/dispute.model.interface';
 
 export function mapContractToFreelancerDetailDTO(
   contract: IContract,
@@ -11,6 +12,7 @@ export function mapContractToFreelancerDetailDTO(
     totalRefund: number;
     availableContractBalance: number;
   },
+  disputeDetail?:IDispute
 ): FreelancerContractDetailDTO {
   return {
     contractId: contract.contractId,
@@ -128,6 +130,14 @@ export function mapContractToFreelancerDetailDTO(
           format: contract.reporting.format,
         }
       : undefined,
+    disputeDetail: {
+      raisedBy: disputeDetail?.raisedBy,
+      scope: disputeDetail?.scope,
+      reasonCode: disputeDetail?.reasonCode,
+      description: disputeDetail?.description,
+      status: disputeDetail?.status,
+      resolution: disputeDetail?.resolution,
+    },
 
     status: contract.status,
     totalFunded: financialSummary.totalFunded,

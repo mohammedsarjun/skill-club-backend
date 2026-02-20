@@ -657,3 +657,15 @@ import { AdminNotificationService } from '../services/adminServices/admin-notifi
 container.register<IAdminNotificationService>('IAdminNotificationService', {
   useClass: AdminNotificationService,
 });
+
+import { IAdminContentService } from '../services/adminServices/interfaces/admin-content-service.interface';
+import { AdminContentService } from '../services/adminServices/admin-content-service';
+import { IAdminContentRepository } from '../repositories/adminRepositories/interfaces/admin-content-repository.interface';
+import { AdminContentRepository } from '../repositories/adminRepositories/admin-content-repository';
+
+container.register<IAdminContentService>('IAdminContentService', {
+  useClass: AdminContentService,
+});
+container.register<IAdminContentRepository>('IAdminContentRepository', {
+  useClass: AdminContentRepository,
+});

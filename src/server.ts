@@ -64,8 +64,17 @@ app.use('/api/uploads', uploadRouter);
 
 app.use('/api/currency', currencyRouter);
 
+import { container } from 'tsyringe';
+import { AdminContentService } from './services/adminServices/admin-content-service';
+
 app.use(errorHandler);
 
-httpServer.listen(PORT, () => {
+httpServer.listen(PORT, async () => {
   appLogger.info(`Server is running on port: ${PORT}`);
+  try {
+    const contentService = container.resolve(AdminContentService);
+    await contentService.seedDefaultContents();
+  } catch (err) {
+    appLogger.error('Failed to seed default contents', err);
+  }
 });

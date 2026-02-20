@@ -129,8 +129,11 @@ export class ClientContractService implements IClientContractService {
 
     const financialSummary =
       await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
+     const disputeDetail=  (await this._disputeRepository.findDisputesByContractId(contractId))?.[0];
+    console.log(disputeDetail);
 
-    const dto = mapContractModelToClientContractDetailDTO(contract, financialSummary);
+     console.log(disputeDetail,contractId)
+    const dto = mapContractModelToClientContractDetailDTO(contract, financialSummary,disputeDetail?disputeDetail:undefined);
     if (dto.deliverables && dto.deliverables.length > 0) {
       const checks = await Promise.all(
         dto.deliverables.map((_d) =>

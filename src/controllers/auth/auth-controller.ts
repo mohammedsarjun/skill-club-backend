@@ -10,7 +10,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
-import { domain } from '../../contants/cookies_constants';
+
 
 @injectable()
 export class AuthController implements IAuthController {
@@ -56,7 +56,7 @@ export class AuthController implements IAuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       path: '/',
-      domain:domain,
+      domain:process.env.COOKIE_DOMAIN,
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
     });
 
@@ -65,7 +65,7 @@ export class AuthController implements IAuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       path: '/',
-      domain:domain,
+      domain:process.env.COOKIE_DOMAIN,
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
     });
 
@@ -85,7 +85,7 @@ export class AuthController implements IAuthController {
         | 'lax'
         | 'strict',
       path: '/',
-       domain:domain
+       domain:process.env.COOKIE_DOMAIN
     };
 
     // Add tokens to blacklist
@@ -221,7 +221,7 @@ export class AuthController implements IAuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
         path: '/',
-        domain:domain,
+        domain:process.env.COOKIE_DOMAIN,
         maxAge: jwtConfig.accessTokenMaxAge * 1000,
       });
 
@@ -230,7 +230,7 @@ export class AuthController implements IAuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
         path: '/',
-        domain:domain,
+        domain:process.env.COOKIE_DOMAIN,
         maxAge: jwtConfig.refreshTokenMaxAge * 1000,
       });
 

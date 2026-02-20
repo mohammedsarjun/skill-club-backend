@@ -27,4 +27,5 @@ export interface IDisputeRepository {
     disputeId: string,
     status: 'open' | 'under_review' | 'resolved' | 'rejected',
   ): Promise<IDispute | null>;
+  updateResolutionByDispute(disputeId:string,resolutionDetails:Partial<IDispute>):Promise<void>
 }
