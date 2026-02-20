@@ -7,7 +7,7 @@ import type { IUserServices } from '../../services/userServices/interfaces/user-
 import { jwtService } from '../../utils/jwt';
 import { MESSAGES } from '../../contants/contants';
 import { jwtConfig } from '../../config/jwt.config';
-import { domain } from '../../contants/cookies_constants';
+
 
 @injectable()
 export class UserController implements IUserController {
@@ -34,7 +34,7 @@ export class UserController implements IUserController {
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
       path: '/',
       sameSite: 'none',
-      domain: domain,
+      domain: process.env.COOKIE_DOMAIN,
     });
 
     res.status(HttpStatus.OK).json({
@@ -60,7 +60,7 @@ export class UserController implements IUserController {
       sameSite: 'none',
       path: '/',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
-      domain: domain,
+      domain: process.env.COOKIE_DOMAIN,
     });
 
     res.status(HttpStatus.OK).json({
@@ -110,7 +110,7 @@ export class UserController implements IUserController {
       sameSite: 'none',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
       path: '/',
-      domain: domain,
+      domain: process.env.COOKIE_DOMAIN,
     });
 
     res.cookie('refreshToken', refreshToken, {
@@ -119,7 +119,7 @@ export class UserController implements IUserController {
       sameSite: 'none',
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
       path: '/',
-      domain: domain,
+      domain: process.env.COOKIE_DOMAIN,
     });
 
     res.status(HttpStatus.OK).json({
