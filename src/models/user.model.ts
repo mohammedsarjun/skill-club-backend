@@ -1,4 +1,5 @@
 import mongoose, { Schema } from 'mongoose';
+import { Role } from '../enums/role.enum';
 import {
   IUser,
   IAddress,
@@ -87,8 +88,8 @@ const userSchema = new Schema<IUser>(
     isVerified: { type: Boolean, default: false },
     isFreelancerBlocked: { type: Boolean, default: false },
     isClientBlocked: { type: Boolean, default: false },
-    roles: { type: [String] },
-    activeRole: String,
+    roles: { type: [String], enum: Object.values(Role) },
+    activeRole: { type: String, enum: Object.values(Role) },
     freelancerProfile: freelancerProfileSchema,
     clientProfile: clientProfileSchema, // ✅ Added here
     isOnboardingCompleted: { type: Boolean, default: false },
