@@ -159,4 +159,9 @@ export const ERROR_MESSAGES = {
   FILE_UPLOAD: {
     NO_FILE: 'No file provided',
   },
+  CONTENT: {
+    NOT_FOUND: 'Content page not found',
+    UPDATE_FAILED: 'Failed to update content page',
+    SLUG_REQUIRED: 'Content slug is required',
+  },
 };

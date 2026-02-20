@@ -338,4 +338,39 @@ adminRouter.patch(
   adminNotificationController.markAllNotificationsAsRead.bind(adminNotificationController),
 );
 
+import { AdminContentController } from '../controllers/admin/admin-content-controller';
+const adminContentController = container.resolve(AdminContentController);
+
+adminRouter.get(
+  '/contents',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContentController.getAllContents.bind(adminContentController),
+);
+
+adminRouter.get(
+  '/contents/:slug',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContentController.getContentBySlug.bind(adminContentController),
+);
+
+adminRouter.patch(
+  '/contents/:slug',
+  authMiddleware,
+  roleGuard('admin'),
+  adminContentController.updateContent.bind(adminContentController),
+);
+
+adminRouter.get(
+  '/public/contents',
+  adminContentController.getAllPublishedContents.bind(adminContentController),
+);
+
+adminRouter.get(
+  '/public/contents/:slug',
+  adminContentController.getPublishedContentBySlug.bind(adminContentController),
+);
+
 export default adminRouter;
+
