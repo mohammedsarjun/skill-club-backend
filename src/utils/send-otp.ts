@@ -1,6 +1,6 @@
 import nodemailer from 'nodemailer';
 
-const sendEmailOtp = async (toEmail: string, otp: string) => {
+const sendEmailOtp = async (toEmail: string, otp: string,subject?:string) => {
   try {
     // 1. Create transporter
     const transporter = nodemailer.createTransport({
@@ -18,7 +18,7 @@ const sendEmailOtp = async (toEmail: string, otp: string) => {
     const mailOptions = {
       from: `"SkillClub" <${process.env.NODE_MAILER_EMAIL}>`,
       to: toEmail,
-      subject: 'Your OTP Code',
+      subject: `${subject?subject:"Your OTP Code"}`,
       text: `Your OTP code is ${otp}. It is valid for 5 minutes.`,
       html: `<p>Your OTP code is <b>${otp}</b>. It is valid for 5 minutes.</p>`,
     };
@@ -33,5 +33,7 @@ const sendEmailOtp = async (toEmail: string, otp: string) => {
     return false;
   }
 };
+
+
 
 export default sendEmailOtp;
