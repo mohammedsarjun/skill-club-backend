@@ -35,5 +35,4 @@ export interface IJobRepository extends BaseRepository<IJob> {
   getRecentJobsByClientId(clientId: string, limit: number): Promise<IJob[]>;
   countActiveJobs(): Promise<number>;
   countJobsByStatus(status: string): Promise<number>;
- 
 }

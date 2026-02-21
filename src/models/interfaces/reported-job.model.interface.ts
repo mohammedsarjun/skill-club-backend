@@ -7,7 +7,6 @@ export interface IReportedJob extends Document {
   createdAt: Date;
 }
 
-
 export interface IHighReportedJob {
   jobId: Types.ObjectId;
   totalReportCount: number;

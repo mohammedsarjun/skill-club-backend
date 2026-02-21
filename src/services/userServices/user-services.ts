@@ -29,6 +29,7 @@ import { validateData } from '../../utils/validation';
 import { IBankDetailsRepository } from '../../repositories/interfaces/bank-details-repository.interface';
 import { UserBankDTO } from '../../dto/commonDTO/user-bank.dto';
 import { mapBankToDTO } from '../../mapper/clientMapper/client-bank.mapper';
+import { Role } from 'src/enums/role.enum';
 
 @injectable()
 export class userServices implements IUserServices {
@@ -66,7 +67,7 @@ export class userServices implements IUserServices {
     }
   }
 
-  async selectRole(id: string | undefined, role: string): Promise<UserDto> {
+  async selectRole(id: string | undefined, role: Role): Promise<UserDto> {
     const user = await this._userRepository.findById(id!);
     if (!user) {
       throw new AppError(ERROR_MESSAGES.USER.NOT_FOUND, HttpStatus.NOT_FOUND);

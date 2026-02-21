@@ -63,7 +63,9 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const { offerId } = req.params;
     const result = await this._freelancerOfferService.getOfferDetail(freelancerId, offerId);
     if (!result) {
-      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.OFFER.NOT_FOUND });
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ success: false, message: ERROR_MESSAGES.OFFER.NOT_FOUND });
       return;
     }
     res.status(HttpStatus.OK).json({
@@ -79,7 +81,9 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const reason = (req.body && (req.body.reason as string)) || undefined;
     try {
       const result = await this._freelancerOfferService.rejectOffer(freelancerId, offerId, reason);
-      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OFFER.REJECTED, data: result });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.OFFER.REJECTED, data: result });
     } catch (e) {
       res
         .status(HttpStatus.BAD_REQUEST)
@@ -92,7 +96,9 @@ export class FreelancerOfferController implements IFreelancerOfferController {
     const { offerId } = req.params;
     try {
       const result = await this._freelancerOfferService.acceptOffer(freelancerId, offerId);
-      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OFFER.ACCEPTED, data: result });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.OFFER.ACCEPTED, data: result });
     } catch (e) {
       res
         .status(HttpStatus.BAD_REQUEST)

@@ -140,6 +140,4 @@ export class AdminJobService implements IAdminJobService {
       pendingJobs,
     };
   }
-
-
 }

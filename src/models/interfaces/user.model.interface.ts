@@ -1,5 +1,6 @@
 // ------------------- Interfaces -------------------
 import { Document, Types } from 'mongoose';
+import { Role } from '../../enums/role.enum';
 
 export interface IAddress {
   country: string;
@@ -79,8 +80,8 @@ export interface IUser extends Document {
   walletBalance?: number;
   resetPasswordToken?: string;
   resetPasswordExpires?: Date;
-  roles: string[];
-  activeRole: string;
+  roles: Role[];
+  activeRole: Role;
   freelancerProfile: IFreelancerProfile;
 
   preferredTimezone: string;

@@ -1,4 +1,8 @@
-import { ContentListResponseDTO, ContentResponseDTO, UpdateContentDTO } from '../../../dto/adminDTO/admin-content.dto';
+import {
+  ContentListResponseDTO,
+  ContentResponseDTO,
+  UpdateContentDTO,
+} from '../../../dto/adminDTO/admin-content.dto';
 
 export interface IAdminContentService {
   getAllContents(): Promise<ContentListResponseDTO>;

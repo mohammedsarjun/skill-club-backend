@@ -2,6 +2,7 @@ import express from 'express';
 
 import { container } from 'tsyringe';
 import { authMiddleware, roleGuard } from '../middlewares/auth-middleware';
+import { Role } from '../enums/role.enum';
 
 import { ClientController } from '../controllers/client/client-controller';
 import { clientBlockMiddleware } from '../middlewares/client-block-middleware';
@@ -48,7 +49,7 @@ const clientNotificationController = container.resolve(ClientNotificationControl
 clientRouter.get(
   '/me',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientController.getClientData.bind(clientController),
 );
@@ -56,7 +57,7 @@ clientRouter.get(
 clientRouter.get(
   '/dashboard',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientDashboardController.getDashboardData.bind(clientDashboardController),
 );
@@ -64,7 +65,7 @@ clientRouter.get(
 clientRouter.get(
   '/finance',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFinanceController.getFinanceData.bind(clientFinanceController),
 );
@@ -72,7 +73,7 @@ clientRouter.get(
 clientRouter.post(
   '/finance/withdraw',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFinanceController.requestWithdrawal.bind(clientFinanceController),
 );
@@ -80,7 +81,7 @@ clientRouter.post(
 clientRouter.get(
   '/finance/withdrawals',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFinanceController.getWithdrawals.bind(clientFinanceController),
 );
@@ -88,7 +89,7 @@ clientRouter.get(
 clientRouter.patch(
   '/update',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientController.updateClient.bind(clientController),
 );
@@ -96,7 +97,7 @@ clientRouter.patch(
 clientRouter.post(
   '/jobs',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientJobController.createJob.bind(clientJobController),
 );
@@ -104,7 +105,7 @@ clientRouter.post(
 clientRouter.get(
   '/categories',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientCategoryController.getAllCategories.bind(clientCategoryController),
 );
@@ -112,7 +113,7 @@ clientRouter.get(
 clientRouter.get(
   '/specialities',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientSpecialityController.getSpecialityWithSkills.bind(clientSpecialityController),
 );
@@ -120,7 +121,7 @@ clientRouter.get(
 clientRouter.get(
   '/jobs',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientJobController.getAllJobs.bind(clientJobController),
 );
@@ -128,7 +129,7 @@ clientRouter.get(
 clientRouter.get(
   '/jobs/:jobId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientJobController.getJobDetail.bind(clientJobController),
 );
@@ -136,7 +137,7 @@ clientRouter.get(
 clientRouter.put(
   '/jobs/:jobId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientJobController.updateJobDetail.bind(clientJobController),
 );
@@ -144,7 +145,7 @@ clientRouter.put(
 clientRouter.patch(
   '/jobs/:jobId/close',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientJobController.closeJob.bind(clientJobController),
 );
@@ -152,7 +153,7 @@ clientRouter.patch(
 clientRouter.get(
   '/freelancers',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFreelancerController.getAllFreelancers.bind(clientFreelancerController),
 );
@@ -160,7 +161,7 @@ clientRouter.get(
 clientRouter.get(
   '/freelancers/:freelancerId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFreelancerController.getFreelancerDetail.bind(clientFreelancerController),
 );
@@ -168,7 +169,7 @@ clientRouter.get(
 clientRouter.get(
   '/freelancers/:freelancerId/portfolio',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFreelancerController.getFreelancerPortfolio.bind(clientFreelancerController),
 );
@@ -176,7 +177,7 @@ clientRouter.get(
 clientRouter.get(
   '/freelancers/:freelancerId/reviews',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientFreelancerReviewController.getFreelancerReviews.bind(clientFreelancerReviewController),
 );
@@ -184,7 +185,7 @@ clientRouter.get(
 clientRouter.get(
   '/jobs/:jobId/proposals',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientProposalController.getAllProposal.bind(clientProposalController),
 );
@@ -192,7 +193,7 @@ clientRouter.get(
 clientRouter.get(
   '/proposals/:proposalId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientProposalController.getProposalDetail.bind(clientProposalController),
 );
@@ -200,7 +201,7 @@ clientRouter.get(
 clientRouter.post(
   '/proposals/:proposalId/reject',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientProposalController.rejectProposal.bind(clientProposalController),
 );
@@ -209,7 +210,7 @@ clientRouter.post(
 clientRouter.get(
   '/offers',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientOfferController.getAllOffers.bind(clientOfferController),
 );
@@ -217,7 +218,7 @@ clientRouter.get(
 clientRouter.get(
   '/offers/:offerId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientOfferController.getOfferDetail.bind(clientOfferController),
 );
@@ -225,7 +226,7 @@ clientRouter.get(
 clientRouter.get(
   '/offers/:offerId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientOfferController.getOfferDetail.bind(clientOfferController),
 );
@@ -233,7 +234,7 @@ clientRouter.get(
 clientRouter.post(
   '/offers',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientOfferController.createOffer.bind(clientOfferController),
 );
@@ -241,7 +242,7 @@ clientRouter.post(
 clientRouter.patch(
   '/offers/:offerId/withdraw',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientOfferController.withdrawOffer.bind(clientOfferController),
 );
@@ -249,7 +250,7 @@ clientRouter.patch(
 clientRouter.post(
   '/freelancers/:freelancerId/save',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientSavedFreelancerController.toggleSaveFreelancer.bind(clientSavedFreelancerController),
 );
@@ -257,7 +258,7 @@ clientRouter.post(
 clientRouter.get(
   '/freelancers/:freelancerId/saved',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientSavedFreelancerController.isFreelancerSaved.bind(clientSavedFreelancerController),
 );
@@ -265,7 +266,7 @@ clientRouter.get(
 clientRouter.get(
   '/saved-freelancers',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientSavedFreelancerController.getSavedFreelancers.bind(clientSavedFreelancerController),
 );
@@ -273,7 +274,7 @@ clientRouter.get(
 clientRouter.get(
   '/contracts',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.getContracts.bind(clientContractController),
 );
@@ -281,7 +282,7 @@ clientRouter.get(
 clientRouter.get(
   '/contracts/:contractId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.getContractDetail.bind(clientContractController),
 );
@@ -289,7 +290,7 @@ clientRouter.get(
 clientRouter.get(
   '/contracts/:contractId/timeline',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.getContractTimeline.bind(clientContractController),
 );
@@ -297,7 +298,7 @@ clientRouter.get(
 clientRouter.get(
   '/contracts/:contractId/milestones/:milestoneId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.getMilestoneDetail.bind(clientContractController),
 );
@@ -305,7 +306,7 @@ clientRouter.get(
 clientRouter.post(
   '/contracts/:contractId/cancel',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.cancelContract.bind(clientContractController),
 );
@@ -313,7 +314,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/cancellation-request',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.createCancellationRequest.bind(clientContractController),
 );
@@ -321,7 +322,7 @@ clientRouter.post(
 clientRouter.get(
   '/contracts/:contractId/cancellation-request',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.getCancellationRequest.bind(clientContractController),
 );
@@ -329,7 +330,7 @@ clientRouter.get(
 clientRouter.post(
   '/contracts/:contractId/cancellation-request/accept',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.acceptCancellationRequest.bind(clientContractController),
 );
@@ -337,7 +338,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/cancellation-request/dispute',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.raiseCancellationDispute.bind(clientContractController),
 );
@@ -345,7 +346,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/cancel-with-dispute',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientDisputeController.cancelContractWithDispute.bind(clientDisputeController),
 );
@@ -353,7 +354,7 @@ clientRouter.post(
 clientRouter.post(
   '/disputes',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientDisputeController.createDispute.bind(clientDisputeController),
 );
@@ -361,7 +362,7 @@ clientRouter.post(
 clientRouter.get(
   '/disputes/:disputeId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientDisputeController.getDisputeById.bind(clientDisputeController),
 );
@@ -369,7 +370,7 @@ clientRouter.get(
 clientRouter.get(
   '/contracts/:contractId/disputes',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientDisputeController.getDisputesByContract.bind(clientDisputeController),
 );
@@ -377,7 +378,7 @@ clientRouter.get(
 clientRouter.put(
   '/contracts/:contractId/deliverables/approve',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.approveDeliverable.bind(clientContractController),
 );
@@ -385,7 +386,7 @@ clientRouter.put(
 clientRouter.put(
   '/contracts/:contractId/deliverables/request-changes',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.requestDeliverableChanges.bind(clientContractController),
 );
@@ -393,7 +394,7 @@ clientRouter.put(
 clientRouter.put(
   '/contracts/:contractId/milestones/deliverables/approve',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.approveMilestoneDeliverable.bind(clientContractController),
 );
@@ -401,7 +402,7 @@ clientRouter.put(
 clientRouter.put(
   '/contracts/:contractId/milestones/deliverables/request-changes',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.requestMilestoneChanges.bind(clientContractController),
 );
@@ -409,7 +410,7 @@ clientRouter.put(
 clientRouter.put(
   '/contracts/:contractId/milestones/extension/respond',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.respondToMilestoneExtension.bind(clientContractController),
 );
@@ -417,7 +418,7 @@ clientRouter.put(
 clientRouter.put(
   '/contracts/:contractId/extension/respond',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.respondToContractExtension.bind(clientContractController),
 );
@@ -425,7 +426,7 @@ clientRouter.put(
 clientRouter.post(
   '/contracts/:contractId/deliverables/download',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.downloadDeliverableFiles.bind(clientContractController),
 );
@@ -433,7 +434,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/milestones/:milestoneId/deliverables/download',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.downloadMilestoneDeliverableFiles.bind(clientContractController),
 );
@@ -441,7 +442,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/activate',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.activateHourlyContract.bind(clientContractController),
 );
@@ -449,7 +450,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/end',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientContractController.endHourlyContract.bind(clientContractController),
 );
@@ -457,7 +458,7 @@ clientRouter.post(
 clientRouter.get(
   '/contracts/:contractId/worklogs',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientWorklogController.getWorklogsByContract.bind(clientWorklogController),
 );
@@ -465,7 +466,7 @@ clientRouter.get(
 clientRouter.get(
   '/contracts/:contractId/worklogs/:worklogId',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientWorklogController.getWorklogDetail.bind(clientWorklogController),
 );
@@ -473,7 +474,7 @@ clientRouter.get(
 clientRouter.post(
   '/contracts/:contractId/worklogs/approve',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientWorklogController.approveWorklog.bind(clientWorklogController),
 );
@@ -481,7 +482,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/worklogs/reject',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientWorklogController.rejectWorklog.bind(clientWorklogController),
 );
@@ -489,7 +490,7 @@ clientRouter.post(
 clientRouter.post(
   '/payments/initiate',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientPaymentController.initiatePayment.bind(clientPaymentController),
 );
@@ -502,7 +503,7 @@ clientRouter.post(
 clientRouter.post(
   '/chat/send',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientChatController.sendMessage.bind(clientChatController),
 );
@@ -510,7 +511,7 @@ clientRouter.post(
 clientRouter.get(
   '/chat/:contractId/messages',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientChatController.getMessages.bind(clientChatController),
 );
@@ -518,7 +519,7 @@ clientRouter.get(
 clientRouter.put(
   '/chat/read',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientChatController.markAsRead.bind(clientChatController),
 );
@@ -526,7 +527,7 @@ clientRouter.put(
 clientRouter.get(
   '/chat/:contractId/unread-count',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientChatController.getUnreadCount.bind(clientChatController),
 );
@@ -534,7 +535,7 @@ clientRouter.get(
 clientRouter.get(
   '/chat/:contractId/messages',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientChatController.getMessages.bind(clientChatController),
 );
@@ -542,7 +543,7 @@ clientRouter.get(
 clientRouter.post(
   '/freelancers/:freelancerId/meetings',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.proposePreContractMeeting.bind(clientMeetingController),
 );
@@ -550,7 +551,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/meetings',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.proposeMeeting.bind(clientMeetingController),
 );
@@ -558,7 +559,7 @@ clientRouter.post(
 clientRouter.get(
   '/contracts/:contractId/meetings',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.getContractMeetings.bind(clientMeetingController),
 );
@@ -566,7 +567,7 @@ clientRouter.get(
 clientRouter.get(
   '/meetings',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.getAllMeetings.bind(clientMeetingController),
 );
@@ -574,7 +575,7 @@ clientRouter.get(
 clientRouter.post(
   '/meetings/accept',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.acceptMeeting.bind(clientMeetingController),
 );
@@ -582,7 +583,7 @@ clientRouter.post(
 clientRouter.post(
   '/meetings/reject',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.rejectMeeting.bind(clientMeetingController),
 );
@@ -590,7 +591,7 @@ clientRouter.post(
 clientRouter.post(
   '/meetings/reschedule/approve',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.approveReschedule.bind(clientMeetingController),
 );
@@ -598,7 +599,7 @@ clientRouter.post(
 clientRouter.post(
   '/meetings/reschedule/decline',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.declineReschedule.bind(clientMeetingController),
 );
@@ -606,7 +607,7 @@ clientRouter.post(
 clientRouter.post(
   '/meetings/reschedule',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.requestReschedule.bind(clientMeetingController),
 );
@@ -614,7 +615,7 @@ clientRouter.post(
 clientRouter.post(
   '/meetings/:meetingId/join',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientMeetingController.joinMeeting.bind(clientMeetingController),
 );
@@ -622,7 +623,7 @@ clientRouter.post(
 clientRouter.post(
   '/contracts/:contractId/review',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientReviewController.submitReview.bind(clientReviewController),
 );
@@ -630,7 +631,7 @@ clientRouter.post(
 clientRouter.get(
   '/contracts/:contractId/review/status',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientReviewController.getReviewStatus.bind(clientReviewController),
 );
@@ -638,7 +639,7 @@ clientRouter.get(
 clientRouter.get(
   '/notifications',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientNotificationController.getNotifications.bind(clientNotificationController),
 );
@@ -646,7 +647,7 @@ clientRouter.get(
 clientRouter.patch(
   '/notifications/:notificationId/read',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientNotificationController.markNotificationAsRead.bind(clientNotificationController),
 );
@@ -654,7 +655,7 @@ clientRouter.patch(
 clientRouter.patch(
   '/notifications/read-all',
   authMiddleware,
-  roleGuard('client'),
+  roleGuard(Role.CLIENT),
   clientBlockMiddleware,
   clientNotificationController.markAllNotificationsAsRead.bind(clientNotificationController),
 );

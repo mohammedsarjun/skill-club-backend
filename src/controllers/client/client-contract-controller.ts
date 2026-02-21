@@ -26,7 +26,7 @@ export class ClientContractController implements IClientContractController {
 
   constructor(
     @inject('IClientContractService') clientContractService: IClientContractService,
-    @inject('IContractActivityService') contractActivityService: IContractActivityService
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._clientContractService = clientContractService;
     this._contractActivityService = contractActivityService;
@@ -77,7 +77,9 @@ export class ClientContractController implements IClientContractController {
       cancelContractReason,
     );
 
-    res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.CONTRACT.CANCELLED, data: result });
+    res
+      .status(HttpStatus.OK)
+      .json({ success: true, message: MESSAGES.CONTRACT.CANCELLED, data: result });
   }
 
   async approveDeliverable(req: Request, res: Response): Promise<void> {
@@ -330,7 +332,11 @@ export class ClientContractController implements IClientContractController {
     const clientId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._contractActivityService.getContractTimeline(contractId, clientId, 'client');
+    const result = await this._contractActivityService.getContractTimeline(
+      contractId,
+      clientId,
+      'client',
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,

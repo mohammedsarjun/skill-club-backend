@@ -4,12 +4,18 @@ import { IContractActivityRepository } from './interfaces/contract-activity-repo
 import { IContractActivity } from '../models/interfaces/contract-activity.interface';
 import { ClientSession, Types } from 'mongoose';
 
-export class ContractActivityRepository extends BaseRepository<IContractActivity> implements IContractActivityRepository {
+export class ContractActivityRepository
+  extends BaseRepository<IContractActivity>
+  implements IContractActivityRepository
+{
   constructor() {
     super(ContractActivity);
   }
 
-  async createActivity(activityData: Partial<IContractActivity>, session?: ClientSession): Promise<IContractActivity> {
+  async createActivity(
+    activityData: Partial<IContractActivity>,
+    session?: ClientSession,
+  ): Promise<IContractActivity> {
     return await super.create(activityData, session);
   }
 
@@ -17,10 +23,8 @@ export class ContractActivityRepository extends BaseRepository<IContractActivity
     return await super.findAll(
       { contractId: new Types.ObjectId(contractId) },
       {
-        populate: [
-          { path: 'actor.userId', select: 'firstName lastName' }
-        ]
-      }
+        populate: [{ path: 'actor.userId', select: 'firstName lastName' }],
+      },
     );
   }
 

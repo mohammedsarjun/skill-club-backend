@@ -47,7 +47,9 @@ export class ClientOfferController implements IClientOfferController {
     const { offerId } = req.params;
     const result = await this._clientOfferService.getOfferDetail(clientId, offerId);
     if (!result) {
-      res.status(HttpStatus.NOT_FOUND).json({ success: false, message: ERROR_MESSAGES.OFFER.NOT_FOUND });
+      res
+        .status(HttpStatus.NOT_FOUND)
+        .json({ success: false, message: ERROR_MESSAGES.OFFER.NOT_FOUND });
       return;
     }
     res
@@ -60,7 +62,9 @@ export class ClientOfferController implements IClientOfferController {
     const { offerId } = req.params;
     try {
       const result = await this._clientOfferService.withdrawOffer(clientId, offerId);
-      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.OFFER.WITHDRAWN, data: result });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.OFFER.WITHDRAWN, data: result });
     } catch (e) {
       res
         .status(HttpStatus.BAD_REQUEST)

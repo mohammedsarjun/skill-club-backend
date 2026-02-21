@@ -134,7 +134,7 @@ export interface FreelancerContractDetailDTO {
     dueDayOfMonth?: number;
     format: 'text_with_attachments' | 'text_only' | 'video';
   };
-      disputeDetail:Partial<IDispute>
+  disputeDetail: Partial<IDispute>;
 
   status:
     | 'pending_funding'

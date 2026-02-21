@@ -17,6 +17,7 @@ import {
   mapUserQuery,
   mapUserToUserDetailDto,
 } from '../../mapper/adminMapper/admin-users.mapper';
+import { Role } from 'src/enums/role.enum';
 
 @injectable()
 export class AdminUserServices implements IAdminUserServices {
@@ -108,7 +109,7 @@ export class AdminUserServices implements IAdminUserServices {
     }
 
     // 2. Validate role
-    if (!user.roles.includes(role)) {
+    if (!user.roles.includes(role as Role)) {
       throw new AppError(`User does not have the role: ${role}`, HttpStatus.BAD_REQUEST);
     }
 

@@ -482,7 +482,6 @@ export class ClientMeetingService implements IClientMeetingService {
     const repositoryQuery = { ...normalizedQuery };
     if (normalizedQuery.isExpired !== undefined) {
       repositoryQuery.status = 'proposed';
-
     }
 
     const [postContractMeetings, preContractMeetings] = await Promise.all([
@@ -700,7 +699,7 @@ export class ClientMeetingService implements IClientMeetingService {
       meeting.id,
     );
 
-    console.log("notifcation build")
+    console.log('notifcation build');
     await this._notificationService.createAndEmitNotification(freelancerId, notification);
 
     return {

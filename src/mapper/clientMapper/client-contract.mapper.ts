@@ -30,7 +30,7 @@ export const mapContractModelToClientContractDetailDTO = (
     totalRefund: number;
     availableContractBalance: number;
   },
-  disputeDetail?:IDispute
+  disputeDetail?: IDispute,
 ): ClientContractDetailDTO => {
   const rawObj = contract as unknown as Record<string, unknown>;
 
@@ -180,14 +180,14 @@ export const mapContractModelToClientContractDetailDTO = (
         }
       : undefined,
 
-      disputeDetail:{
-        raisedBy:disputeDetail?.raisedBy,
-        scope:disputeDetail?.scope,
-        reasonCode:disputeDetail?.reasonCode,
-        description:disputeDetail?.description,
-        status:disputeDetail?.status,
-        resolution:disputeDetail?.resolution
-      },
+    disputeDetail: {
+      raisedBy: disputeDetail?.raisedBy,
+      scope: disputeDetail?.scope,
+      reasonCode: disputeDetail?.reasonCode,
+      description: disputeDetail?.description,
+      status: disputeDetail?.status,
+      resolution: disputeDetail?.resolution,
+    },
 
     status: contract.status,
     totalFunded: financialSummary.totalFunded,

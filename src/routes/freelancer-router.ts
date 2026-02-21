@@ -2,6 +2,7 @@ import express from 'express';
 
 import { container } from 'tsyringe';
 import { authMiddleware, roleGuard } from '../middlewares/auth-middleware';
+import { Role } from '../enums/role.enum';
 import { FreelancerController } from '../controllers/freelancer/freelancer-controller';
 import { freelancerBlockMiddleware } from '../middlewares/freelancer-block-middleware';
 import { FreelancerCategoryController } from '../controllers/freelancer/freelancer-category-controller';
@@ -44,28 +45,28 @@ const freelancerNotificationController = container.resolve(FreelancerNotificatio
 freelancerRouter.get(
   '/me',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.getFreelancerData.bind(freelancerController),
 );
 freelancerRouter.patch(
   '/profile/language',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.updateFreelancerLanguage.bind(freelancerController),
 );
 freelancerRouter.delete(
   '/profile/language',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.deleteFreelancerLanguage.bind(freelancerController),
 );
 freelancerRouter.patch(
   '/profile/description',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.updateFreelancerDescription.bind(freelancerController),
 );
@@ -74,7 +75,7 @@ freelancerRouter.patch(
   '/profile/education',
   authMiddleware,
 
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.addFreelancerEducation.bind(freelancerController),
 );
@@ -82,14 +83,14 @@ freelancerRouter.patch(
 freelancerRouter.patch(
   '/profile/hourlyRate',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.updateFreelancerHourlyRate.bind(freelancerController),
 );
 freelancerRouter.patch(
   '/profile/professionalRole',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.updateFreelancerProfessionalRole.bind(freelancerController),
 );
@@ -97,7 +98,7 @@ freelancerRouter.patch(
 freelancerRouter.delete(
   '/profile/education',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.deleteFreelancerEducation.bind(freelancerController),
 );
@@ -105,7 +106,7 @@ freelancerRouter.delete(
 freelancerRouter.delete(
   '/profile/portfolio',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.deleteFreelancerPortfolio.bind(freelancerController),
 );
@@ -113,7 +114,7 @@ freelancerRouter.delete(
 freelancerRouter.post(
   '/portfolio',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.createPortfolio.bind(freelancerController),
 );
@@ -121,21 +122,21 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/portfolio',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.getPortfolio.bind(freelancerController),
 );
 freelancerRouter.get(
   '/portfolio/detail',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.getPortfolioDetail.bind(freelancerController),
 );
 freelancerRouter.patch(
   '/profile/workHistory',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.updateFreelancerWorkHistory.bind(freelancerController),
 );
@@ -143,7 +144,7 @@ freelancerRouter.patch(
 freelancerRouter.delete(
   '/profile/workHistory',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.deleteFreelancerWorkHistory.bind(freelancerController),
 );
@@ -151,7 +152,7 @@ freelancerRouter.delete(
 freelancerRouter.patch(
   '/profile/expertise',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerController.updateFreelancerExpertise.bind(freelancerController),
 );
@@ -159,7 +160,7 @@ freelancerRouter.patch(
 freelancerRouter.get(
   '/categories',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerCategoryController.getAllCategories.bind(freelancerCategoryController),
 );
@@ -167,7 +168,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/specialities',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerSpecialityController.getSpecialityWithSkills.bind(freelancerSpecialityController),
 );
@@ -175,7 +176,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/jobs',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerJobController.getAllJobs.bind(freelancerJobController),
 );
@@ -183,7 +184,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/jobs/:jobId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerJobController.getJobDetail.bind(freelancerJobController),
 );
@@ -191,7 +192,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/proposals',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerProposalController.createProposal.bind(freelancerProposalController),
 );
@@ -199,7 +200,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/jobs/:jobId/proposals',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerProposalController.getAllProposal.bind(freelancerProposalController),
 );
@@ -207,14 +208,14 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/offers',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerOfferController.getAllOffers.bind(freelancerOfferController),
 );
 freelancerRouter.get(
   '/offers/:offerId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerOfferController.getOfferDetail.bind(freelancerOfferController),
 );
@@ -222,7 +223,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/offers/:offerId/reject',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerOfferController.rejectOffer.bind(freelancerOfferController),
 );
@@ -230,7 +231,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/offers/:offerId/accept',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerOfferController.acceptOffer.bind(freelancerOfferController),
 );
@@ -238,7 +239,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/jobs/:jobId/save',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerSavedJobController.toggleSaveJob.bind(freelancerSavedJobController),
 );
@@ -246,7 +247,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/jobs/:jobId/saved',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerSavedJobController.isJobSaved.bind(freelancerSavedJobController),
 );
@@ -254,7 +255,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/saved-jobs',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerSavedJobController.getSavedJobs.bind(freelancerSavedJobController),
 );
@@ -262,7 +263,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/jobs/:jobId/report',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerReportedJobController.reportJob.bind(freelancerReportedJobController),
 );
@@ -270,7 +271,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/jobs/:jobId/reported',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerReportedJobController.isJobReported.bind(freelancerReportedJobController),
 );
@@ -278,7 +279,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.getContracts.bind(freelancerContractController),
 );
@@ -286,7 +287,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts/:contractId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.getContractDetail.bind(freelancerContractController),
 );
@@ -294,7 +295,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts/:contractId/timeline',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.getContractTimeline.bind(freelancerContractController),
 );
@@ -302,7 +303,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/contracts/:contractId/deliverables',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.submitDeliverable.bind(freelancerContractController),
 );
@@ -310,7 +311,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/deliverables/:deliverableId/approve-change',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.approveChangeRequest.bind(freelancerContractController),
 );
@@ -318,7 +319,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/milestones/deliverables',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.submitMilestoneDeliverable.bind(freelancerContractController),
 );
@@ -326,7 +327,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/milestones/extension',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.requestMilestoneExtension.bind(freelancerContractController),
 );
@@ -334,7 +335,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/extension',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.requestContractExtension.bind(freelancerContractController),
 );
@@ -342,7 +343,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/cancel',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.cancelContract.bind(freelancerContractController),
 );
@@ -350,7 +351,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/contracts/:contractId/cancellation-request',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.getCancellationRequest.bind(freelancerContractController),
 );
@@ -358,7 +359,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/contracts/:contractId/cancellation-request/accept',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.acceptCancellationRequest.bind(freelancerContractController),
 );
@@ -366,7 +367,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/cancellation-request/raise-dispute',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.raiseCancellationDispute.bind(freelancerContractController),
 );
@@ -374,7 +375,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/cancellation-request',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.createCancellationRequest.bind(freelancerContractController),
 );
@@ -382,7 +383,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/end',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerContractController.endHourlyContract.bind(freelancerContractController),
 );
@@ -390,7 +391,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/cancel-with-dispute',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDisputeController.cancelContractWithDispute.bind(freelancerDisputeController),
 );
@@ -398,7 +399,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/disputes',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDisputeController.createDispute.bind(freelancerDisputeController),
 );
@@ -406,7 +407,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/disputes/:disputeId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDisputeController.getDisputeById.bind(freelancerDisputeController),
 );
@@ -414,7 +415,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts/:contractId/disputes',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDisputeController.getDisputesByContract.bind(freelancerDisputeController),
 );
@@ -422,7 +423,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/contracts/:contractId/raise-dispute',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDisputeController.raiseDisputeForCancelledContract.bind(freelancerDisputeController),
 );
@@ -430,7 +431,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/worklogs',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerWorklogController.submitWorklog.bind(freelancerWorklogController),
 );
@@ -438,7 +439,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/contracts/:contractId/worklogs',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerWorklogController.getWorklogsByContract.bind(freelancerWorklogController),
 );
@@ -446,7 +447,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts/:contractId/worklog-validation',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerWorklogController.checkWorklogValidation.bind(freelancerWorklogController),
 );
@@ -454,7 +455,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/chat/send',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerChatController.sendMessage.bind(freelancerChatController),
 );
@@ -462,7 +463,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/chat/:contractId/messages',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerChatController.getMessages.bind(freelancerChatController),
 );
@@ -470,7 +471,7 @@ freelancerRouter.get(
 freelancerRouter.put(
   '/chat/read',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerChatController.markAsRead.bind(freelancerChatController),
 );
@@ -478,7 +479,7 @@ freelancerRouter.put(
 freelancerRouter.get(
   '/chat/:contractId/unread-count',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerChatController.getUnreadCount.bind(freelancerChatController),
 );
@@ -486,7 +487,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/meetings',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.getMeetings.bind(freelancerMeetingController),
 );
@@ -494,7 +495,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/meetings/:meetingId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.getMeetingDetail.bind(freelancerMeetingController),
 );
@@ -502,7 +503,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts/:contractId/meetings',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.getContractMeetings.bind(freelancerMeetingController),
 );
@@ -510,7 +511,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/meetings/accept',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.acceptMeeting.bind(freelancerMeetingController),
 );
@@ -518,7 +519,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/meetings/reschedule',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.requestReschedule.bind(freelancerMeetingController),
 );
@@ -526,7 +527,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/meetings/reject',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.rejectMeeting.bind(freelancerMeetingController),
 );
@@ -534,7 +535,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/meetings/reschedule/approve',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.approveReschedule.bind(freelancerMeetingController),
 );
@@ -542,7 +543,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/meetings/reschedule/decline',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.declineReschedule.bind(freelancerMeetingController),
 );
@@ -550,7 +551,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/meetings/reschedule/counter',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.counterReschedule.bind(freelancerMeetingController),
 );
@@ -558,7 +559,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/meetings',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.proposeMeeting.bind(freelancerMeetingController),
 );
@@ -566,7 +567,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/meetings/:meetingId/join',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerMeetingController.joinMeeting.bind(freelancerMeetingController),
 );
@@ -574,7 +575,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/contracts/:contractId/worklogs/list',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerWorklogController.getWorklogsList.bind(freelancerWorklogController),
 );
@@ -582,7 +583,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/contracts/:contractId/worklogs/:worklogId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerWorklogController.getWorklogDetail.bind(freelancerWorklogController),
 );
@@ -590,7 +591,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/contracts/:contractId/worklogs/raise-dispute',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerWorklogController.raiseWorklogDispute.bind(freelancerWorklogController),
 );
@@ -598,7 +599,7 @@ freelancerRouter.post(
 freelancerRouter.post(
   '/contracts/:contractId/review',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerReviewController.submitReview.bind(freelancerReviewController),
 );
@@ -606,7 +607,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/contracts/:contractId/review/status',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerReviewController.getReviewStatus.bind(freelancerReviewController),
 );
@@ -614,7 +615,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/reviews',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerReviewController.getMyReviews.bind(freelancerReviewController),
 );
@@ -622,7 +623,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/earnings/overview',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerEarningsController.getEarningsOverview.bind(freelancerEarningsController),
 );
@@ -630,7 +631,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/earnings/transactions',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerEarningsController.getTransactions.bind(freelancerEarningsController),
 );
@@ -638,7 +639,7 @@ freelancerRouter.get(
 freelancerRouter.post(
   '/finance/withdraw',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerFinanceController.requestWithdrawal.bind(freelancerFinanceController),
 );
@@ -646,7 +647,7 @@ freelancerRouter.post(
 freelancerRouter.get(
   '/finance/withdrawals',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerFinanceController.getWithdrawals.bind(freelancerFinanceController),
 );
@@ -654,7 +655,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/finance/withdrawals/:withdrawalId',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerFinanceController.getWithdrawalDetail.bind(freelancerFinanceController),
 );
@@ -662,7 +663,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/dashboard/contract-stats',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDashboardController.getContractStats.bind(freelancerDashboardController),
 );
@@ -670,7 +671,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/dashboard/earnings',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDashboardController.getEarnings.bind(freelancerDashboardController),
 );
@@ -678,7 +679,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/dashboard/meetings',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDashboardController.getMeetings.bind(freelancerDashboardController),
 );
@@ -686,7 +687,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/dashboard/review-stats',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerDashboardController.getReviewStats.bind(freelancerDashboardController),
 );
@@ -694,7 +695,7 @@ freelancerRouter.get(
 freelancerRouter.get(
   '/notifications',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerNotificationController.getNotifications.bind(freelancerNotificationController),
 );
@@ -702,7 +703,7 @@ freelancerRouter.get(
 freelancerRouter.patch(
   '/notifications/:notificationId/read',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerNotificationController.markNotificationAsRead.bind(freelancerNotificationController),
 );
@@ -710,7 +711,7 @@ freelancerRouter.patch(
 freelancerRouter.patch(
   '/notifications/read-all',
   authMiddleware,
-  roleGuard('freelancer'),
+  roleGuard(Role.FREELANCER),
   freelancerBlockMiddleware,
   freelancerNotificationController.markAllNotificationsAsRead.bind(
     freelancerNotificationController,

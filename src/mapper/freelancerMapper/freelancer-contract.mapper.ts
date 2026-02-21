@@ -12,7 +12,7 @@ export function mapContractToFreelancerDetailDTO(
     totalRefund: number;
     availableContractBalance: number;
   },
-  disputeDetail?:IDispute
+  disputeDetail?: IDispute,
 ): FreelancerContractDetailDTO {
   return {
     contractId: contract.contractId,

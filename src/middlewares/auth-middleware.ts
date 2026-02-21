@@ -2,6 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import { container } from 'tsyringe';
 import { jwtService } from '../utils/jwt';
 import { HttpStatus } from '../enums/http-status.enum';
+import { Role } from '../enums/role.enum';
 import { ERROR_MESSAGES } from '../contants/error-constants';
 import type { IBlacklistedTokenService } from '../services/commonServices/interfaces/blacklisted-token-service.interface';
 import '../config/container';
@@ -10,8 +11,8 @@ declare module 'express-serve-static-core' {
   interface Request {
     user?: {
       userId: string;
-      activeRole?: string;
-      roles?: string[];
+      activeRole?: Role;
+      roles?: Role[];
     };
   }
 }
@@ -41,8 +42,8 @@ export async function authMiddleware(
 
     const decoded = jwtService.verifyToken<{
       userId: string;
-      activeRole?: string;
-      roles?: string[];
+      activeRole?: Role;
+      roles?: Role[];
     }>(token);
 
     req.user = { userId: decoded.userId, activeRole: decoded.activeRole, roles: decoded.roles };
@@ -55,7 +56,7 @@ export async function authMiddleware(
   }
 }
 
-export function roleGuard(requiredRole: string) {
+export function roleGuard(requiredRole: Role) {
   return (req: Request, res: Response, next: NextFunction): void | Response => {
     if (req.user?.activeRole === requiredRole) {
       return next();

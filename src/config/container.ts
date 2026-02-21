@@ -67,7 +67,9 @@ container.register<IOfferRepository>('IOfferRepository', { useClass: OfferReposi
 container.register<IContractRepository>('IContractRepository', { useClass: ContractRepository });
 import { IContractActivityRepository } from '../repositories/interfaces/contract-activity-repository.interface';
 import { ContractActivityRepository } from '../repositories/contract-activity-repository';
-container.register<IContractActivityRepository>('IContractActivityRepository', { useClass: ContractActivityRepository });
+container.register<IContractActivityRepository>('IContractActivityRepository', {
+  useClass: ContractActivityRepository,
+});
 import { IDisputeRepository } from '../repositories/interfaces/dispute-repository.interface';
 import { DisputeRepository } from '../repositories/dispute-repository';
 container.register<IDisputeRepository>('IDisputeRepository', { useClass: DisputeRepository });
@@ -117,11 +119,17 @@ container.register<IBlacklistedTokenRepository>('IBlacklistedTokenRepository', {
 container.register<IBlacklistedTokenService>('IBlacklistedTokenService', {
   useClass: BlacklistedTokenService,
 });
-container.register<IMeetingStatusService>('IMeetingStatusService', { useClass: MeetingStatusService });
-container.register<IWorklogTransactionService>('IWorklogTransactionService', { useClass: WorklogTransactionService });
+container.register<IMeetingStatusService>('IMeetingStatusService', {
+  useClass: MeetingStatusService,
+});
+container.register<IWorklogTransactionService>('IWorklogTransactionService', {
+  useClass: WorklogTransactionService,
+});
 import { IContractActivityService } from '../services/commonServices/interfaces/contract-activity-service.interface';
 import { ContractActivityService } from '../services/commonServices/contract-activity-service';
-container.register<IContractActivityService>('IContractActivityService', { useClass: ContractActivityService });
+container.register<IContractActivityService>('IContractActivityService', {
+  useClass: ContractActivityService,
+});
 //Auth
 import { AuthService } from '../services/authServices/auth-services';
 import type { IAuthService } from '../services/authServices/interfaces/auth-services.interface';

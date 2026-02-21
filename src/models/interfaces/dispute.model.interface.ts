@@ -21,4 +21,3 @@ export interface IDispute extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
-

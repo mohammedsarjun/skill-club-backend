@@ -15,9 +15,10 @@ export const mapContractActivityToDTO = (activity: IContractActivity): ContractA
     actor: {
       role: activity.actor.role,
       userId: activity.actor.userId?.toString(),
-      name: actorUser?.firstName && actorUser?.lastName
-        ? `${actorUser.firstName} ${actorUser.lastName}`
-        : undefined,
+      name:
+        actorUser?.firstName && actorUser?.lastName
+          ? `${actorUser.firstName} ${actorUser.lastName}`
+          : undefined,
     },
     eventType: activity.eventType,
     title: activity.title,

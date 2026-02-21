@@ -8,6 +8,7 @@ import { Types, ClientSession } from 'mongoose';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import { ERROR_MESSAGES } from '../../contants/error-constants';
+import { ContractEventType } from 'src/models/interfaces/contract-activity.interface';
 
 @injectable()
 export class ContractActivityService implements IContractActivityService {
@@ -15,7 +16,7 @@ export class ContractActivityService implements IContractActivityService {
     @inject('IContractActivityRepository')
     private _contractActivityRepository: IContractActivityRepository,
     @inject('IContractRepository')
-    private _contractRepository: IContractRepository
+    private _contractRepository: IContractRepository,
   ) {}
 
   async logActivity(
@@ -31,7 +32,7 @@ export class ContractActivityService implements IContractActivityService {
       messageId?: Types.ObjectId;
       reason?: string;
     },
-    session?: ClientSession
+    session?: ClientSession,
   ): Promise<void> {
     await this._contractActivityRepository.createActivity(
       {
@@ -40,19 +41,19 @@ export class ContractActivityService implements IContractActivityService {
           role,
           userId,
         },
-        eventType: eventType as any,
+        eventType: eventType as ContractEventType | undefined,
         title,
         description,
         metadata,
       },
-      session
+      session,
     );
   }
 
   async getContractTimeline(
     contractId: string,
     userId: string,
-    role: 'client' | 'freelancer'
+    role: 'client' | 'freelancer',
   ): Promise<ContractTimelineDTO> {
     if (!Types.ObjectId.isValid(contractId)) {
       throw new AppError('Invalid contract ID', HttpStatus.BAD_REQUEST);
