@@ -107,7 +107,12 @@ export class FreelancerWorklogService implements IFreelancerWorklogService {
       new Types.ObjectId(freelancerId),
       'Work Logged',
       `Freelancer logged ${hoursWorked.toFixed(2)} hours of work. Amount: ₹${amountToHold.toLocaleString()}`,
-      { worklogId: worklog._id?.toString(), hours: hoursWorked, amount: amountToHold, filesCount: data.files.length },
+      {
+        worklogId: worklog._id?.toString(),
+        hours: hoursWorked,
+        amount: amountToHold,
+        filesCount: data.files.length,
+      },
     );
 
     return mapWorklogToResponseDTO(worklog);

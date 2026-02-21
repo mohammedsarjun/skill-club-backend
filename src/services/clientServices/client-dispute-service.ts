@@ -4,7 +4,10 @@ import { IDisputeRepository } from '../../repositories/interfaces/dispute-reposi
 import { IContractRepository } from '../../repositories/interfaces/contract-repository.interface';
 
 import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
-import { CreateDisputeRequestDTO, DisputeResponseDTO } from '../../dto/clientDTO/client-dispute.dto';
+import {
+  CreateDisputeRequestDTO,
+  DisputeResponseDTO,
+} from '../../dto/clientDTO/client-dispute.dto';
 import { mapDisputeToResponseDTO } from '../../mapper/clientMapper/client-dispute.mapper';
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
@@ -83,7 +86,12 @@ export class ClientDisputeService implements IClientDisputeService {
       new Types.ObjectId(clientId),
       'Dispute Raised',
       `Client raised a dispute. Reason: ${data.reasonCode}. Scope: ${data.scope || 'contract'}`,
-      { disputeId: dispute._id?.toString(), reasonCode: data.reasonCode, scope: data.scope || 'contract', scopeId: data.scopeId },
+      {
+        disputeId: dispute._id?.toString(),
+        reasonCode: data.reasonCode,
+        scope: data.scope || 'contract',
+        scopeId: data.scopeId,
+      },
     );
 
     return mapDisputeToResponseDTO(dispute);

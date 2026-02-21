@@ -28,7 +28,7 @@ export class FreelancerOfferService implements IFreelancerOfferService {
     @inject('IOfferRepository') offerRepository: IOfferRepository,
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractActivityService') contractActivityService: IContractActivityService
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._offerRepository = offerRepository;
     this._jobRepository = jobRepository;
@@ -97,7 +97,7 @@ export class FreelancerOfferService implements IFreelancerOfferService {
       const contract = await this._contractRepository.createContract(contractData, session);
 
       const contractId = contract._id as unknown as Types.ObjectId;
-      
+
       await this._contractActivityService.logActivity(
         contractId,
         'contract_created',
@@ -106,7 +106,7 @@ export class FreelancerOfferService implements IFreelancerOfferService {
         'Contract Created',
         `Contract created from accepted offer. Payment type: ${contractData.paymentType}`,
         undefined,
-        session
+        session,
       );
 
       if (contractData.paymentType === 'hourly') {

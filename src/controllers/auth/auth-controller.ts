@@ -11,7 +11,6 @@ import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
 
-
 @injectable()
 export class AuthController implements IAuthController {
   private _authService: IAuthService;
@@ -56,7 +55,7 @@ export class AuthController implements IAuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       path: '/',
-      domain:process.env.COOKIE_DOMAIN,
+      domain: process.env.COOKIE_DOMAIN,
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
     });
 
@@ -65,7 +64,7 @@ export class AuthController implements IAuthController {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'none',
       path: '/',
-      domain:process.env.COOKIE_DOMAIN,
+      domain: process.env.COOKIE_DOMAIN,
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
     });
 
@@ -85,7 +84,7 @@ export class AuthController implements IAuthController {
         | 'lax'
         | 'strict',
       path: '/',
-       domain:process.env.COOKIE_DOMAIN
+      domain: process.env.COOKIE_DOMAIN,
     };
 
     // Add tokens to blacklist
@@ -213,15 +212,14 @@ export class AuthController implements IAuthController {
     }
 
     try {
-      const { accessToken, newRefreshToken } =
-        await this._authService.refreshToken(refreshToken);
+      const { accessToken, newRefreshToken } = await this._authService.refreshToken(refreshToken);
 
       res.cookie('accessToken', accessToken, {
         httpOnly: process.env.NODE_ENV === 'production',
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
         path: '/',
-        domain:process.env.COOKIE_DOMAIN,
+        domain: process.env.COOKIE_DOMAIN,
         maxAge: jwtConfig.accessTokenMaxAge * 1000,
       });
 
@@ -230,13 +228,13 @@ export class AuthController implements IAuthController {
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'none',
         path: '/',
-        domain:process.env.COOKIE_DOMAIN,
+        domain: process.env.COOKIE_DOMAIN,
         maxAge: jwtConfig.refreshTokenMaxAge * 1000,
       });
 
-      res.status(HttpStatus.OK).json({ 
-        success:true,
-        message: MESSAGES.AUTH.TOKEN_REFRESHED 
+      res.status(HttpStatus.OK).json({
+        success: true,
+        message: MESSAGES.AUTH.TOKEN_REFRESHED,
       });
     } catch (error) {
       res.sendStatus(HttpStatus.FORBIDDEN);

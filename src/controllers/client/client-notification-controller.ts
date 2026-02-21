@@ -19,7 +19,9 @@ export class ClientNotificationController {
     try {
       const clientId = req.user?.userId;
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
@@ -36,12 +38,16 @@ export class ClientNotificationController {
       const { notificationId } = req.params;
 
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
       await this._notificationService.markNotificationAsRead(clientId, notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }
@@ -51,7 +57,9 @@ export class ClientNotificationController {
     try {
       const clientId = req.user?.userId;
       if (!clientId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 

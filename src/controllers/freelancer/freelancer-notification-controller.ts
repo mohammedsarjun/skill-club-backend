@@ -19,7 +19,9 @@ export class FreelancerNotificationController {
     try {
       const freelancerId = req.user?.userId;
       if (!freelancerId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
@@ -36,12 +38,16 @@ export class FreelancerNotificationController {
       const { notificationId } = req.params;
 
       if (!freelancerId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 
       await this._notificationService.markNotificationAsRead(freelancerId, notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }
@@ -51,7 +57,9 @@ export class FreelancerNotificationController {
     try {
       const freelancerId = req.user?.userId;
       if (!freelancerId) {
-        res.status(HttpStatus.UNAUTHORIZED).json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
+        res
+          .status(HttpStatus.UNAUTHORIZED)
+          .json({ success: false, message: MESSAGES.AUTH.UNAUTHORIZED });
         return;
       }
 

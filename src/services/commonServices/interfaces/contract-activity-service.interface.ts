@@ -1,4 +1,3 @@
-
 import { Types, ClientSession } from 'mongoose';
 import { ContractTimelineDTO } from 'src/dto/commonDTO/contract-activity.dto';
 
@@ -10,10 +9,14 @@ export interface IContractActivityService {
     userId: Types.ObjectId | undefined,
     title: string,
     description: string,
-    metadata?: Record<string, any>,
-    session?: ClientSession
+    metadata?: Record<string, string | number | object | undefined>,
+    session?: ClientSession,
   ): Promise<void>;
 
-  getContractTimeline(contractId: string, userId: string, role: 'client' | 'freelancer'): Promise<ContractTimelineDTO>;
+  getContractTimeline(
+    contractId: string,
+    userId: string,
+    role: 'client' | 'freelancer',
+  ): Promise<ContractTimelineDTO>;
   getAdminContractTimeline(contractId: string): Promise<ContractTimelineDTO>;
 }

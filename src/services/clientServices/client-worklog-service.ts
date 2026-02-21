@@ -193,7 +193,11 @@ export class ClientWorklogService implements IClientWorklogService {
       new Types.ObjectId(clientId),
       'Work Log Approved',
       `Client approved work log for ${(updatedWorklog.duration / 3600000).toFixed(2)} hours`,
-      { worklogId: data.worklogId, duration: updatedWorklog.duration, startTime: updatedWorklog.startTime },
+      {
+        worklogId: data.worklogId,
+        duration: updatedWorklog.duration,
+        startTime: updatedWorklog.startTime,
+      },
     );
 
     return mapWorklogToDetailDTO({ ...updatedWorklog.toObject(), freelancerName });
@@ -268,7 +272,11 @@ export class ClientWorklogService implements IClientWorklogService {
       new Types.ObjectId(clientId),
       'Work Log Rejected',
       `Client rejected work log for ${(updatedWorklog.duration / 3600000).toFixed(2)} hours. Reason: ${data.message}`,
-      { worklogId: data.worklogId, duration: updatedWorklog.duration, startTime: updatedWorklog.startTime },
+      {
+        worklogId: data.worklogId,
+        duration: updatedWorklog.duration,
+        startTime: updatedWorklog.startTime,
+      },
     );
 
     return mapWorklogToDetailDTO({ ...updatedWorklog.toObject(), freelancerName });

@@ -129,11 +129,15 @@ export class ClientContractService implements IClientContractService {
 
     const financialSummary =
       await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
-     const disputeDetail=  (await this._disputeRepository.findDisputesByContractId(contractId))?.[0];
+    const disputeDetail = (await this._disputeRepository.findDisputesByContractId(contractId))?.[0];
     console.log(disputeDetail);
 
-     console.log(disputeDetail,contractId)
-    const dto = mapContractModelToClientContractDetailDTO(contract, financialSummary,disputeDetail?disputeDetail:undefined);
+    console.log(disputeDetail, contractId);
+    const dto = mapContractModelToClientContractDetailDTO(
+      contract,
+      financialSummary,
+      disputeDetail ? disputeDetail : undefined,
+    );
     if (dto.deliverables && dto.deliverables.length > 0) {
       const checks = await Promise.all(
         dto.deliverables.map((_d) =>
@@ -236,8 +240,6 @@ export class ClientContractService implements IClientContractService {
           contractId,
           'refunded_back_to_client',
         );
-
-        
       }
       return { cancelled: true, requiresDispute: false };
     }
@@ -503,7 +505,12 @@ export class ClientContractService implements IClientContractService {
       contract.clientId,
       'Deliverable Approved',
       `Client approved deliverable (Version ${approvedDeliverable.version}). Payment of ₹${paymentAmount.toLocaleString()} released to freelancer`,
-      { deliverableId: approvedDeliverable._id?.toString(), version: approvedDeliverable.version, amount: paymentAmount, freelancerAmount },
+      {
+        deliverableId: approvedDeliverable._id?.toString(),
+        version: approvedDeliverable.version,
+        amount: paymentAmount,
+        freelancerAmount,
+      },
     );
 
     await this._contractActivityService.logActivity(
@@ -680,7 +687,12 @@ export class ClientContractService implements IClientContractService {
       new Types.ObjectId(clientId),
       'Revision Requested',
       `Client requested changes for deliverable (Version ${changedDeliverable.version}). Revision ${changedDeliverable.revisionsRequested}/${allowedRevisions}`,
-      { deliverableId: data.deliverableId, version: changedDeliverable.version, revisionsRequested: changedDeliverable.revisionsRequested, allowedRevisions },
+      {
+        deliverableId: data.deliverableId,
+        version: changedDeliverable.version,
+        revisionsRequested: changedDeliverable.revisionsRequested,
+        allowedRevisions,
+      },
     );
 
     return ClientDeliverableMapper.toDeliverableResponseDTO(changedDeliverable, updatedContract);
@@ -897,7 +909,11 @@ export class ClientContractService implements IClientContractService {
       new Types.ObjectId(clientId),
       'Milestone Deliverable Approved',
       `Client approved deliverable for milestone "${milestone.title}" (Version ${approvedDeliverable.version})`,
-      { milestoneId: data.milestoneId, deliverableId: data.deliverableId, version: approvedDeliverable.version },
+      {
+        milestoneId: data.milestoneId,
+        deliverableId: data.deliverableId,
+        version: approvedDeliverable.version,
+      },
     );
 
     await this._contractActivityService.logActivity(
@@ -917,7 +933,12 @@ export class ClientContractService implements IClientContractService {
       undefined,
       'Payment Released',
       `Payment of ₹${freelancerAmount.toLocaleString()} released to freelancer for milestone "${milestone.title}". Platform commission: ₹${commission.toLocaleString()}`,
-      { milestoneId: data.milestoneId, amount: freelancerAmount, commission, totalAmount: paymentAmount },
+      {
+        milestoneId: data.milestoneId,
+        amount: freelancerAmount,
+        commission,
+        totalAmount: paymentAmount,
+      },
     );
 
     return ClientMilestoneMapper.toMilestoneDeliverableResponseDTO(

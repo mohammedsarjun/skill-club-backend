@@ -53,7 +53,7 @@ export class AdminReportedJobService implements IAdminReportedJobService {
     };
   }
 
-  async getHighReportedJobs(): Promise<IHighReportedJob[]>{
-    return await this._reportedJobRepository.getHighReportedJobs()
+  async getHighReportedJobs(): Promise<IHighReportedJob[]> {
+    return await this._reportedJobRepository.getHighReportedJobs();
   }
 }

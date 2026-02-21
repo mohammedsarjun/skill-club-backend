@@ -25,12 +25,13 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
   constructor(
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
-    @inject('IContractTransactionRepository') contractTransactionRepository: IContractTransactionRepository,
+    @inject('IContractTransactionRepository')
+    contractTransactionRepository: IContractTransactionRepository,
     @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._disputeRepository = disputeRepository;
     this._contractRepository = contractRepository;
-    this._contractTransactionRepository= contractTransactionRepository;
+    this._contractTransactionRepository = contractTransactionRepository;
     this._contractActivityService = contractActivityService;
   }
 
@@ -102,7 +103,12 @@ export class FreelancerDisputeService implements IFreelancerDisputeService {
       new Types.ObjectId(freelancerId),
       'Dispute Raised',
       `Freelancer raised a dispute. Reason: ${data.reasonCode}. Scope: ${data.scope || 'contract'}`,
-      { disputeId: dispute._id?.toString(), reasonCode: data.reasonCode, scope: data.scope || 'contract', scopeId: data.scopeId },
+      {
+        disputeId: dispute._id?.toString(),
+        reasonCode: data.reasonCode,
+        scope: data.scope || 'contract',
+        scopeId: data.scopeId,
+      },
     );
 
     return mapDisputeToResponseDTO(dispute);

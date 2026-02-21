@@ -26,7 +26,9 @@ export class AdminNotificationController {
     try {
       const { notificationId } = req.params;
       await this._notificationService.markNotificationAsRead(notificationId);
-      res.status(HttpStatus.OK).json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
+      res
+        .status(HttpStatus.OK)
+        .json({ success: true, message: MESSAGES.NOTIFICATION.MARKED_AS_READ });
     } catch (error) {
       next(error);
     }

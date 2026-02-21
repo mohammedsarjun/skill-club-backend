@@ -254,9 +254,7 @@ export class AuthService implements IAuthService {
     return user ? mapUserModelToUserDto(user) : null;
   }
 
-  async refreshToken(
-    token: string,
-  ): Promise<{ accessToken: string; newRefreshToken: string }> {
+  async refreshToken(token: string): Promise<{ accessToken: string; newRefreshToken: string }> {
     const decoded = jwtService.verifyToken<{
       userId: string;
       roles: string[];
@@ -271,10 +269,7 @@ export class AuthService implements IAuthService {
         activeRole: 'admin',
       };
       const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
-      const newRefreshToken = jwtService.createToken(
-        payload,
-        jwtConfig.refreshTokenMaxAge,
-      );
+      const newRefreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
       return { accessToken, newRefreshToken };
     }
 
@@ -291,10 +286,7 @@ export class AuthService implements IAuthService {
     };
 
     const accessToken = jwtService.createToken(payload, jwtConfig.accessTokenMaxAge);
-    const newRefreshToken = jwtService.createToken(
-      payload,
-      jwtConfig.refreshTokenMaxAge,
-    );
+    const newRefreshToken = jwtService.createToken(payload, jwtConfig.refreshTokenMaxAge);
 
     return { accessToken, newRefreshToken };
   }

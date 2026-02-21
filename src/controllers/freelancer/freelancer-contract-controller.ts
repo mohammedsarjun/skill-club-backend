@@ -23,7 +23,7 @@ export class FreelancerContractController implements IFreelancerContractControll
 
   constructor(
     @inject('IFreelancerContractService') freelancerContractService: IFreelancerContractService,
-    @inject('IContractActivityService') contractActivityService: IContractActivityService
+    @inject('IContractActivityService') contractActivityService: IContractActivityService,
   ) {
     this._freelancerContractService = freelancerContractService;
     this._contractActivityService = contractActivityService;
@@ -258,7 +258,11 @@ export class FreelancerContractController implements IFreelancerContractControll
     const freelancerId = req.user?.userId as string;
     const { contractId } = req.params;
 
-    const result = await this._contractActivityService.getContractTimeline(contractId, freelancerId, 'freelancer');
+    const result = await this._contractActivityService.getContractTimeline(
+      contractId,
+      freelancerId,
+      'freelancer',
+    );
 
     res.status(HttpStatus.OK).json({
       success: true,
@@ -266,5 +270,4 @@ export class FreelancerContractController implements IFreelancerContractControll
       data: result,
     });
   }
-
 }

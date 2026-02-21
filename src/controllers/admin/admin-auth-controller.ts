@@ -9,7 +9,6 @@ import { jwtConfig } from '../../config/jwt.config';
 import { MESSAGES } from '../../contants/contants';
 import type { IBlacklistedTokenService } from '../../services/commonServices/interfaces/blacklisted-token-service.interface';
 
-
 @injectable()
 export class AdminAuthController implements IAdminAuthController {
   private _adminAuthServices: IAdminAuthServices;
@@ -35,17 +34,17 @@ export class AdminAuthController implements IAdminAuthController {
     res.cookie('accessToken', accessToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
-      path:"/",
+      path: '/',
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
       sameSite: 'none',
-      domain: process.env.COOKIE_DOMAIN ,
+      domain: process.env.COOKIE_DOMAIN,
     });
 
     res.cookie('refreshToken', refreshToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV == 'production',
       sameSite: 'none',
-      path:"/",
+      path: '/',
       domain: process.env.COOKIE_DOMAIN,
       maxAge: jwtConfig.refreshTokenMaxAge * 1000,
     });
@@ -114,7 +113,7 @@ export class AdminAuthController implements IAdminAuthController {
       sameSite: 'none',
       domain: process.env.COOKIE_DOMAIN,
       maxAge: jwtConfig.accessTokenMaxAge * 1000,
-      path:"/",
+      path: '/',
     });
 
     res.status(HttpStatus.OK).json({

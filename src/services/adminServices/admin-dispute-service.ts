@@ -148,16 +148,16 @@ export class AdminDisputeService implements IAdminDisputeService {
 
     await this._disputeRepository.updateDisputeStatus(disputeId, 'resolved');
 
-
-
-    const disputeResolution:IDispute["resolution"] = {
-      outcome:'split',
-      clientAmount:clientRefundAmount,
-      freelancerAmount:freelancerReleaseAmount,
-      decidedBy:"admin",
-      decidedAt:new Date()
-    } 
-    await this._disputeRepository.updateResolutionByDispute(disputeId,{resolution:disputeResolution})
+    const disputeResolution: IDispute['resolution'] = {
+      outcome: 'split',
+      clientAmount: clientRefundAmount,
+      freelancerAmount: freelancerReleaseAmount,
+      decidedBy: 'admin',
+      decidedAt: new Date(),
+    };
+    await this._disputeRepository.updateResolutionByDispute(disputeId, {
+      resolution: disputeResolution,
+    });
     return {
       success: true,
       message: 'Funds have been split successfully',

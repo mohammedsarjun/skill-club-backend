@@ -130,7 +130,7 @@ export interface ClientContractDetailDTO {
     | 'refunded'
     | 'disputed'
     | 'cancellation_requested';
-    disputeDetail:Partial<IDispute>
+  disputeDetail: Partial<IDispute>;
   totalFunded: number;
   totalPaidToFreelancer: number;
   totalCommissionPaid: number;

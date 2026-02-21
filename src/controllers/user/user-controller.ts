@@ -8,7 +8,6 @@ import { jwtService } from '../../utils/jwt';
 import { MESSAGES } from '../../contants/contants';
 import { jwtConfig } from '../../config/jwt.config';
 
-
 @injectable()
 export class UserController implements IUserController {
   private _userService: IUserServices;

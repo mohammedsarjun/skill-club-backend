@@ -374,4 +374,3 @@ adminRouter.get(
 );
 
 export default adminRouter;
-

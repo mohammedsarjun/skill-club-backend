@@ -65,10 +65,8 @@ export class ReportedJobRepository
     ]);
   }
 
-
   async countByJobId(jobId: string): Promise<number> {
-    return await super.count({jobId})
-    
+    return await super.count({ jobId });
   }
 }
 

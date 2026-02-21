@@ -1,4 +1,4 @@
-import { Document, Types } from "mongoose";
+import { Document, Types } from 'mongoose';
 
 export type ActorRole = 'client' | 'freelancer' | 'system' | 'admin';
 
