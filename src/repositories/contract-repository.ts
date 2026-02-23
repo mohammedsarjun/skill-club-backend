@@ -1,5 +1,5 @@
 import BaseRepository from './baseRepositories/base-repository';
-import { IContract, ContractStatus, WorkspaceFile } from '../models/interfaces/contract.model.interface';
+import { IContract, ContractStatus } from '../models/interfaces/contract.model.interface';
 import { Contract } from '../models/contract.model';
 import { IContractRepository } from './interfaces/contract-repository.interface';
 import { ClientContractQueryParamsDTO } from '../dto/clientDTO/client-contract.dto';
@@ -639,17 +639,17 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
   }
 
   async getRecentContracts(limit: number): Promise<IContract[]> {
-    return await this.model
+    return (await this.model
       .find()
       .sort({ createdAt: -1 })
       .limit(limit)
       .populate('clientId', 'firstName lastName clientProfile.companyName')
       .populate('freelancerId', 'firstName lastName')
-      .lean();
+      .lean()) as unknown as IContract[];
   }
 
   async getRecentActiveContractsByClientId(clientId: string, limit: number): Promise<IContract[]> {
-    return await this.model
+    return (await this.model
       .find({
         clientId,
         status: { $in: ['active', 'held'] as ContractStatus[] },
@@ -658,7 +658,7 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
       .limit(limit)
       .populate('freelancerId', 'firstName lastName logo country')
       .populate('jobId', 'title')
-      .lean();
+      .lean()) as unknown as IContract[];
   }
 
   async countByFreelancerAndStatus(
@@ -775,22 +775,4 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
     return await this.updateById(contractId, { status: 'completed' }, session);
   }
 
-  async addWorkspaceFile(
-    contractId: string,
-    fileData: Omit<WorkspaceFile, '_id'>,
-  ): Promise<IContract | null> {
-    return await this.updateById(contractId, {
-      $push: {
-        workspaceFiles: fileData,
-      },
-    } as UpdateQuery<IContract>);
-  }
-
-  async deleteWorkspaceFile(contractId: string, fileId: string): Promise<IContract | null> {
-    return await this.updateById(contractId, {
-      $pull: {
-        workspaceFiles: { fileId: fileId },
-      },
-    } as UpdateQuery<IContract>);
-  }
 }

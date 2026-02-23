@@ -59,6 +59,8 @@ import { ICancellationRequestRepository } from '../../repositories/interfaces/ca
 import { IDisputeRepository } from 'src/repositories/interfaces/dispute-repository.interface';
 import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
 import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
+import { IWorkspaceFileRepository } from '../../repositories/interfaces/workspace-file.repository.interface';
+import { IWorkspaceFile } from '../../models/interfaces/workspace-file.model.interface';
 
 @injectable()
 export class ClientContractService implements IClientContractService {
@@ -76,6 +78,7 @@ export class ClientContractService implements IClientContractService {
   private _disputeRepository: IDisputeRepository;
   private _contractActivityService: IContractActivityService;
   private _notificationService: INotificationService;
+  private _workspaceFileRepository: IWorkspaceFileRepository;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -96,6 +99,7 @@ export class ClientContractService implements IClientContractService {
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractActivityService') contractActivityService: IContractActivityService,
     @inject('INotificationService') notificationService: INotificationService,
+    @inject('IWorkspaceFileRepository') workspaceFileRepository: IWorkspaceFileRepository,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -111,6 +115,7 @@ export class ClientContractService implements IClientContractService {
     this._disputeRepository = disputeRepository;
     this._contractActivityService = contractActivityService;
     this._notificationService = notificationService;
+    this._workspaceFileRepository = workspaceFileRepository;
   }
 
   async getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO> {
@@ -134,9 +139,11 @@ export class ClientContractService implements IClientContractService {
     const financialSummary =
       await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
     const disputeDetail = (await this._disputeRepository.findDisputesByContractId(contractId))?.[0];
-    console.log(disputeDetail);
-
-    console.log(disputeDetail, contractId);
+    
+    // Fetch workspace files from standalone collection
+    const workspaceFiles = await this._workspaceFileRepository.findByContractId(contractId);
+    contract.workspaceFiles = workspaceFiles as any;
+    
     const dto = mapContractModelToClientContractDetailDTO(
       contract,
       financialSummary,
@@ -1763,11 +1770,12 @@ export class ClientContractService implements IClientContractService {
     if (!contract || contract.clientId.toString() !== clientId) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    await this._contractRepository.addWorkspaceFile(contractId, {
+    await this._workspaceFileRepository.create({
+      contractId,
       ...fileData,
-      uploadedBy: new Types.ObjectId(clientId) as any,
+      uploadedBy: clientId,
       uploadedAt: new Date(),
-    });
+    } as Partial<IWorkspaceFile>);
     return this.getContractDetail(clientId, contractId);
   }
 
@@ -1780,14 +1788,14 @@ export class ClientContractService implements IClientContractService {
     if (!contract || contract.clientId.toString() !== clientId) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    const file = contract.workspaceFiles?.find((f) => f.fileId === fileId);
+    const file = await this._workspaceFileRepository.findByFileId(fileId);
     if (!file) {
       throw new AppError('File not found', HttpStatus.NOT_FOUND);
     }
     if (file.uploadedBy.toString() !== clientId) {
       throw new AppError('Unauthorized to delete this file', HttpStatus.FORBIDDEN);
     }
-    await this._contractRepository.deleteWorkspaceFile(contractId, fileId);
+    await this._workspaceFileRepository.deleteByFileId(fileId);
     return this.getContractDetail(clientId, contractId);
   }
 }

@@ -36,18 +36,4 @@ export const userProfileSchema = z.object({
     .string()
     .trim()
     .regex(/^[0-9]{10}$/, 'Phone number must be 10 digits'),
-
-  dob: z
-    .string()
-    .refine((value) => !isNaN(Date.parse(value)), {
-      message: 'Invalid date format',
-    })
-    .refine(
-      (value) => {
-        const date = new Date(value);
-        const today = new Date();
-        return date < today;
-      },
-      { message: 'Date of birth must be in the past' },
-    ),
 });

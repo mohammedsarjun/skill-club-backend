@@ -1,7 +1,7 @@
 import { Document, Types } from 'mongoose';
 
 export interface INotification extends Document {
-  _id: string;
+  _id: Types.ObjectId;
 
   userId: Types.ObjectId;
 

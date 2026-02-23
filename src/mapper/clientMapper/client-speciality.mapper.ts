@@ -7,6 +7,6 @@ export const mapSpecialityModelToGetClientSpecialityWithSkillsDTO = (
   return {
     specialityId: specialityData._id.toString(),
     specialityName: specialityData.name,
-    skills: specialityData.skills.map((skill) => ({ skillId: skill._id, skillName: skill.name })),
+    skills: specialityData.skills.map((skill) => ({ skillId: skill._id.toString(), skillName: skill.name })),
   };
 };

@@ -32,7 +32,8 @@ export class AdminSkillRepository extends BaseRepository<ISkill> implements IAdm
     }
 
     // Start Mongoose query
-    let mongooseQuery = this.model.find(query);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let mongooseQuery: any = this.model.find(query);
 
     // Apply skip / limit
     if (options.skip !== undefined) mongooseQuery = mongooseQuery.skip(options.skip);
@@ -47,7 +48,7 @@ export class AdminSkillRepository extends BaseRepository<ISkill> implements IAdm
     }
 
     // Execute query and assert type
-    return (await mongooseQuery.exec()) as ISkill[];
+    return (await mongooseQuery.exec()) as unknown as ISkill[];
   }
 
   async createSkill(skillData: CreateSkillDTO): Promise<ISkill | null> {

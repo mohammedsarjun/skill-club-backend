@@ -7,6 +7,7 @@ import {
 } from '../../dto/adminDTO/admin-dashboard.dto';
 import { IContract } from '../../models/interfaces/contract.model.interface';
 import { IUser } from '../../models/interfaces/user.model.interface';
+import { Types } from 'mongoose';
 
 export function mapToDashboardStatsDto(data: {
   totalFreelancers: number;
@@ -42,7 +43,7 @@ export function mapToUserGrowthDataPoint(
 }
 
 interface PopulatedAdminContract extends Omit<IContract, 'clientId' | 'freelancerId'> {
-  _id: { toString(): string };
+  _id: Types.ObjectId;
   clientId?: IUser | null;
   freelancerId?: IUser | null;
 }

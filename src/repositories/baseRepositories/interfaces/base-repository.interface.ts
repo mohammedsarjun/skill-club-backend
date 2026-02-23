@@ -1,4 +1,4 @@
-import { FilterQuery, UpdateQuery, ClientSession, PopulateOptions } from 'mongoose';
+import { FilterQuery, UpdateQuery, ClientSession, PopulateOptions, SortOrder } from 'mongoose';
 
 export interface IBaseRepository<T> {
   create(data: Partial<T>, session?: ClientSession): Promise<T>;
@@ -10,6 +10,7 @@ export interface IBaseRepository<T> {
       limit?: number;
       populate?: PopulateOptions | PopulateOptions[];
       session?: ClientSession;
+      sort?: Record<string, SortOrder>;
     },
   ): Promise<T[]>;
   updateById(id: string, data: UpdateQuery<T>, session?: ClientSession): Promise<T | null>;
