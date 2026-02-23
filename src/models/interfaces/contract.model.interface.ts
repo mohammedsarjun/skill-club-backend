@@ -126,17 +126,7 @@ export interface ContractExtensionRequest {
   responseMessage?: string;
 }
 
-export interface WorkspaceFile {
-  _id?: Types.ObjectId;
-  fileId: string;
-  fileName: string;
-  fileUrl: string;
-  fileSize?: number;
-  fileType?: string;
-  uploadedBy: Types.ObjectId;
-  uploadedAt: Date;
-}
-
+// WorkspaceFile moved to its own model
 export interface IContract extends Document {
   contractId: string;
 
@@ -187,7 +177,7 @@ export interface IContract extends Document {
   categoryId: Types.ObjectId;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
-  workspaceFiles?: WorkspaceFile[];
+  workspaceFiles?: any[];
   reporting: ContractReporting;
 
   // Contract lifecycle

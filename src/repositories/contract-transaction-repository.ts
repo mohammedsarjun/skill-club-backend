@@ -34,11 +34,11 @@ export class ContractTransactionRepository
   }
 
   async findByClientId(clientId: string): Promise<IContractTransaction[]> {
-    return await this.model
+    return (await this.model
       .find({ clientId })
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async findWithdrawalsByClientIdWithPagination(
@@ -47,12 +47,12 @@ export class ContractTransactionRepository
     limit: number,
   ): Promise<IContractTransaction[]> {
     const skip = (page - 1) * limit;
-    return await this.model
+    return (await this.model
       .find({ clientId: new Types.ObjectId(clientId), purpose: 'withdrawal', role: 'client' })
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async countWithdrawalsByClientId(clientId: string): Promise<number> {
@@ -64,25 +64,25 @@ export class ContractTransactionRepository
   }
 
   async findSpentTransactionsByClientId(clientId: string): Promise<IContractTransaction[]> {
-    return await this.model
+    return (await this.model
       .find({
         clientId,
         purpose: { $in: ['funding'] },
       })
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async findRefundTransactionsByClientId(clientId: string): Promise<IContractTransaction[]> {
-    return await this.model
+    return (await this.model
       .find({
         clientId,
         purpose: 'refund',
       })
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async findTotalFundedAmountForFixedContract(contractId: string): Promise<number> {
@@ -117,13 +117,13 @@ export class ContractTransactionRepository
 
     const skip = (page - 1) * limit;
 
-    return await this.model
+    return (await this.model
       .find(filter)
       .populate('clientId', 'firstName lastName')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async countByFreelancerId(
@@ -731,7 +731,7 @@ export class ContractTransactionRepository
       filter.status = status;
     }
 
-    return await this.model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean();
+    return (await this.model.find(filter).sort({ createdAt: -1 }).skip(skip).limit(limit).lean()) as unknown as IContractTransaction[];
   }
 
   async countWithdrawalsByFreelancerId(freelancerId: string, status?: string): Promise<number> {
@@ -765,14 +765,14 @@ export class ContractTransactionRepository
       filter.status = status;
     }
 
-    return await this.model
+    return (await this.model
       .find(filter)
       .populate('clientId', 'firstName lastName')
       .populate('freelancerId', 'firstName lastName')
       .sort({ createdAt: -1 })
       .skip(skip)
       .limit(limit)
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async countWithdrawalsForAdmin(role?: string, status?: string): Promise<number> {
@@ -866,21 +866,21 @@ export class ContractTransactionRepository
   }
 
   async findWithdrawalById(withdrawalId: string): Promise<IContractTransaction | null> {
-    return await this.model
+    return (await this.model
       .findById(withdrawalId)
       .populate('clientId', 'firstName lastName email avatar phone isVerified isClientBlocked')
       .populate(
         'freelancerId',
         'firstName lastName email avatar phone isVerified isFreelancerBlocked freelancerProfile',
       )
-      .lean();
+      .lean()) as unknown as IContractTransaction | null;
   }
 
   async updateWithdrawalStatus(
     withdrawalId: string,
     status: string,
   ): Promise<IContractTransaction | null> {
-    return await this.model.findByIdAndUpdate(withdrawalId, { status }, { new: true }).lean();
+    return (await this.model.findByIdAndUpdate(withdrawalId, { status }, { new: true }).lean()) as unknown as IContractTransaction | null;
   }
 
   async findCommissionTransactionsWithPagination(
@@ -899,12 +899,12 @@ export class ContractTransactionRepository
       }
     }
 
-    return await this.model
+    return (await this.model
       .find(filter)
       .populate('clientId', 'firstName lastName email')
       .populate('freelancerId', 'firstName lastName email')
       .sort({ createdAt: -1 })
-      .lean();
+      .lean()) as unknown as IContractTransaction[];
   }
 
   async getRevenueStats(

@@ -508,7 +508,7 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
   }
 
   async findUpcomingMeetingsByFreelancerId(contractIds: string[]): Promise<IMeeting[]> {
-    return await this.model
+    return (await this.model
       .find({
         contractId: { $in: contractIds },
         status: { $in: ['accepted', 'ongoing'] },
@@ -516,7 +516,7 @@ export class MeetingRepository extends BaseRepository<IMeeting> implements IMeet
       })
       .sort({ status: -1, scheduledAt: 1 })
       .populate('contractId', 'title')
-      .lean();
+      .lean()) as unknown as IMeeting[];
   }
 
   async findPreContractMeetingsForClient(

@@ -33,7 +33,8 @@ export class AdminSpecialityRepository
     }
 
     // Start Mongoose query
-    let mongooseQuery = this.model.find(query);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    let mongooseQuery: any = this.model.find(query);
 
     // Apply skip / limit
     if (options.skip !== undefined) mongooseQuery = mongooseQuery.skip(options.skip);
@@ -48,7 +49,7 @@ export class AdminSpecialityRepository
     }
 
     // Execute query and assert type
-    return (await mongooseQuery.exec()) as ISpeciality[];
+    return (await mongooseQuery.exec()) as unknown as ISpeciality[];
   }
 
   async countTotalSpecialities(): Promise<number> {

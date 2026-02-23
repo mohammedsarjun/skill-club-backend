@@ -2,7 +2,7 @@ import { Document } from 'mongoose';
 import { Types } from 'mongoose';
 import { ISkill } from './skill.model.interface';
 export interface ISpeciality extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   name: string;
   category: Types.ObjectId;
   status: string;

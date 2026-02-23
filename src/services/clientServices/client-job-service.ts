@@ -99,7 +99,7 @@ export class ClientJobService implements IClientJobService {
 
     const createdJob = await this._jobRepository.createJob(jobModelData);
 
-    const job = await this._jobRepository.getJobById(createdJob?._id as string);
+    const job = await this._jobRepository.getJobById(createdJob?._id?.toString() as string);
 
     const proposalCount = await this._proposalRepository.countProposalsByJobId(
       job?._id?.toString()!,

@@ -37,6 +37,7 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
           { path: 'category', select: '_id name' },
           { path: 'clientId', select: '_id clientProfile.companyName' },
         ],
+        sort: { createdAt: -1 },
       },
     );
   }
@@ -326,7 +327,7 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
 
   async getRecentJobsByClientId(clientId: string, limit: number): Promise<IJob[]> {
     const jobs = await this.model.find({ clientId }).sort({ createdAt: -1 }).limit(limit).lean();
-    return jobs as IJob[];
+    return jobs as unknown as IJob[];
   }
 
   async countActiveJobs(): Promise<number> {

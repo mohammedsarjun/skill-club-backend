@@ -677,3 +677,10 @@ container.register<IAdminContentService>('IAdminContentService', {
 container.register<IAdminContentRepository>('IAdminContentRepository', {
   useClass: AdminContentRepository,
 });
+
+import { IWorkspaceFileRepository } from '../repositories/interfaces/workspace-file.repository.interface';
+import { WorkspaceFileRepository } from '../repositories/workspace-file.repository';
+
+container.register<IWorkspaceFileRepository>('IWorkspaceFileRepository', {
+  useClass: WorkspaceFileRepository,
+});

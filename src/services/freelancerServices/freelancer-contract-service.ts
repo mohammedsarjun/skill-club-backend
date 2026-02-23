@@ -37,6 +37,9 @@ import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
 import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
+import { IWorkspaceFileRepository } from '../../repositories/interfaces/workspace-file.repository.interface';
+import { IWorkspaceFile } from '../../models/interfaces/workspace-file.model.interface';
+
 import {
   FreelancerCancellationRequestDTO,
   AcceptCancellationRequestDTO,
@@ -56,6 +59,7 @@ export class FreelancerContractService implements IFreelancerContractService {
   private _disputeRepository: IDisputeRepository;
   private _contractActivityService: IContractActivityService;
   private _notificationService: INotificationService;
+  private _workspaceFileRepository: IWorkspaceFileRepository;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -66,6 +70,7 @@ export class FreelancerContractService implements IFreelancerContractService {
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractActivityService') contractActivityService: IContractActivityService,
     @inject('INotificationService') notificationService: INotificationService,
+    @inject('IWorkspaceFileRepository') workspaceFileRepository: IWorkspaceFileRepository,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -73,6 +78,7 @@ export class FreelancerContractService implements IFreelancerContractService {
     this._disputeRepository = disputeRepository;
     this._contractActivityService = contractActivityService;
     this._notificationService = notificationService;
+    this._workspaceFileRepository = workspaceFileRepository;
   }
 
   async getAllContracts(
@@ -134,7 +140,10 @@ export class FreelancerContractService implements IFreelancerContractService {
       await this._contractTransactionRepository.findFinancialSummaryByContractId(contractId);
 
     const disputeDetail = (await this._disputeRepository.findDisputesByContractId(contractId))?.[0];
-    console.log(disputeDetail);
+    
+    // Fetch workspace files from standalone collection
+    const workspaceFiles = await this._workspaceFileRepository.findByContractId(contractId);
+    contract.workspaceFiles = workspaceFiles as any;
 
     return mapContractToFreelancerDetailDTO(
       contract,
@@ -1199,11 +1208,12 @@ export class FreelancerContractService implements IFreelancerContractService {
     if (!contract || contract.freelancerId.toString() !== freelancerId) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    await this._contractRepository.addWorkspaceFile(contractId, {
+    await this._workspaceFileRepository.create({
+      contractId,
       ...fileData,
-      uploadedBy: new Types.ObjectId(freelancerId) as any,
+      uploadedBy: freelancerId,
       uploadedAt: new Date(),
-    });
+    } as Partial<IWorkspaceFile>);
     return this.getContractDetail(freelancerId, contractId);
   }
 
@@ -1216,14 +1226,14 @@ export class FreelancerContractService implements IFreelancerContractService {
     if (!contract || contract.freelancerId.toString() !== freelancerId) {
       throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
-    const file = contract.workspaceFiles?.find((f) => f.fileId === fileId);
+    const file = await this._workspaceFileRepository.findByFileId(fileId);
     if (!file) {
       throw new AppError('File not found', HttpStatus.NOT_FOUND);
     }
     if (file.uploadedBy.toString() !== freelancerId) {
       throw new AppError('Unauthorized to delete this file', HttpStatus.FORBIDDEN);
     }
-    await this._contractRepository.deleteWorkspaceFile(contractId, fileId);
+    await this._workspaceFileRepository.deleteByFileId(fileId);
     return this.getContractDetail(freelancerId, contractId);
   }
 }

@@ -1,7 +1,7 @@
-import { Document } from 'mongoose';
+import { Document, Types } from 'mongoose';
 
 export interface IContent extends Document {
-  _id: string;
+  _id: Types.ObjectId;
   slug: string;
   title: string;
   content: string;

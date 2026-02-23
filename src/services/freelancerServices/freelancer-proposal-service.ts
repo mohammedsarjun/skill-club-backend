@@ -56,7 +56,7 @@ export class FreelancerProposalService implements IFreelancerProposalService {
 
     const existProposal = await this._proposalRepository.findOneByFreelancerAndJobId(
       freelancerId,
-      jobData._id as string,
+      jobData._id?.toString() as string,
     );
 
     if (existProposal) {

@@ -126,7 +126,7 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
       .limit(limit)
       .populate('reviewerId', 'firstName lastName')
       .populate('revieweeId', 'firstName lastName')
-      .lean()) as IReviewDocument[];
+      .lean()) as unknown as IReviewDocument[];
   }
 
   async getRecentReviewsForFreelancer(
@@ -143,6 +143,6 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
       .limit(limit)
       .populate('reviewerId', 'firstName lastName')
       .populate('contractId', 'title')
-      .lean()) as IReviewDocument[];
+      .lean()) as unknown as IReviewDocument[];
   }
 }

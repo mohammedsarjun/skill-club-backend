@@ -5,6 +5,7 @@ import {
   UpdateQuery,
   PopulateOptions,
   ClientSession,
+  SortOrder,
 } from 'mongoose';
 import { IBaseRepository } from './interfaces/base-repository.interface';
 export default class BaseRepository<T extends Document> implements IBaseRepository<T> {
@@ -55,6 +56,7 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
       limit?: number;
       populate?: PopulateOptions | PopulateOptions[];
       session?: ClientSession;
+      sort?: Record<string, SortOrder>;
     },
   ): Promise<R[]> {
     let query = this.model.find(filter);
@@ -62,6 +64,7 @@ export default class BaseRepository<T extends Document> implements IBaseReposito
     if (options?.skip) query = query.skip(options.skip);
     if (options?.limit) query = query.limit(options.limit);
     if (options?.populate) query = query.populate(options.populate);
+    if (options?.sort) query = query.sort(options.sort);
     if (options?.session) query = query.session(options.session);
 
     return (await query.exec()) as unknown as R[];

@@ -15,7 +15,7 @@ export class BankDetailsRepository
   }
 
   async findByUserId(userId: string): Promise<IBankDetails | null> {
-    return await this.model.findOne({ userId: new Types.ObjectId(userId) }).lean();
+    return (await this.model.findOne({ userId: new Types.ObjectId(userId) }).lean()) as unknown as IBankDetails | null;
   }
 
   async createOrUpdateByUser(userId: string, data: Partial<IBankDetails>): Promise<IBankDetails> {
