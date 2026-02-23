@@ -270,4 +270,39 @@ export class FreelancerContractController implements IFreelancerContractControll
       data: result,
     });
   }
+
+  async uploadWorkspaceFile(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const fileData = req.body;
+
+    const result = await this._freelancerContractService.uploadWorkspaceFile(
+      freelancerId,
+      contractId,
+      fileData,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'File uploaded successfully',
+      data: result,
+    });
+  }
+
+  async deleteWorkspaceFile(req: Request, res: Response): Promise<void> {
+    const freelancerId = req.user?.userId as string;
+    const { contractId, fileId } = req.params;
+
+    const result = await this._freelancerContractService.deleteWorkspaceFile(
+      freelancerId,
+      contractId,
+      fileId,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'File deleted successfully',
+      data: result,
+    });
+  }
 }

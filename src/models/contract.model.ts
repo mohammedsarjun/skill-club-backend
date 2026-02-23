@@ -9,7 +9,18 @@ import {
   MilestoneExtensionRequest,
   ContractExtensionRequest,
   TimelineEntry,
+  WorkspaceFile,
 } from '../models/interfaces/contract.model.interface';
+
+const WorkspaceFileSchema = new Schema<WorkspaceFile>({
+  fileId: { type: String, required: true },
+  fileName: { type: String, required: true },
+  fileUrl: { type: String, required: true },
+  fileSize: { type: Number },
+  fileType: { type: String },
+  uploadedBy: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
+  uploadedAt: { type: Date, default: Date.now },
+});
 
 const MilestoneDeliverableSchema = new Schema<MilestoneDeliverable>({
   submittedBy: { type: Schema.Types.ObjectId, required: true, ref: 'User' },
@@ -143,6 +154,7 @@ const ContractSchema = new Schema<IContract>(
     categoryId: { type: Schema.Types.ObjectId, ref: 'category', required: true },
     referenceFiles: [{ fileName: String, fileUrl: String }],
     referenceLinks: [{ description: String, link: String }],
+    workspaceFiles: [WorkspaceFileSchema],
     reporting: { type: Schema.Types.Mixed },
 
     status: {

@@ -223,6 +223,18 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
       },
     });
 
+    if (filters.selectedRating) {
+      const minRating = parseFloat(filters.selectedRating);
+      if (!isNaN(minRating)) {
+        pipeline.push({
+          $match: {
+            clientRating: { $gte: minRating },
+          },
+        });
+      }
+    }
+
+
     pipeline.push({
       $addFields: {
         specialities: {

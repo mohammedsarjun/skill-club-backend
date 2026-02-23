@@ -104,4 +104,25 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     );
     return proposalResponseDTO || null;
   }
+
+  async getMyProposals(
+    freelancerId: string,
+    queryFilters: Record<string, unknown>,
+  ): Promise<FreelancerProposalResponseDTO[] | null> {
+    const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
+    const skip =
+      (proposalQueryDto?.page ? proposalQueryDto?.page - 1 : 0) *
+      (proposalQueryDto.limit ? proposalQueryDto?.limit : 10);
+
+    const proposalResponse = await this._proposalRepository.findAllByFreelancerId(
+      freelancerId,
+      proposalQueryDto,
+      skip,
+    );
+
+    const proposalResponseDTO = proposalResponse?.map(
+      mapProposalModelToFreelancerProposalResponseDTO,
+    );
+    return proposalResponseDTO || null;
+  }
 }

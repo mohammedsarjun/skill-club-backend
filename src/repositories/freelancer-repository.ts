@@ -138,7 +138,7 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
     const mongoQuery = mapClientQueryToFreelancerModelQuery(clientUserId, queryFilter);
 
     const page = Number(queryFilter.page) || 1;
-    const limit = 5;
+    const limit = Number(queryFilter.limit) || 10;
     const skip = (page - 1) * limit;
 
     const pipeline = [
@@ -248,6 +248,9 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
           },
         },
       },
+      ...(queryFilter.jobSuccessRate && Number(queryFilter.jobSuccessRate) > 0
+        ? [{ $match: { jobSuccessRate: { $gte: Number(queryFilter.jobSuccessRate) } } }]
+        : []),
       {
         $project: {
           freelancerId: { $toString: '$_id' },
@@ -414,5 +417,10 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
 
   async countAllFreelancers(): Promise<number> {
     return await this.count();
+  }
+
+  async countFilteredFreelancers(clientUserId: string, queryFilter: freelancerParams): Promise<number> {
+    const mongoQuery = mapClientQueryToFreelancerModelQuery(clientUserId, queryFilter);
+    return await this.count(mongoQuery);
   }
 }

@@ -44,17 +44,28 @@ export const mapClientQueryToFreelancerModelQuery = (
   }
 
   if (freelancerQuery.search) {
+    const trimmed = freelancerQuery.search.trim();
     query.$or = [
-      { firstName: { $regex: freelancerQuery.search, $options: 'i' } },
-      { lastName: { $regex: freelancerQuery.search, $options: 'i' } },
+      { firstName: { $regex: trimmed, $options: 'i' } },
+      { lastName: { $regex: trimmed, $options: 'i' } },
       {
         'freelancerProfile.professionalRole': {
-          $regex: freelancerQuery.search,
+          $regex: trimmed,
           $options: 'i',
+        },
+      },
+      {
+        $expr: {
+          $regexMatch: {
+            input: { $concat: ['$firstName', ' ', '$lastName'] },
+            regex: trimmed,
+            options: 'i',
+          },
         },
       },
     ];
   }
+
 
   if (freelancerQuery.categoryId) {
     query['freelancerProfile.workCategory'] = new Types.ObjectId(freelancerQuery.categoryId);

@@ -1,5 +1,5 @@
 import BaseRepository from '../baseRepositories/base-repository';
-import { IContract } from '../../models/interfaces/contract.model.interface';
+import { IContract, WorkspaceFile } from '../../models/interfaces/contract.model.interface';
 import { ClientContractQueryParamsDTO } from '../../dto/clientDTO/client-contract.dto';
 import { FreelancerContractQueryParamsDTO } from '../../dto/freelancerDTO/freelancer-contract.dto';
 import { AdminContractQueryParamsDTO } from '../../dto/adminDTO/admin-contract.dto';
@@ -159,4 +159,9 @@ export interface IContractRepository extends BaseRepository<IContract> {
     session?: ClientSession,
   ): Promise<IContract | null>;
   endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null>;
+  addWorkspaceFile(
+    contractId: string,
+    fileData: Omit<WorkspaceFile, '_id'>,
+  ): Promise<IContract | null>;
+  deleteWorkspaceFile(contractId: string, fileId: string): Promise<IContract | null>;
 }

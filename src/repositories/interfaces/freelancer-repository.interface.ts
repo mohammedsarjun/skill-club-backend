@@ -53,4 +53,5 @@ export interface IFreelancerRepository extends BaseRepository<IUser> {
   ): Promise<IFreelancerData[] | null>;
   getFreelacerByIdForClient(freelancerId: string): Promise<IFreelancerDetailData | null>;
   countAllFreelancers(): Promise<number>;
+  countFilteredFreelancers(clientUserId: string, queryFilter: freelancerParams): Promise<number>;
 }

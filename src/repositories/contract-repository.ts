@@ -1,5 +1,5 @@
 import BaseRepository from './baseRepositories/base-repository';
-import { IContract, ContractStatus } from '../models/interfaces/contract.model.interface';
+import { IContract, ContractStatus, WorkspaceFile } from '../models/interfaces/contract.model.interface';
 import { Contract } from '../models/contract.model';
 import { IContractRepository } from './interfaces/contract-repository.interface';
 import { ClientContractQueryParamsDTO } from '../dto/clientDTO/client-contract.dto';
@@ -773,5 +773,24 @@ export class ContractRepository extends BaseRepository<IContract> implements ICo
   }
   async endHourlyContract(contractId: string, session?: ClientSession): Promise<IContract | null> {
     return await this.updateById(contractId, { status: 'completed' }, session);
+  }
+
+  async addWorkspaceFile(
+    contractId: string,
+    fileData: Omit<WorkspaceFile, '_id'>,
+  ): Promise<IContract | null> {
+    return await this.updateById(contractId, {
+      $push: {
+        workspaceFiles: fileData,
+      },
+    } as UpdateQuery<IContract>);
+  }
+
+  async deleteWorkspaceFile(contractId: string, fileId: string): Promise<IContract | null> {
+    return await this.updateById(contractId, {
+      $pull: {
+        workspaceFiles: { fileId: fileId },
+      },
+    } as UpdateQuery<IContract>);
   }
 }

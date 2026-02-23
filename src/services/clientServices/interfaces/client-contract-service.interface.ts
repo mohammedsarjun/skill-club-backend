@@ -111,4 +111,15 @@ export interface IClientContractService {
     contractId: string,
     notes: string,
   ): Promise<{ success: boolean; message: string }>;
+
+  uploadWorkspaceFile(
+    clientId: string,
+    contractId: string,
+    fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string },
+  ): Promise<ClientContractDetailDTO>;
+  deleteWorkspaceFile(
+    clientId: string,
+    contractId: string,
+    fileId: string,
+  ): Promise<ClientContractDetailDTO>;
 }

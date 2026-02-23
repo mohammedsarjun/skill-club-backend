@@ -69,8 +69,8 @@ export class FreelancerChatService implements IFreelancerChatService {
       senderRole: message.senderRole,
       message: message.message,
       attachments: (message.attachments || []).map((att) => ({
-        url: att.fileUrl,
-        name: att.fileName,
+        fileUrl: att.fileUrl,
+        fileName: att.fileName,
       })),
       sentAt: message.sentAt,
     });

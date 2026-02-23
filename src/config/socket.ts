@@ -25,7 +25,7 @@ interface MessagePayload {
   senderId: string;
   senderRole: 'client' | 'freelancer';
   message: string;
-  attachments: Array<{ url: string; name: string }>;
+  attachments: Array<{ fileUrl: string; fileName: string }>;
   sentAt: Date;
 }
 

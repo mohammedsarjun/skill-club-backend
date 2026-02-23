@@ -87,8 +87,6 @@ export function mapFreelancerJobRawFilterToFreelancerJobFiltersDto(
 export function mapFreelancerJobFilterDtoToJobAggregationQuery(
   filters: Partial<FreelancerJobFiltersResponseDto>,
 ): Record<string, unknown> {
-
-  console.log(filters)
   const matchStage: Record<string, unknown> = {
     status: 'open',
   };

@@ -126,6 +126,17 @@ export interface ContractExtensionRequest {
   responseMessage?: string;
 }
 
+export interface WorkspaceFile {
+  _id?: Types.ObjectId;
+  fileId: string;
+  fileName: string;
+  fileUrl: string;
+  fileSize?: number;
+  fileType?: string;
+  uploadedBy: Types.ObjectId;
+  uploadedAt: Date;
+}
+
 export interface IContract extends Document {
   contractId: string;
 
@@ -176,6 +187,7 @@ export interface IContract extends Document {
   categoryId: Types.ObjectId;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
+  workspaceFiles?: WorkspaceFile[];
   reporting: ContractReporting;
 
   // Contract lifecycle

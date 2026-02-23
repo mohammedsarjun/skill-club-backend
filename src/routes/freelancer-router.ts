@@ -189,6 +189,14 @@ freelancerRouter.get(
   freelancerJobController.getJobDetail.bind(freelancerJobController),
 );
 
+freelancerRouter.get(
+  '/proposals',
+  authMiddleware,
+  roleGuard(Role.FREELANCER),
+  freelancerBlockMiddleware,
+  freelancerProposalController.getMyProposals.bind(freelancerProposalController),
+);
+
 freelancerRouter.post(
   '/proposals',
   authMiddleware,
@@ -204,6 +212,7 @@ freelancerRouter.get(
   freelancerBlockMiddleware,
   freelancerProposalController.getAllProposal.bind(freelancerProposalController),
 );
+
 // Offer routes
 freelancerRouter.get(
   '/offers',
@@ -716,6 +725,22 @@ freelancerRouter.patch(
   freelancerNotificationController.markAllNotificationsAsRead.bind(
     freelancerNotificationController,
   ),
+);
+
+freelancerRouter.post(
+  '/contracts/:contractId/workspace/files',
+  authMiddleware,
+  roleGuard(Role.FREELANCER),
+  freelancerBlockMiddleware,
+  freelancerContractController.uploadWorkspaceFile.bind(freelancerContractController),
+);
+
+freelancerRouter.delete(
+  '/contracts/:contractId/workspace/files/:fileId',
+  authMiddleware,
+  roleGuard(Role.FREELANCER),
+  freelancerBlockMiddleware,
+  freelancerContractController.deleteWorkspaceFile.bind(freelancerContractController),
 );
 
 export default freelancerRouter;

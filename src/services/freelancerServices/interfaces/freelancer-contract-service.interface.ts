@@ -85,4 +85,15 @@ export interface IFreelancerContractService {
     freelancerId: string,
     contractId: string,
   ): Promise<{ ended: boolean; message: string }>;
+
+  uploadWorkspaceFile(
+    freelancerId: string,
+    contractId: string,
+    fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string },
+  ): Promise<FreelancerContractDetailDTO>;
+  deleteWorkspaceFile(
+    freelancerId: string,
+    contractId: string,
+    fileId: string,
+  ): Promise<FreelancerContractDetailDTO>;
 }

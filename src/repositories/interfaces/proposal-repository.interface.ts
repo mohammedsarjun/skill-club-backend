@@ -22,6 +22,11 @@ export interface IProposalRepository extends BaseRepository<IProposal> {
     proposalFilterQuery: ProposalQueryParamsDTO,
     skip: number,
   ): Promise<ProposalDetailWithJobDetail[] | null>;
+  findAllByFreelancerId(
+    freelancerId: string,
+    proposalFilterQuery: ProposalQueryParamsDTO,
+    skip: number,
+  ): Promise<ProposalDetailWithJobDetail[] | null>;
   findOneById(proposalId: string): Promise<ProposalDetailWithFreelancerDetail | null>;
   updateStatusById(proposalId: string, status: string): Promise<IProposal | null>;
   findProposalByFreelancerAndJobId(

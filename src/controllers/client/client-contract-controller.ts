@@ -344,4 +344,39 @@ export class ClientContractController implements IClientContractController {
       data: result,
     });
   }
+
+  async uploadWorkspaceFile(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId } = req.params;
+    const fileData = req.body;
+
+    const result = await this._clientContractService.uploadWorkspaceFile(
+      clientId,
+      contractId,
+      fileData,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'File uploaded successfully',
+      data: result,
+    });
+  }
+
+  async deleteWorkspaceFile(req: Request, res: Response): Promise<void> {
+    const clientId = req.user?.userId as string;
+    const { contractId, fileId } = req.params;
+
+    const result = await this._clientContractService.deleteWorkspaceFile(
+      clientId,
+      contractId,
+      fileId,
+    );
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'File deleted successfully',
+      data: result,
+    });
+  }
 }

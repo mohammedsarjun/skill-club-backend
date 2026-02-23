@@ -1189,4 +1189,41 @@ export class FreelancerContractService implements IFreelancerContractService {
 
     return toFreelancerCancellationRequestResponseDTO(cancellationRequest);
   }
+
+  async uploadWorkspaceFile(
+    freelancerId: string,
+    contractId: string,
+    fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string },
+  ): Promise<FreelancerContractDetailDTO> {
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract || contract.freelancerId.toString() !== freelancerId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    await this._contractRepository.addWorkspaceFile(contractId, {
+      ...fileData,
+      uploadedBy: new Types.ObjectId(freelancerId) as any,
+      uploadedAt: new Date(),
+    });
+    return this.getContractDetail(freelancerId, contractId);
+  }
+
+  async deleteWorkspaceFile(
+    freelancerId: string,
+    contractId: string,
+    fileId: string,
+  ): Promise<FreelancerContractDetailDTO> {
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract || contract.freelancerId.toString() !== freelancerId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const file = contract.workspaceFiles?.find((f) => f.fileId === fileId);
+    if (!file) {
+      throw new AppError('File not found', HttpStatus.NOT_FOUND);
+    }
+    if (file.uploadedBy.toString() !== freelancerId) {
+      throw new AppError('Unauthorized to delete this file', HttpStatus.FORBIDDEN);
+    }
+    await this._contractRepository.deleteWorkspaceFile(contractId, fileId);
+    return this.getContractDetail(freelancerId, contractId);
+  }
 }
