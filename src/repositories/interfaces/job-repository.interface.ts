@@ -8,7 +8,7 @@ import {
   JobData,
 } from '../../models/interfaces/job.model.interface';
 import { JobQueryParams } from '../../dto/commonDTO/job-common.dto';
-import { FreelancerJobFiltersDto } from '../../dto/freelancerDTO/freelancer-job.dto';
+import {  FreelancerJobFiltersResponseDto } from '../../dto/freelancerDTO/freelancer-job.dto';
 
 export interface IJobRepository extends BaseRepository<IJob> {
   createJob(jobData: Partial<JobData>): Promise<IJob | null>;
@@ -28,7 +28,7 @@ export interface IJobRepository extends BaseRepository<IJob> {
   countAllJobsByClientId(clientId: string): Promise<number>;
   findAllWithFreelancerFilters(
     freelancerUserId: string,
-    filters: Partial<FreelancerJobFiltersDto>,
+    filters: Partial<FreelancerJobFiltersResponseDto>,
     paginationData: { page: number; limit: number },
   ): Promise<IJobResponse[] | null>;
   countActiveJobsByClientId(clientId: string): Promise<number>;

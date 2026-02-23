@@ -21,7 +21,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 
 import { mapChangeEmailRequestToActionVerification } from '../../mapper/action-verification.mapper';
-import sendResetLink from 'src/utils/send-reset-link';
+import sendResetLink from '../../utils/send-reset-link';
 
 @injectable()
 export class AuthService implements IAuthService {

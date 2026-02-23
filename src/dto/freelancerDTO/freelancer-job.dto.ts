@@ -15,6 +15,27 @@ export interface FreelancerJobFiltersDto {
   limit: number;
 }
 
+
+export interface FreelancerJobFiltersResponseDto {
+  searchQuery: string;
+  selectedCategory: string;
+  selectedSpecialty: string;
+  selectedSkills: string[];
+  rateType: string;
+  minHourlyRate: string;
+  maxHourlyRate: string;
+  minFixedRate: string;
+  maxFixedRate: string;
+  selectedProposalRanges: {
+    proposalCount: { $gte: number, $lte: number }
+  }[];
+  selectedCountry: string;
+  selectedRating: string;
+  page: number;
+  limit: number;
+}
+
+
 export interface FreelancerJobDetailResponseDto {
   jobId: string;
   title: string;
