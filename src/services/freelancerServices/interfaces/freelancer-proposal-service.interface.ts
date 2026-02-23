@@ -10,4 +10,8 @@ export interface IFreelancerProposalService {
     jobId: string,
     queryFilters: Record<string, unknown>,
   ): Promise<FreelancerProposalResponseDTO[] | null>;
+  getMyProposals(
+    freelancerId: string,
+    queryFilters: Record<string, unknown>,
+  ): Promise<FreelancerProposalResponseDTO[] | null>;
 }

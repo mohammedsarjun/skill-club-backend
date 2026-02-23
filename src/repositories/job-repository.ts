@@ -10,7 +10,7 @@ import {
 } from '../models/interfaces/job.model.interface';
 import { IJobRepository } from './interfaces/job-repository.interface';
 import { JobQueryParams } from '../dto/commonDTO/job-common.dto';
-import { FreelancerJobFiltersDto } from '../dto/freelancerDTO/freelancer-job.dto';
+import { FreelancerJobFiltersResponseDto } from '../dto/freelancerDTO/freelancer-job.dto';
 import { PipelineStage, Types } from 'mongoose';
 import { mapFreelancerJobFilterDtoToJobAggregationQuery } from '../mapper/freelancerMapper/freelancer-job.mapper';
 
@@ -113,7 +113,7 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
   }
   async findAllWithFreelancerFilters(
     freelancerUserId: string,
-    filters: FreelancerJobFiltersDto,
+    filters: FreelancerJobFiltersResponseDto,
     paginationData: { page: number; limit: number },
   ): Promise<IJobResponse[] | null> {
     const pipeline: PipelineStage[] = [];
@@ -165,6 +165,13 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
         proposalCount: { $size: '$proposals' },
       },
     });
+    if (filters.selectedProposalRanges && filters.selectedProposalRanges.length) {
+      pipeline.push({
+        $match: {
+          $or: filters.selectedProposalRanges,
+        },
+      });
+    }
 
     pipeline.push({
       $lookup: {
@@ -215,6 +222,18 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
         },
       },
     });
+
+    if (filters.selectedRating) {
+      const minRating = parseFloat(filters.selectedRating);
+      if (!isNaN(minRating)) {
+        pipeline.push({
+          $match: {
+            clientRating: { $gte: minRating },
+          },
+        });
+      }
+    }
+
 
     pipeline.push({
       $addFields: {

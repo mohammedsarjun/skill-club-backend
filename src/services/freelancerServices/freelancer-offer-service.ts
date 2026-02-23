@@ -17,6 +17,7 @@ import { IContractActivityService } from '../commonServices/interfaces/contract-
 import AppError from '../../utils/app-error';
 import { HttpStatus } from '../../enums/http-status.enum';
 import mongoose, { Types } from 'mongoose';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 
 @injectable()
 export class FreelancerOfferService implements IFreelancerOfferService {
@@ -24,16 +25,19 @@ export class FreelancerOfferService implements IFreelancerOfferService {
   private _jobRepository: IJobRepository;
   private _contractRepository: IContractRepository;
   private _contractActivityService: IContractActivityService;
+  private _notificationService: INotificationService;
   constructor(
     @inject('IOfferRepository') offerRepository: IOfferRepository,
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IContractRepository') contractRepository: IContractRepository,
     @inject('IContractActivityService') contractActivityService: IContractActivityService,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._offerRepository = offerRepository;
     this._jobRepository = jobRepository;
     this._contractRepository = contractRepository;
     this._contractActivityService = contractActivityService;
+    this._notificationService = notificationService;
   }
 
   async rejectOffer(
@@ -59,6 +63,17 @@ export class FreelancerOfferService implements IFreelancerOfferService {
     }
 
     await this._offerRepository.updateStatusWithReason(offerId, 'rejected', reason);
+
+    const targetClientId = (existing.clientId as any)._id?.toString() || existing.clientId.toString();
+
+    await this._notificationService.createAndEmitNotification(targetClientId, {
+      role: 'client',
+      title: 'Offer Rejected',
+      message: 'A freelancer has rejected your offer.',
+      type: 'job',
+      relatedId: existing._id?.toString(),
+    });
+
     return { rejected: true };
   }
 
@@ -119,6 +134,16 @@ export class FreelancerOfferService implements IFreelancerOfferService {
         );
       }
       await this._offerRepository.updateStatusById(offerId, 'accepted', session);
+
+      const targetClientId = (existing.clientId as any)._id?.toString() || existing.clientId.toString();
+
+      await this._notificationService.createAndEmitNotification(targetClientId, {
+        role: 'client',
+        title: 'Offer Accepted',
+        message: 'A freelancer has accepted your offer. A new contract has been created.',
+        type: 'job',
+        relatedId: contractId.toString(),
+      });
 
       await session.commitTransaction();
       return { accepted: true, contractId: contract.contractId };

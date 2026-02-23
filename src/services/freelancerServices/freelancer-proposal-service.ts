@@ -20,19 +20,22 @@ import {
   mapProposalModelToFreelancerProposalResponseDTO,
 } from '../../mapper/freelancerMapper/freelancer-proposal.mapper';
 import { mapRawQueryFiltersToProposalQueryParamsDTO } from '../../mapper/clientMapper/client-proposal.mapper';
-// import AppError from '../../utils/app-error';
-// import { HttpStatus } from '../../enums/http-status.enum';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 
 @injectable()
 export class FreelancerProposalService implements IFreelancerProposalService {
   private _proposalRepository: IProposalRepository;
   private _jobRepository: IJobRepository;
+  private _notificationService: INotificationService;
+  
   constructor(
     @inject('IProposalRepository') proposalRepository: IProposalRepository,
     @inject('IJobRepository') jobRepository: IJobRepository,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._proposalRepository = proposalRepository;
     this._jobRepository = jobRepository;
+    this._notificationService = notificationService;
   }
 
   async createProposal(
@@ -67,6 +70,16 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     );
 
     await this._proposalRepository.createProposal(proposalDbData);
+
+    const targetClientId = (jobData.clientId as any)._id?.toString() || jobData.clientId.toString();
+
+    await this._notificationService.createAndEmitNotification(targetClientId, {
+      role: 'client',
+      title: 'New Proposal Received',
+      message: `A freelancer has proposed for your job "${jobData.title}".`,
+      type: 'job',
+      relatedId: jobData._id?.toString(),
+    });
   }
 
   async getAllProposal(
@@ -82,6 +95,27 @@ export class FreelancerProposalService implements IFreelancerProposalService {
     const proposalResponse = await this._proposalRepository.findAllByJobAndFreelancerId(
       freelancerId,
       jobId,
+      proposalQueryDto,
+      skip,
+    );
+
+    const proposalResponseDTO = proposalResponse?.map(
+      mapProposalModelToFreelancerProposalResponseDTO,
+    );
+    return proposalResponseDTO || null;
+  }
+
+  async getMyProposals(
+    freelancerId: string,
+    queryFilters: Record<string, unknown>,
+  ): Promise<FreelancerProposalResponseDTO[] | null> {
+    const proposalQueryDto = mapRawQueryFiltersToProposalQueryParamsDTO(queryFilters);
+    const skip =
+      (proposalQueryDto?.page ? proposalQueryDto?.page - 1 : 0) *
+      (proposalQueryDto.limit ? proposalQueryDto?.limit : 10);
+
+    const proposalResponse = await this._proposalRepository.findAllByFreelancerId(
+      freelancerId,
       proposalQueryDto,
       skip,
     );

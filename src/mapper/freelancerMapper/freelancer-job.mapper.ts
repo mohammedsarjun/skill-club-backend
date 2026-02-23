@@ -2,6 +2,7 @@ import { FreelancerClientMinimalDTO } from '../../dto/freelancerDTO/freelancer-c
 import {
   FreelancerJobDetailResponseDto,
   FreelancerJobFiltersDto,
+  FreelancerJobFiltersResponseDto,
   FreelancerJobResponseDto,
 } from '../../dto/freelancerDTO/freelancer-job.dto';
 import { IJobDetail, IJobResponse } from '../../models/interfaces/job.model.interface';
@@ -52,7 +53,17 @@ export function mapJobModelToFreelancerJobDetailResponseDTO(
 
 export function mapFreelancerJobRawFilterToFreelancerJobFiltersDto(
   rawFilter: FreelancerJobFiltersDto,
-): Partial<FreelancerJobFiltersDto> {
+): Partial<FreelancerJobFiltersResponseDto> {
+
+
+  const rangeConditions = rawFilter.selectedProposalRanges?.map(range => {
+  const [min, max] = range.split('-').map(Number);
+
+  return {
+    proposalCount: { $gte: min, $lte: max }
+  };
+});
+
   return {
     searchQuery: rawFilter?.searchQuery,
     selectedCategory: rawFilter?.selectedCategory,
@@ -63,18 +74,18 @@ export function mapFreelancerJobRawFilterToFreelancerJobFiltersDto(
       ? rawFilter!.selectedSkills.map((id) => id.toString())
       : undefined,
     rateType: rawFilter?.rateType,
-    minHourlyRate: rawFilter?.minHourlyRate,
     maxHourlyRate: rawFilter?.maxHourlyRate,
+    minHourlyRate: rawFilter?.minHourlyRate,
     minFixedRate: rawFilter?.minFixedRate,
     maxFixedRate: rawFilter?.maxFixedRate,
     selectedCountry: rawFilter?.selectedCountry,
-    // selectedRating: rawFilter?.selectedRating,
-    // selectedProposalRanges:rawFilter?.selectedProposalRanges,
+    selectedRating: rawFilter?.selectedRating,
+    selectedProposalRanges:rangeConditions,
   };
 }
 
 export function mapFreelancerJobFilterDtoToJobAggregationQuery(
-  filters: Partial<FreelancerJobFiltersDto>,
+  filters: Partial<FreelancerJobFiltersResponseDto>,
 ): Record<string, unknown> {
   const matchStage: Record<string, unknown> = {
     status: 'open',
@@ -87,6 +98,8 @@ export function mapFreelancerJobFilterDtoToJobAggregationQuery(
       { description: { $regex: filters.searchQuery, $options: 'i' } },
     ];
   }
+
+
 
   // Category filter
   if (filters.selectedCategory) {

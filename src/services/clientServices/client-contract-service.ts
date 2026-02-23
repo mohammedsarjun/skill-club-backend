@@ -58,6 +58,7 @@ import { IContractTransaction } from 'src/models/interfaces/contract-transaction
 import { ICancellationRequestRepository } from '../../repositories/interfaces/cancellation-request-repository.interface';
 import { IDisputeRepository } from 'src/repositories/interfaces/dispute-repository.interface';
 import { IContractActivityService } from '../commonServices/interfaces/contract-activity-service.interface';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 
 @injectable()
 export class ClientContractService implements IClientContractService {
@@ -74,6 +75,7 @@ export class ClientContractService implements IClientContractService {
   private _cancellationRequestRepository: ICancellationRequestRepository;
   private _disputeRepository: IDisputeRepository;
   private _contractActivityService: IContractActivityService;
+  private _notificationService: INotificationService;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -93,6 +95,7 @@ export class ClientContractService implements IClientContractService {
     cancellationRequestRepository: ICancellationRequestRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractActivityService') contractActivityService: IContractActivityService,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
@@ -107,6 +110,7 @@ export class ClientContractService implements IClientContractService {
     this._cancellationRequestRepository = cancellationRequestRepository;
     this._disputeRepository = disputeRepository;
     this._contractActivityService = contractActivityService;
+    this._notificationService = notificationService;
   }
 
   async getContractDetail(clientId: string, contractId: string): Promise<ClientContractDetailDTO> {
@@ -185,6 +189,16 @@ export class ClientContractService implements IClientContractService {
     }
 
     await this._contractRepository.cancelContractByUser(contractId, 'client', cancelContractReason);
+    
+    const targetFreelancerId = (contract.freelancerId as any)._id?.toString() || contract.freelancerId.toString();
+
+    await this._notificationService.createAndEmitNotification(targetFreelancerId, {
+      role: 'freelancer',
+      title: 'Contract Cancelled',
+      message: 'The client has cancelled the contract.',
+      type: 'job',
+      relatedId: contractId,
+    });
 
     // Segregate cancellation logic by payment type
     const paymentType = contract.paymentType;
@@ -523,6 +537,14 @@ export class ClientContractService implements IClientContractService {
       { amount: freelancerAmount, commission, totalAmount: paymentAmount },
     );
 
+    await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), {
+      role: 'freelancer',
+      title: 'Deliverable Approved',
+      message: `Your deliverable for contract "${contract.title}" has been approved. Payment of ₹${freelancerAmount.toLocaleString()} has been released.`,
+      type: 'payment',
+      relatedId: contract._id?.toString(),
+    });
+
     return {
       id: approvedDeliverable._id?.toString() || '',
       submittedBy: approvedDeliverable.submittedBy.toString(),
@@ -695,6 +717,14 @@ export class ClientContractService implements IClientContractService {
       },
     );
 
+    await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), {
+      role: 'freelancer',
+      title: 'Changes Requested',
+      message: `The client has requested changes for a deliverable.`,
+      type: 'job',
+      relatedId: contractId,
+    });
+
     return ClientDeliverableMapper.toDeliverableResponseDTO(changedDeliverable, updatedContract);
   }
 
@@ -797,6 +827,14 @@ export class ClientContractService implements IClientContractService {
       data.milestoneId,
       'released_to_freelancer',
     );
+    
+    await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), {
+      role: 'freelancer',
+      title: 'Milestone Deliverable Approved',
+      message: `Your deliverable for milestone "${milestone.title}" has been approved. Payment has been released.`,
+      type: 'payment',
+      relatedId: contractId,
+    });
 
     // Update client wallet - deduct the funded amount
     await this._clientWalletRepository.updateBalance(contract.clientId.toString(), -paymentAmount);
@@ -1016,6 +1054,14 @@ export class ClientContractService implements IClientContractService {
       data.deliverableId,
       data.message,
     );
+
+    await this._notificationService.createAndEmitNotification(contract.freelancerId.toString(), {
+      role: 'freelancer',
+      title: 'Changes Requested',
+      message: `The client has requested changes for milestone "${milestone.title}".`,
+      type: 'job',
+      relatedId: contractId,
+    });
 
     if (!updatedContract) {
       throw new AppError('Failed to request changes', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1706,5 +1752,42 @@ export class ClientContractService implements IClientContractService {
     await this._contractRepository.updateStatusById(contractId, 'disputed');
 
     return { success: true, message: 'Cancellation dispute raised successfully' };
+  }
+
+  async uploadWorkspaceFile(
+    clientId: string,
+    contractId: string,
+    fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string },
+  ): Promise<ClientContractDetailDTO> {
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract || contract.clientId.toString() !== clientId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    await this._contractRepository.addWorkspaceFile(contractId, {
+      ...fileData,
+      uploadedBy: new Types.ObjectId(clientId) as any,
+      uploadedAt: new Date(),
+    });
+    return this.getContractDetail(clientId, contractId);
+  }
+
+  async deleteWorkspaceFile(
+    clientId: string,
+    contractId: string,
+    fileId: string,
+  ): Promise<ClientContractDetailDTO> {
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract || contract.clientId.toString() !== clientId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const file = contract.workspaceFiles?.find((f) => f.fileId === fileId);
+    if (!file) {
+      throw new AppError('File not found', HttpStatus.NOT_FOUND);
+    }
+    if (file.uploadedBy.toString() !== clientId) {
+      throw new AppError('Unauthorized to delete this file', HttpStatus.FORBIDDEN);
+    }
+    await this._contractRepository.deleteWorkspaceFile(contractId, fileId);
+    return this.getContractDetail(clientId, contractId);
   }
 }

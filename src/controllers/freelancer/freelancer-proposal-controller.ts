@@ -35,9 +35,23 @@ export class FreelancerProposalController implements IFreelancerProposalControll
       jobId as string,
       queryFilters,
     );
-    res.status(200).json({
+    res.status(HttpStatus.OK).json({
       success: true,
       message: MESSAGES.PROPOSAL.FETCH_SUCCESS,
+      data: result,
+    });
+  }
+
+  async getMyProposals(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const queryFilters = req.query as unknown as Record<string, unknown>;
+    const result = await this._freelancerProposalService.getMyProposals(
+      userId as string,
+      queryFilters,
+    );
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.PROPOSAL.FETCH_ALL_SUCCESS,
       data: result,
     });
   }

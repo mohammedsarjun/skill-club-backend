@@ -4,10 +4,10 @@ import {
 } from '../../dto/clientDTO/client-proposal.dto';
 import { ProposalDetailWithFreelancerDetail } from '../../models/interfaces/proposal.model.interface';
 
-type ProposalStatus = 'pending_verification' | 'accepted' | 'rejected';
+type ProposalStatus = 'pending_verification' | 'offer_sent' | 'rejected';
 
 type RawFilters = {
-  status?: ProposalStatus;
+  status?: string;
 };
 
 export const mapRawQueryFiltersToProposalQueryParamsDTO = (
@@ -30,11 +30,12 @@ export const mapRawQueryFiltersToProposalQueryParamsDTO = (
 
   const allowedStatuses: readonly ProposalStatus[] = [
     'pending_verification',
-    'accepted',
+    'offer_sent',
     'rejected',
   ];
 
-  const statusFromFrontend = parsedFilters?.status;
+  const statusFromFrontend =
+    parsedFilters?.status ?? (rawQuery?.status as string | undefined);
   const validStatus =
     typeof statusFromFrontend === 'string' &&
     allowedStatuses.includes(statusFromFrontend as ProposalStatus)
@@ -46,6 +47,7 @@ export const mapRawQueryFiltersToProposalQueryParamsDTO = (
     page: Number(rawQuery?.page) > 0 ? Number(rawQuery?.page) : 1,
     limit: Number(rawQuery?.limit) > 0 ? Number(rawQuery?.limit) : 10,
     filters: validStatus ? { status: validStatus } : {},
+    status: validStatus,
   };
 };
 

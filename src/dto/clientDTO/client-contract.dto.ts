@@ -102,6 +102,15 @@ export interface ClientContractDetailDTO {
   expectedEndDate: Date;
   referenceFiles: { fileName: string; fileUrl: string }[];
   referenceLinks: { description: string; link: string }[];
+  workspaceFiles?: {
+    fileId: string;
+    fileName: string;
+    fileUrl: string;
+    uploadedBy: string;
+    uploadedAt: Date;
+    fileSize?: number;
+    fileType?: string;
+  }[];
 
   extensionRequest?: {
     requestedBy: string;

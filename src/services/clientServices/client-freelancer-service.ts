@@ -49,10 +49,14 @@ export class ClientFreelancerService implements IClientFreelancerService {
 
     const mapped = freelancersArray.map(mapUserModelToClientFreelancerResponseDto);
 
-    const totalCount = await this._freelancerRepository.countAllFreelancers();
+    const totalCount = await this._freelancerRepository.countFilteredFreelancers(
+      clientUserId,
+      queryFilter,
+    );
 
     return { freelancers: mapped, totalCount };
   }
+
 
   async getFreelancerDetail(
     clientUserId: string,

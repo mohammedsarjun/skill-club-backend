@@ -21,6 +21,7 @@ import { jwtService } from '../../utils/jwt';
 import { jwtConfig } from '../../config/jwt.config';
 
 import { mapChangeEmailRequestToActionVerification } from '../../mapper/action-verification.mapper';
+import sendResetLink from '../../utils/send-reset-link';
 
 @injectable()
 export class AuthService implements IAuthService {
@@ -105,7 +106,8 @@ export class AuthService implements IAuthService {
     await this._userRepository.updateResetPassword(user._id, token, expiry);
 
     const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
-    await sendEmailOtp(user.email, `Click here to reset your password: ${resetLink}`);
+    await sendResetLink(user.email,resetLink,"Reset Passoword Link")
+
   }
 
   async resetPassword(token: string, newPassword: string): Promise<void> {

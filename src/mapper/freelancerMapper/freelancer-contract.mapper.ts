@@ -108,6 +108,15 @@ export function mapContractToFreelancerDetailDTO(
     expectedEndDate: contract.expectedEndDate,
     referenceFiles: contract.referenceFiles,
     referenceLinks: contract.referenceLinks,
+    workspaceFiles: contract.workspaceFiles?.map((wf) => ({
+      fileId: wf.fileId,
+      fileName: wf.fileName,
+      fileUrl: wf.fileUrl,
+      uploadedBy: typeof wf.uploadedBy === 'string' ? wf.uploadedBy : wf.uploadedBy.toString(),
+      uploadedAt: wf.uploadedAt,
+      fileSize: wf.fileSize,
+      fileType: wf.fileType,
+    })),
 
     extensionRequest: contract.extensionRequest
       ? {

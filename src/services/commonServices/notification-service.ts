@@ -1,5 +1,6 @@
 import { injectable, inject } from 'tsyringe';
 import '../../config/container';
+import { Types } from 'mongoose';
 
 import { INotificationService } from './interfaces/notification-service.interface';
 import { INotificationRepository } from '../../repositories/interfaces/notification-repository.interface';
@@ -18,7 +19,12 @@ export class NotificationService implements INotificationService {
     userId: string,
     notificationData: Partial<CreateNotificationInputDto>,
   ): Promise<void> {
-    const notification = await this._notificationRepository.createNotification(notificationData);
+    const dataToSave = {
+      ...notificationData,
+      userId: new Types.ObjectId(userId),
+    } as CreateNotificationInputDto;
+
+    const notification = await this._notificationRepository.createNotification(dataToSave);
     emitNotification(userId, notification);
   }
 }

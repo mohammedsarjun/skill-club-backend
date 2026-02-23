@@ -18,4 +18,6 @@ export interface IClientContractController {
   acceptCancellationRequest(req: Request, res: Response): Promise<void>;
   raiseCancellationDispute(req: Request, res: Response): Promise<void>;
   getContractTimeline(req: Request, res: Response): Promise<void>;
+  uploadWorkspaceFile(req: Request, res: Response): Promise<void>;
+  deleteWorkspaceFile(req: Request, res: Response): Promise<void>;
 }

@@ -660,4 +660,20 @@ clientRouter.patch(
   clientNotificationController.markAllNotificationsAsRead.bind(clientNotificationController),
 );
 
+clientRouter.post(
+  '/contracts/:contractId/workspace/files',
+  authMiddleware,
+  roleGuard(Role.CLIENT),
+  clientBlockMiddleware,
+  clientContractController.uploadWorkspaceFile.bind(clientContractController),
+);
+
+clientRouter.delete(
+  '/contracts/:contractId/workspace/files/:fileId',
+  authMiddleware,
+  roleGuard(Role.CLIENT),
+  clientBlockMiddleware,
+  clientContractController.deleteWorkspaceFile.bind(clientContractController),
+);
+
 export default clientRouter;

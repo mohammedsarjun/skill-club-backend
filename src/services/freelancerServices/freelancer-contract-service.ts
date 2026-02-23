@@ -36,6 +36,7 @@ import { IContractActivityService } from '../commonServices/interfaces/contract-
 import { ERROR_MESSAGES } from '../../contants/error-constants';
 import { IContractTransaction } from '../../models/interfaces/contract-transaction.model.interface';
 import { IContract } from '../../models/interfaces/contract.model.interface';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 import {
   FreelancerCancellationRequestDTO,
   AcceptCancellationRequestDTO,
@@ -54,6 +55,7 @@ export class FreelancerContractService implements IFreelancerContractService {
   private _cancellationRequestRepository: ICancellationRequestRepository;
   private _disputeRepository: IDisputeRepository;
   private _contractActivityService: IContractActivityService;
+  private _notificationService: INotificationService;
 
   constructor(
     @inject('IContractRepository') contractRepository: IContractRepository,
@@ -63,12 +65,14 @@ export class FreelancerContractService implements IFreelancerContractService {
     cancellationRequestRepository: ICancellationRequestRepository,
     @inject('IDisputeRepository') disputeRepository: IDisputeRepository,
     @inject('IContractActivityService') contractActivityService: IContractActivityService,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._contractRepository = contractRepository;
     this._contractTransactionRepository = contractTransactionRepository;
     this._cancellationRequestRepository = cancellationRequestRepository;
     this._disputeRepository = disputeRepository;
     this._contractActivityService = contractActivityService;
+    this._notificationService = notificationService;
   }
 
   async getAllContracts(
@@ -226,6 +230,14 @@ export class FreelancerContractService implements IFreelancerContractService {
       },
     );
 
+    await this._notificationService.createAndEmitNotification(contract.clientId.toString(), {
+      role: 'client',
+      title: 'Deliverable Submitted',
+      message: `A freelancer has submitted a deliverable for contract "${contract.title}".`,
+      type: 'job',
+      relatedId: contractId,
+    });
+
     return FreelancerDeliverableMapper.toDeliverableResponseDTO(latestDeliverable, updatedContract);
   }
 
@@ -376,6 +388,14 @@ export class FreelancerContractService implements IFreelancerContractService {
       },
     );
 
+    await this._notificationService.createAndEmitNotification(contract.clientId.toString(), {
+      role: 'client',
+      title: 'Milestone Deliverable Submitted',
+      message: `A freelancer has submitted a deliverable for milestone "${milestone.title}".`,
+      type: 'job',
+      relatedId: contractId,
+    });
+
     return FreelancerMilestoneMapper.toMilestoneDeliverableResponseDTO(
       latestDeliverable,
       updatedMilestone,
@@ -468,6 +488,14 @@ export class FreelancerContractService implements IFreelancerContractService {
       `Extension requested for milestone: ${milestone.title}`,
     );
 
+    await this._notificationService.createAndEmitNotification(contract.clientId.toString(), {
+      role: 'client',
+      title: 'Milestone Extension Requested',
+      message: `A freelancer has requested an extension for milestone "${milestone.title}".`,
+      type: 'system',
+      relatedId: contractId,
+    });
+
     const updatedMilestone = updatedContract.milestones?.find(
       (m) => m._id?.toString() === data.milestoneId,
     );
@@ -552,6 +580,14 @@ export class FreelancerContractService implements IFreelancerContractService {
       undefined,
       `Extension requested for contract deadline`,
     );
+
+    await this._notificationService.createAndEmitNotification(contract.clientId.toString(), {
+      role: 'client',
+      title: 'Contract Extension Requested',
+      message: `A freelancer has requested a deadline extension for contract "${contract.title}".`,
+      type: 'system',
+      relatedId: contractId,
+    });
 
     if (!updatedContract.extensionRequest) {
       throw new AppError('Failed to retrieve extension request', HttpStatus.INTERNAL_SERVER_ERROR);
@@ -1152,5 +1188,42 @@ export class FreelancerContractService implements IFreelancerContractService {
     await this._contractRepository.updateStatusById(contractId, 'cancellation_requested');
 
     return toFreelancerCancellationRequestResponseDTO(cancellationRequest);
+  }
+
+  async uploadWorkspaceFile(
+    freelancerId: string,
+    contractId: string,
+    fileData: { fileId: string; fileName: string; fileUrl: string; fileSize?: number; fileType?: string },
+  ): Promise<FreelancerContractDetailDTO> {
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract || contract.freelancerId.toString() !== freelancerId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    await this._contractRepository.addWorkspaceFile(contractId, {
+      ...fileData,
+      uploadedBy: new Types.ObjectId(freelancerId) as any,
+      uploadedAt: new Date(),
+    });
+    return this.getContractDetail(freelancerId, contractId);
+  }
+
+  async deleteWorkspaceFile(
+    freelancerId: string,
+    contractId: string,
+    fileId: string,
+  ): Promise<FreelancerContractDetailDTO> {
+    const contract = await this._contractRepository.findById(contractId);
+    if (!contract || contract.freelancerId.toString() !== freelancerId) {
+      throw new AppError(ERROR_MESSAGES.CONTRACT.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const file = contract.workspaceFiles?.find((f) => f.fileId === fileId);
+    if (!file) {
+      throw new AppError('File not found', HttpStatus.NOT_FOUND);
+    }
+    if (file.uploadedBy.toString() !== freelancerId) {
+      throw new AppError('Unauthorized to delete this file', HttpStatus.FORBIDDEN);
+    }
+    await this._contractRepository.deleteWorkspaceFile(contractId, fileId);
+    return this.getContractDetail(freelancerId, contractId);
   }
 }

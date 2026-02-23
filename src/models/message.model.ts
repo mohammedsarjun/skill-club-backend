@@ -43,7 +43,7 @@ const messageSchema = new Schema<IMessageDocument>(
     },
     message: {
       type: String,
-      required: true,
+      default: "",
     },
     attachments: [
       {

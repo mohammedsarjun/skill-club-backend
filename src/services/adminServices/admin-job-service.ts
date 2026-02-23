@@ -16,15 +16,20 @@ import {
   PaginatedAdminJobDto,
 } from '../../dto/adminDTO/admin-job.dto';
 import { mapJobQuery } from '../../mapper/commonMapper/common-job-mapper';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 @injectable()
 export class AdminJobService implements IAdminJobService {
   private _jobRepository: IJobRepository;
+  private _notificationService: INotificationService;
 
   constructor(
     @inject('IJobRepository')
     jobRepository: IJobRepository,
+    @inject('INotificationService')
+    notificationService: INotificationService,
   ) {
     this._jobRepository = jobRepository;
+    this._notificationService = notificationService;
   }
 
   async getAllJobs(queryParams: JobQueryParams): Promise<PaginatedAdminJobDto> {
@@ -77,6 +82,16 @@ export class AdminJobService implements IAdminJobService {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
 
+    const clientIdStr = (updatedJob.clientId as any)._id?.toString() || updatedJob.clientId.toString();
+
+    await this._notificationService.createAndEmitNotification(clientIdStr, {
+      role: 'client',
+      title: 'Job Approved',
+      message: `Your job "${updatedJob.title}" has been approved and is now open.`,
+      type: 'job',
+      relatedId: jobId,
+    });
+
     const updatedJobDto: AdminJobDetailResponseDTO =
       mapJobModelToAdminJobDetailResponseDTO(updatedJob);
 
@@ -99,6 +114,16 @@ export class AdminJobService implements IAdminJobService {
     if (!updatedJob) {
       throw new AppError(ERROR_MESSAGES.JOB.NOT_FOUND, HttpStatus.NOT_FOUND);
     }
+
+    const clientIdStr = (updatedJob.clientId as any)._id?.toString() || updatedJob.clientId.toString();
+
+    await this._notificationService.createAndEmitNotification(clientIdStr, {
+      role: 'client',
+      title: 'Job Rejected',
+      message: `Your job "${updatedJob.title}" has been rejected. Reason: ${rejectedReason}`,
+      type: 'job',
+      relatedId: jobId,
+    });
 
     const updatedJobDto: AdminJobDetailResponseDTO =
       mapJobModelToAdminJobDetailResponseDTO(updatedJob);
