@@ -211,5 +211,7 @@ export const MESSAGES = {
     HOURLY_RATE_UPDATED: 'Freelancer Hourly Rate Update Succcessfully',
     EDUCATION_UPDATED: 'Freelancer Education Update Succcessfully',
     EDUCATION_DELETED: 'Freelancer Education Deleted Succcessfully',
+    LOGO_UPDATED: 'Freelancer Logo Updated Successfully',
+    NAME_UPDATED: 'Freelancer Name Updated Successfully',
   },
 };

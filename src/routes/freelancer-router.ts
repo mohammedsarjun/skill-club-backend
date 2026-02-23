@@ -103,6 +103,22 @@ freelancerRouter.delete(
   freelancerController.deleteFreelancerEducation.bind(freelancerController),
 );
 
+freelancerRouter.patch(
+  '/profile/logo',
+  authMiddleware,
+  roleGuard(Role.FREELANCER),
+  freelancerBlockMiddleware,
+  freelancerController.updateFreelancerLogo.bind(freelancerController),
+);
+
+freelancerRouter.patch(
+  '/profile/name',
+  authMiddleware,
+  roleGuard(Role.FREELANCER),
+  freelancerBlockMiddleware,
+  freelancerController.updateFreelancerName.bind(freelancerController),
+);
+
 freelancerRouter.delete(
   '/profile/portfolio',
   authMiddleware,

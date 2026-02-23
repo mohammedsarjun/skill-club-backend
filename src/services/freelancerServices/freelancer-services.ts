@@ -386,4 +386,24 @@ export class FreelancerService implements IFreelancerService {
       skills: updatedUser.freelancerProfile.skills as Types.ObjectId[],
     });
   }
+
+  async updateFreelancerName(freelancerId: string, name: string): Promise<string | null> {
+    const freelancerData = await this._freelancerRepository.getFreelancerById(freelancerId);
+    if (!freelancerData) {
+      throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const updatedUser = await this._freelancerRepository.updateFreelancerName(freelancerId, name);
+    return updatedUser ? `${updatedUser.firstName} ${updatedUser.lastName}`.trim() : null;
+  }
+
+  async updateFreelancerLogo(freelancerId: string, logoUrl: string): Promise<string | null> {
+    const freelancerData = await this._freelancerRepository.getFreelancerById(freelancerId);
+    if (!freelancerData || !freelancerData.freelancerProfile) {
+      throw new AppError(ERROR_MESSAGES.FREELANCER.NOT_FOUND, HttpStatus.NOT_FOUND);
+    }
+    const updatedUser = await this._freelancerRepository.updateFreelancerProfile(freelancerId, {
+      'freelancerProfile.logo': logoUrl,
+    });
+    return updatedUser?.freelancerProfile?.logo || null;
+  }
 }

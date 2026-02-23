@@ -54,4 +54,7 @@ export interface IFreelancerService {
     freelancerId: string,
     expertiseData: UpdateExpertiseDTO,
   ): Promise<ExpertiseResponseDTO>;
+
+  updateFreelancerName(freelancerId: string, name: string): Promise<string | null>;
+  updateFreelancerLogo(freelancerId: string, logoUrl: string): Promise<string | null>;
 }
