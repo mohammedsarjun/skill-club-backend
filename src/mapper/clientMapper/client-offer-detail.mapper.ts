@@ -39,7 +39,9 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     createdAt: offer.createdAt!,
     expiresAt: offer.expiresAt,
     jobId: offer.jobId?.toString(),
-    proposalId: offer.proposalId?.toString(),
+    proposalId: offer.proposalId
+      ? ((offer.proposalId as unknown as { _id?: { toString(): string } })._id?.toString() ?? String(offer.proposalId))
+      : undefined,
     jobTitle: jobPop?.title,
     freelancer:
       typeof offer.freelancerId === 'object' && offer.freelancerId !== null

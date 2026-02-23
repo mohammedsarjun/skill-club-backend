@@ -57,7 +57,9 @@ export const mapOfferModelToFreelancerOfferDetailDTO = (
   return {
     ...base,
     jobId: offer.jobId?.toString(),
-    proposalId: offer.proposalId?.toString(),
+    proposalId: offer.proposalId
+      ? ((offer.proposalId as unknown as { _id?: { toString(): string } })._id?.toString() ?? String(offer.proposalId))
+      : undefined,
     jobTitle: jobPop?.title,
     clientCountry: clientPop?.address?.country,
     clientCompanyName: clientPop?.clientProfile?.companyName,
