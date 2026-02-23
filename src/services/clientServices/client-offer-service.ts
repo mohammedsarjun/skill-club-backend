@@ -12,6 +12,7 @@ import { IProposalRepository } from '../../repositories/interfaces/proposal-repo
 import { DirectOfferStrategy } from './strategies/offerStrategies/direct-offer-strategy';
 import { ProposalOfferStrategy } from './strategies/offerStrategies/proposal-offer-strategy';
 import { IOfferCreationStrategy } from './strategies/offerStrategies/offer-creation-strategy.interface';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 import { mapOfferModelToClientOfferResponseDTO } from '../../mapper/clientMapper/client-offer.mapper';
 import { mapOfferModelToClientOfferListItemDTO } from '../../mapper/clientMapper/client-offer-list.mapper';
 import {
@@ -28,12 +29,15 @@ import { Types } from 'mongoose';
 export class ClientOfferService implements IClientOfferService {
   private _offerRepository: IOfferRepository;
   private _proposalRepository: IProposalRepository;
+  private _notificationService: INotificationService;
   constructor(
     @inject('IOfferRepository') offerRepository: IOfferRepository,
     @inject('IProposalRepository') proposalRepository: IProposalRepository,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._offerRepository = offerRepository;
     this._proposalRepository = proposalRepository;
+    this._notificationService = notificationService;
   }
 
   async getOfferDetail(clientId: string, offerId: string): Promise<ClientOfferDetailDTO | null> {
@@ -128,6 +132,14 @@ export class ClientOfferService implements IClientOfferService {
       await this._proposalRepository.updateStatusById(parsed.proposalId, 'offer_sent');
     }
 
+    await this._notificationService.createAndEmitNotification(parsed.freelancerId.toString(), {
+      role: 'freelancer',
+      title: 'New Offer Received',
+      message: 'You have received a new offer from a client.',
+      type: 'job',
+      relatedId: created._id?.toString(),
+    });
+
     return mapOfferModelToClientOfferResponseDTO(created);
   }
 
@@ -151,6 +163,17 @@ export class ClientOfferService implements IClientOfferService {
     }
 
     await this._offerRepository.updateStatusById(offerId, 'withdrawn');
+    
+    const targetFreelancerId = (existing.freelancerId as any)._id?.toString() || existing.freelancerId.toString();
+
+    await this._notificationService.createAndEmitNotification(targetFreelancerId, {
+      role: 'freelancer',
+      title: 'Offer Withdrawn',
+      message: 'A client has withdrawn their offer.',
+      type: 'job',
+      relatedId: existing._id?.toString(),
+    });
+
     return { withdrawn: true };
   }
 }

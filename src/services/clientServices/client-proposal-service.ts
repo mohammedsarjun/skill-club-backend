@@ -15,18 +15,22 @@ import {
 } from '../../mapper/clientMapper/client-proposal.mapper';
 import { ClientProposalResponseDTO } from '../../dto/clientDTO/client-proposal.dto';
 // import { mapRawQueryFiltersToProposalQueryParamsDTO } from 'src/mapper/clientMapper/client-proposal.mapper';
-// import { ERROR_MESSAGES } from 'src/contants/error-constants';
+import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
 
 @injectable()
 export class ClientProposalService implements IClientProposalService {
   private _proposalRepository: IProposalRepository;
   private _jobRepository: IJobRepository;
+  private _notificationService: INotificationService;
+
   constructor(
     @inject('IProposalRepository') proposalRepository: IProposalRepository,
     @inject('IJobRepository') jobRepository: IJobRepository,
+    @inject('INotificationService') notificationService: INotificationService,
   ) {
     this._proposalRepository = proposalRepository;
     this._jobRepository = jobRepository;
+    this._notificationService = notificationService;
   }
 
   async getAllProposal(
@@ -79,6 +83,16 @@ export class ClientProposalService implements IClientProposalService {
 
     // Update proposal status to 'rejected'
     await this._proposalRepository.updateStatusById(proposalId, 'rejected');
+
+    const targetFreelancerId = (proposal.freelancerId as any)._id?.toString() || proposal.freelancerId.toString();
+
+    await this._notificationService.createAndEmitNotification(targetFreelancerId, {
+      role: 'freelancer',
+      title: 'Proposal Rejected',
+      message: `Your proposal for the job "${job.title}" has been rejected by the client.`,
+      type: 'job',
+      relatedId: jobId,
+    });
 
     return { rejected: true };
   }
