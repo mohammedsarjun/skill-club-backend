@@ -182,6 +182,9 @@ export class JobRepository extends BaseRepository<IJob> implements IJobRepositor
           {
             $match: {
               $expr: { $eq: ['$revieweeId', '$$clientId'] },
+              reviewerRole: 'freelancer',
+              isDeleted: false,
+              isHideByAdmin: false,
             },
           },
         ],

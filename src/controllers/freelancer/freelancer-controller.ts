@@ -223,4 +223,27 @@ export class FreelancerController implements IFreelancerController {
       data: result,
     });
   }
+  async updateFreelancerLogo(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const { logo } = req.body;
+    const result = await this._freelancerService.updateFreelancerLogo(userId as string, logo);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.FREELANCER_PROFILE.LOGO_UPDATED,
+      data: result,
+    });
+  }
+
+  async updateFreelancerName(req: Request, res: Response): Promise<void> {
+    const userId = req.user?.userId;
+    const { name } = req.body;
+    const result = await this._freelancerService.updateFreelancerName(userId as string, name);
+
+    res.status(HttpStatus.OK).json({
+      success: true,
+      message: MESSAGES.FREELANCER_PROFILE.NAME_UPDATED,
+      data: result,
+    });
+  }
 }

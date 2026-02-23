@@ -20,7 +20,7 @@ import { IPortfolio } from '../../models/interfaces/portfolio.model.interface';
 export interface FreelancerModelQuery {
   roles?: string;
   $or?: Record<string, unknown>[];
-  _id?: { $ne: string };
+  _id?: { $ne: Types.ObjectId };
   isFreelancerBlocked?: boolean;
   'freelancerProfile.workCategory'?: Types.ObjectId;
   'freelancerProfile.specialties'?: Types.ObjectId;
@@ -39,8 +39,10 @@ export const mapClientQueryToFreelancerModelQuery = (
 
   query.roles = 'freelancer';
   query.isFreelancerBlocked = false;
+
+  console.log("client id",clientUserId)
   if (clientUserId) {
-    query._id = { $ne: clientUserId };
+    query._id = { $ne: new Types.ObjectId(clientUserId) };
   }
 
   if (freelancerQuery.search) {

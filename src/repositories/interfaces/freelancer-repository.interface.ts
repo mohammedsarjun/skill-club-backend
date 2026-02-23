@@ -24,6 +24,7 @@ export interface IFreelancerRepository extends BaseRepository<IUser> {
       })
     | null
   >;
+  updateFreelancerName(userId: string, name: string): Promise<IUser | null>;
   updateFreelancerProfile(userId: string, data: Record<string, unknown>): Promise<IUser | null>;
   addLanguageToFreelancerProfile(
     userId: string,

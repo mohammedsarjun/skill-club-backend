@@ -81,6 +81,27 @@ export class ReviewRepository extends BaseRepository<IReviewDocument> implements
     return result.length > 0 ? Number(result[0].averageRating.toFixed(1)) : 0;
   }
 
+  async getAverageRatingByClientId(clientId: string): Promise<number> {
+    const result = await Review.aggregate([
+      {
+        $match: {
+          revieweeId: new Types.ObjectId(clientId),
+          reviewerRole: 'freelancer',
+          isDeleted: false,
+          isHideByAdmin: false,
+        },
+      },
+      {
+        $group: {
+          _id: null,
+          averageRating: { $avg: '$rating' },
+        },
+      },
+    ]);
+
+    return result.length > 0 ? Number(result[0].averageRating.toFixed(1)) : 0;
+  }
+
   async getAllReviews(
     page: number,
     limit: number,

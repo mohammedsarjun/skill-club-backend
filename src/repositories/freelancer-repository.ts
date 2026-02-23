@@ -59,6 +59,12 @@ export class FreelancerRepository extends BaseRepository<IUser> implements IFree
       | null;
   }
 
+  async updateFreelancerName(userId: string, name: string): Promise<IUser | null> {
+    const [firstName, ...lastNameParts] = name.trim().split(' ');
+    const lastName = lastNameParts.join(' ');
+    return this.updateById(userId, { firstName, lastName });
+  }
+
   async addLanguageToFreelancerProfile(
     userId: string,
     language: UpdateLanguageDTO,
