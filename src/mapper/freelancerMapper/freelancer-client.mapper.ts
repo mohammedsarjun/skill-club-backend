@@ -4,11 +4,12 @@ import { IUser } from '../../models/interfaces/user.model.interface';
 export function mapuserModelToFreelancerClientMinimalDTO(
   userData: IUser,
   totalJobsPosted: number,
+  rating: number,
 ): FreelancerClientMinimalDTO {
   return {
     companyName: userData.clientProfile.companyName,
     country: userData?.address?.country,
-    rating: 0,
+    rating,
     totalJobsPosted,
   };
 }

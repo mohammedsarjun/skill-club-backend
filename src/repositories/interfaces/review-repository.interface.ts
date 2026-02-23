@@ -14,6 +14,7 @@ export interface IReviewRepository extends BaseRepository<IReviewDocument> {
     limit: number,
   ): Promise<{ reviews: IReviewDocument[]; total: number }>;
   getAverageRatingByFreelancerId(freelancerId: string): Promise<number>;
+  getAverageRatingByClientId(clientId: string): Promise<number>;
   getRecentReviewsForFreelancer(freelancerId: string, limit: number): Promise<IReviewDocument[]>;
   getAllReviews(
     page: number,

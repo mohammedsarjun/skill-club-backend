@@ -21,20 +21,24 @@ import {
   mapJobModelToFreelancerJobResponseDTO,
 } from '../../mapper/freelancerMapper/freelancer-job.mapper';
 import { IProposalRepository } from '../../repositories/interfaces/proposal-repository.interface';
+import { IReviewRepository } from '../../repositories/interfaces/review-repository.interface';
 
 @injectable()
 export class FreelancerJobService implements IFreelancerJobService {
   private _jobRepository: IJobRepository;
   private _clientRepository: IClientRepository;
   private _proposalRepository: IProposalRepository;
+  private _reviewRepository: IReviewRepository;
   constructor(
     @inject('IJobRepository') jobRepository: IJobRepository,
     @inject('IClientRepository') clientRepository: IClientRepository,
     @inject('IProposalRepository') proposalRepository: IProposalRepository,
+    @inject('IReviewRepository') reviewRepository: IReviewRepository,
   ) {
     this._jobRepository = jobRepository;
     this._clientRepository = clientRepository;
     this._proposalRepository = proposalRepository;
+    this._reviewRepository = reviewRepository;
   }
 
   async getAllJobs(
@@ -76,7 +80,8 @@ export class FreelancerJobService implements IFreelancerJobService {
 
     const userData = await this._clientRepository.getClientById(clientId._id);
     const totalJobsPosted = await this._jobRepository.countAllJobsByClientId(clientId._id);
-    const clientMinimalData = mapuserModelToFreelancerClientMinimalDTO(userData!, totalJobsPosted);
+    const clientRating = await this._reviewRepository.getAverageRatingByClientId(clientId._id);
+    const clientMinimalData = mapuserModelToFreelancerClientMinimalDTO(userData!, totalJobsPosted, clientRating);
     const isProposalAlreadySent = await this._proposalRepository.findProposalByFreelancerAndJobId(
       freelancerUserId,
       jobId,
