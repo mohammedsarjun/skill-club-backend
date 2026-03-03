@@ -27,7 +27,7 @@ export const mapOfferToContract = (offer: IOffer): Partial<IContract> => {
     clientId: offer.clientId,
     freelancerId: offer.freelancerId,
     jobId: offer.jobId,
-    proposalId: offer.proposalId,
+    proposalId: offer.proposalId?._id ,
     categoryId: offer.categoryId,
     paymentType: offer.paymentType,
     budget: offer.budget,

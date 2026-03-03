@@ -21,6 +21,7 @@ export class ProposalOfferStrategy implements IOfferCreationStrategy {
     const offer: Partial<IOffer> = {
       clientId: new Types.ObjectId(clientId),
       freelancerId: new Types.ObjectId(dto.freelancerId),
+      proposalId: new Types.ObjectId(dto.proposalId),
       offerType: 'proposal',
       title: dto.title,
       description: dto.description,
@@ -58,9 +59,6 @@ export class ProposalOfferStrategy implements IOfferCreationStrategy {
     };
 
     if (dto.proposalId) {
-      if (!Types.ObjectId.isValid(dto.proposalId)) {
-        throw new AppError('Invalid proposalId provided', HttpStatus.BAD_REQUEST);
-      }
       offer.proposalId = new Types.ObjectId(dto.proposalId);
     }
     if (dto.jobId) {

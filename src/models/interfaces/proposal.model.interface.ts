@@ -1,6 +1,7 @@
 import { Document, Types } from 'mongoose';
 
 export interface ProposalDetail {
+  proposalCode: string;
   freelancerId: Types.ObjectId;
   jobId: Types.ObjectId;
   hourlyRate?: number;

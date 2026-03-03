@@ -12,7 +12,7 @@ export function mapCreateProposalRequestDtoToProposalModel(
   createProposalRequestDto: CreateProposalRequestDto,
   rateType: 'hourly' | 'fixed',
   freelancerId: string,
-): ProposalDetail {
+): Omit<ProposalDetail, 'proposalCode'> {
   return {
     freelancerId: new Types.ObjectId(freelancerId),
     jobId: new Types.ObjectId(createProposalRequestDto.jobId),
