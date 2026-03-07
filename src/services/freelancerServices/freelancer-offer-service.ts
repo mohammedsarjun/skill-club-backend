@@ -194,7 +194,7 @@ export class FreelancerOfferService implements IFreelancerOfferService {
     const offer = await this._offerRepository.findOneForFreelancer(freelancerId, offerId);
     if (!offer) return null;
     const dto = mapOfferModelToFreelancerOfferDetailDTO(offer);
-
+    
     let clientJobsCount: number | undefined;
     const clientId = (
       offer.clientId as unknown as { _id?: { toString(): string } }

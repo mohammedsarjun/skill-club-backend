@@ -80,6 +80,7 @@ export class ClientOfferService implements IClientOfferService {
     clientId: string,
     offerData: ClientOfferRequestDTO,
   ): Promise<ClientOfferResponseDTO> {
+ 
     const parsed = validateData(offerValidationSchema, offerData);
 
     if (!Types.ObjectId.isValid(clientId)) {
@@ -129,6 +130,7 @@ export class ClientOfferService implements IClientOfferService {
 
     const created = await this._offerRepository.createOffer(baseOffer);
     if (inferredOfferType === 'proposal' && parsed.proposalId) {
+         console.log("proposal",parsed.proposalId)
       await this._proposalRepository.updateStatusById(parsed.proposalId, 'offer_sent');
     }
 

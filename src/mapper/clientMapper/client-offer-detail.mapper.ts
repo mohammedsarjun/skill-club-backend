@@ -27,7 +27,8 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     toString?: () => string;
   }>;
   const jobPop = offer.jobId as unknown as Partial<{ title?: string }>;
-
+  const proposalPop = offer.proposalId as unknown as Partial<{ proposalCode?: string }>;
+console.log(offer)
   return {
     offerId: rawId,
     title: offer.title,
@@ -39,9 +40,7 @@ export const mapOfferModelToClientOfferDetailDTO = (offer: IOffer): ClientOfferD
     createdAt: offer.createdAt!,
     expiresAt: offer.expiresAt,
     jobId: offer.jobId?.toString(),
-    proposalId: offer.proposalId
-      ? ((offer.proposalId as unknown as { _id?: { toString(): string } })._id?.toString() ?? String(offer.proposalId))
-      : undefined,
+    proposalId: proposalPop?.proposalCode ?? undefined,
     jobTitle: jobPop?.title,
     freelancer:
       typeof offer.freelancerId === 'object' && offer.freelancerId !== null

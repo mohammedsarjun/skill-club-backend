@@ -31,7 +31,7 @@ export interface OfferDetail {
   clientId: Types.ObjectId;
   freelancerId: Types.ObjectId;
   jobId?: Types.ObjectId;
-  proposalId?: Types.ObjectId;
+  proposalId?:Types.ObjectId;
   offerType: OfferType;
   title: string;
   description: string;
