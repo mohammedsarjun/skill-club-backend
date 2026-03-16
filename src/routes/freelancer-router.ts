@@ -213,6 +213,15 @@ freelancerRouter.get(
   freelancerProposalController.getMyProposals.bind(freelancerProposalController),
 );
 
+freelancerRouter.patch(
+  '/proposals/:proposalId',
+  authMiddleware,
+  roleGuard(Role.FREELANCER),
+  freelancerBlockMiddleware,
+  freelancerProposalController.updateProposal.bind(freelancerProposalController),
+);
+
+
 freelancerRouter.post(
   '/proposals',
   authMiddleware,

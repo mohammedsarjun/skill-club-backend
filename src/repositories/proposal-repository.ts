@@ -170,4 +170,12 @@ export class ProposalRepository extends BaseRepository<IProposal> implements IPr
   async countProposalsByJobId(jobId: string): Promise<number> {
     return await super.count({ jobId });
   }
+
+ async updateProposalHourlyRate(proposalId:string,hourlyRate:number):Promise<IProposal|null>{
+  return await super.updateById(proposalId,{hourlyRate})
+ }
+
+  async updateProposalRate(proposalId:string,proposedBudget:number):Promise<IProposal|null>{
+    return await super.updateById(proposalId,{proposedBudget})
+  }
 }

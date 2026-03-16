@@ -14,4 +14,6 @@ export interface IFreelancerProposalService {
     freelancerId: string,
     queryFilters: Record<string, unknown>,
   ): Promise<FreelancerProposalResponseDTO[] | null>;
+
+  updateProposal(proposalId:string,rate:number):Promise<FreelancerProposalResponseDTO|null>
 }

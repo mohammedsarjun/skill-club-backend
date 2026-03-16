@@ -35,4 +35,8 @@ export interface IProposalRepository extends BaseRepository<IProposal> {
   ): Promise<IProposal | null>;
   countPendingProposalsByClientId(clientId: string): Promise<number>;
   countProposalsByJobId(jobId: string): Promise<number>;
+
+    updateProposalHourlyRate(proposalId:string,hourlyRate:number):Promise<IProposal|null>
+
+  updateProposalRate(proposalId:string,proposedRate:number):Promise<IProposal|null>
 }

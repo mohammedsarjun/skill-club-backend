@@ -408,7 +408,7 @@ export class ClientContractService implements IClientContractService {
       throw new AppError('No funding transaction found', HttpStatus.BAD_REQUEST);
 
     const paymentAmount = fundingTransaction.amount;
-    const commission = Math.round(paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE); // 15% commission
+    const commission = paymentAmount * COMMISSION_CONFIG.PLATFORM_COMMISSION_RATE; // 15% commission
     const freelancerAmount = paymentAmount - commission;
 
     // Create release transaction for the full payment amount
