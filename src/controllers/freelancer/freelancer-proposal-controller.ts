@@ -55,4 +55,17 @@ export class FreelancerProposalController implements IFreelancerProposalControll
       data: result,
     });
   }
+
+  async updateProposal(req:Request,res:Response){
+    const proposalId=req.params.proposalId
+    const rate=req.body.rate
+
+    const result = await this._freelancerProposalService.updateProposal(proposalId,Number(rate))
+
+     res.status(HttpStatus.OK).json({
+      success: true,
+      message: 'proposal updated',
+      data: result,
+    });
+  }
 }

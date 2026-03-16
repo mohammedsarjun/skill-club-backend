@@ -21,13 +21,14 @@ import {
 } from '../../mapper/freelancerMapper/freelancer-proposal.mapper';
 import { mapRawQueryFiltersToProposalQueryParamsDTO } from '../../mapper/clientMapper/client-proposal.mapper';
 import { INotificationService } from '../commonServices/interfaces/notification-service.interface';
+import { Types } from 'mongoose';
 
 @injectable()
 export class FreelancerProposalService implements IFreelancerProposalService {
   private _proposalRepository: IProposalRepository;
   private _jobRepository: IJobRepository;
   private _notificationService: INotificationService;
-  
+
   constructor(
     @inject('IProposalRepository') proposalRepository: IProposalRepository,
     @inject('IJobRepository') jobRepository: IJobRepository,
@@ -124,5 +125,22 @@ export class FreelancerProposalService implements IFreelancerProposalService {
       mapProposalModelToFreelancerProposalResponseDTO,
     );
     return proposalResponseDTO || null;
+  }
+
+  async updateProposal(proposalId: string, rate: number): Promise<FreelancerProposalResponseDTO|null> {
+    const proposal = await this._proposalRepository.findOne({
+      _id: new Types.ObjectId(proposalId),
+    });
+  
+
+    if (proposal?.hourlyRate) {
+      this._proposalRepository.updateProposalHourlyRate(proposalId, rate);
+    } else {
+      this._proposalRepository.updateProposalRate(proposalId, rate);
+    }
+
+    return await this._proposalRepository.findOne({
+      _id: new Types.ObjectId(proposalId),
+    });
   }
 }
