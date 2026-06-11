@@ -76,7 +76,7 @@ const clientProfileSchema = new Schema({
 const userSchema = new Schema<IUser>(
   {
     firstName: { type: String, required: true },
-    lastName: { type: String, required: true },
+    lastName: { type: String},
     googleId: { type: String, required: false },
     email: { type: String, required: true, unique: true },
     phone: { type: Number, required: false },
